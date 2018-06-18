@@ -112,7 +112,13 @@ type Props = {|
 type State = {|
   isEditorLoading: boolean,
   currentModal: PublishModals | 'device-instructions' | 'embed' | 'edit-info' | 'shortcuts' | null,
-  currentBanner: 'connected' | 'disconnected' | 'reconnect' | 'slow-connection' | null,
+  currentBanner:
+    | 'connected'
+    | 'disconnected'
+    | 'reconnect'
+    | 'embed-unavailable'
+    | 'slow-connection'
+    | null,
   isDownloading: boolean,
   deviceLogsShown: boolean,
   fileTreeShown: boolean,
@@ -127,6 +133,9 @@ type State = {|
   description: string,
   shouldPreventRedirectWarning: boolean,
 |};
+
+const BANNER_TIMEOUT_SHORT = 1500;
+const BANNER_TIMEOUT_LONG = 5000;
 
 class EditorView extends React.Component<Props, State> {
   state = {
@@ -178,7 +187,7 @@ class EditorView extends React.Component<Props, State> {
         this.setState({
           currentBanner: 'connected',
         });
-        setTimeout(() => this.setState({ currentBanner: null }), 1000);
+        setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_SHORT);
       }
       if (this.props.connectedDevices.length > nextProps.connectedDevices.length) {
         if (nextProps.connectedDevices.length === 0) {
@@ -187,7 +196,7 @@ class EditorView extends React.Component<Props, State> {
           Segment.getInstance().logEvent('DISCONNECTED_DEVICE');
         }
         this.setState({ currentBanner: 'disconnected' });
-        setTimeout(() => this.setState({ currentBanner: null }), 1000);
+        setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_SHORT);
       }
     }
 
@@ -196,7 +205,7 @@ class EditorView extends React.Component<Props, State> {
         currentBanner: 'reconnect',
         // currentModal: 'device-instructions',
       });
-      setTimeout(() => this.setState({ currentBanner: null }), 5000);
+      setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_LONG);
     }
   }
 
@@ -386,9 +395,11 @@ class EditorView extends React.Component<Props, State> {
 
   _handleShowEmbedCode = () => {
     if (!this.props.params.id) {
-      // This shouldn't happen
+      this.setState({ currentBanner: 'embed-unavailable' });
+      setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_LONG);
       return;
     }
+
     Segment.getInstance().logEvent('REQUESTED_EMBED');
 
     this.setState({ currentModal: 'embed' });
@@ -581,7 +592,6 @@ class EditorView extends React.Component<Props, State> {
                 <EditorToolbar
                   name={name}
                   description={description}
-                  hasSnackId={hasSnackId}
                   isSaving={isSaving}
                   isDownloading={isDownloading}
                   isSaved={this._isSaved()}
@@ -758,6 +768,9 @@ class EditorView extends React.Component<Props, State> {
                 <Banner type="info" visible={currentBanner === 'slow-connection'}>
                   Slow network detected. Trying to load a basic version of the editor. Some features
                   such as linting and autocomplete may not work.
+                </Banner>
+                <Banner type="info" visible={currentBanner === 'embed-unavailable'}>
+                  You need to save the Snack first to get an Embed code!
                 </Banner>
                 {FeatureFlags.isAvailable('PROJECT_DEPENDENCIES', this.props.sdkVersion) ? (
                   <DependencyManager
