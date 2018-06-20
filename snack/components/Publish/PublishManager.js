@@ -5,9 +5,9 @@ import ModalAuthentication from '../Auth/ModalAuthentication';
 import ModalEditTitleAndDescription from '../ModalEditTitleAndDescription';
 import ModalPublishToProfile from './ModalPublishToProfile';
 import ModalSuccessfulPublish from './ModalSuccessfulPublish';
-import ModalSaveUnknownError from './ModalSaveUnknownError';
-import ModalSaveOverwriteError from './ModalSaveOverwriteError';
-import ModalSaving from './ModalSaving';
+import ModalPublishUnknownError from './ModalPublishUnknownError';
+import ModalPublishOverwriteError from './ModalPublishOverwriteError';
+import ModalPublishing from './ModalPublishing';
 import withAuth, { type AuthProps } from '../../auth/withAuth';
 import { isIntentionallyNamed } from '../../utils/projectNames';
 import * as Strings from '../../utils/strings';
@@ -18,12 +18,12 @@ export type PublishModals =
   | 'publish'
   | 'publish-edit-name'
   | 'publish-success'
-  | 'publish-saving'
-  | 'save-unknown-error'
-  | 'save-overwrite-experience-error'
+  | 'publish-working'
+  | 'publish-unknown-error'
+  | 'publish-overwrite-experience-error'
   | null;
 
-type SaveOptions = {
+type PublishOptions = {
   allowedOnProfile?: boolean,
 };
 
@@ -31,7 +31,7 @@ type Props = AuthProps & {
   name: string,
   description: string,
   onSubmitMetadata: (details: { name: string, description: string }) => Promise<void>,
-  onSaveAsync: (options: SaveOptions) => Promise<void>,
+  onPublishAsync: (options: PublishOptions) => Promise<void>,
   currentModal: ?string,
   onShowModal: (name: PublishModals) => mixed,
   onHideModal: () => mixed,
@@ -40,46 +40,46 @@ type Props = AuthProps & {
   sdkVersion: SDKVersion,
   nameHasChanged: boolean,
   children: ({
-    onSaveAsync: () => Promise<void>,
-    isSaving: boolean,
+    onPublishAsync: () => Promise<void>,
+    isPublishing: boolean,
   }) => React.Node,
 };
 
 type State = {
-  isSaving: boolean,
+  isPublishing: boolean,
   didDismissAuthFlow: boolean,
   isAllowedOnProfile: boolean,
 };
 
 class PublishManager extends React.Component<Props, State> {
   state = {
-    isSaving: false,
+    isPublishing: false,
     didDismissAuthFlow: false,
     isAllowedOnProfile:
       !!this.props.viewer && this.props.creatorUsername === this.props.viewer.username,
   };
 
-  _saveWithOptionsAsync = async (options: SaveOptions) => {
-    this.setState({ isSaving: true });
+  _publishWithOptionsAsync = async (options: PublishOptions) => {
+    this.setState({ isPublishing: true });
 
     try {
-      await this.props.onSaveAsync(options);
+      await this.props.onPublishAsync(options);
     } catch (e) {
       if (/Experience .+ already exists/.test(e.message)) {
-        this.props.onShowModal('save-overwrite-experience-error');
+        this.props.onShowModal('publish-overwrite-experience-error');
       } else {
-        this.props.onShowModal('save-unknown-error');
+        this.props.onShowModal('publish-unknown-error');
       }
 
       throw e;
     } finally {
-      this.setState({ isSaving: false });
+      this.setState({ isPublishing: false });
     }
   };
 
   _publishAndShowSuccess = async () => {
     if (this.props.viewer) {
-      await this._saveWithOptionsAsync({
+      await this._publishWithOptionsAsync({
         allowedOnProfile: this.state.isAllowedOnProfile,
       });
 
@@ -110,16 +110,16 @@ class PublishManager extends React.Component<Props, State> {
   };
 
   _handleSkipEdit = () => {
-    this.props.onShowModal('publish-saving');
+    this.props.onShowModal('publish-working');
     this._publishAndShowSuccess();
   };
 
-  _handleSaveAsync = async () => {
+  _handlePublishAsync = async () => {
     // TODO: remove this, this is a patch for bad prod behaviour where users cannot save their own snack
     const savingOwnSnack =
       this.props.viewer && this.props.viewer.username === this.props.creatorUsername;
 
-    await this._saveWithOptionsAsync({
+    await this._publishWithOptionsAsync({
       allowedOnProfile:
         savingOwnSnack || (this.state.isAllowedOnProfile && !this.props.nameHasChanged),
     });
@@ -144,16 +144,19 @@ class PublishManager extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        {children({ onSaveAsync: this._handleSaveAsync, isSaving: this.state.isSaving })}
+        {children({
+          onPublishAsync: this._handlePublishAsync,
+          isPublishing: this.state.isPublishing,
+        })}
         <ModalEditTitleAndDescription
           visible={currentModal === 'publish-edit-name'}
-          title="Save your Snack"
+          title="Publish your Snack"
           onDismiss={this._handleHideAuthFlowModal}
           name={name}
           description={description}
           onSubmit={this._handleSubmitMetadata}
           onSkip={this._handleSkipEdit}
-          isSaving={this.state.isSaving}
+          isPublishing={this.state.isPublishing}
         />
         <ModalAuthentication
           visible={currentModal === 'auth'}
@@ -165,20 +168,20 @@ class PublishManager extends React.Component<Props, State> {
           onDismiss={this._handleHideAuthFlowModal}
           snackUrl={snackId ? `https://snack.expo.io/${snackId}` : undefined}
           onPublish={this._handlePublishToProfile}
-          isSaving={this.state.isSaving}
+          isPublishing={this.state.isPublishing}
         />
         <ModalSuccessfulPublish
           visible={currentModal === 'publish-success'}
           viewer={viewer}
           onDismiss={onHideModal}
         />
-        <ModalSaveUnknownError
-          visible={currentModal === 'save-unknown-error'}
+        <ModalPublishUnknownError
+          visible={currentModal === 'publish-unknown-error'}
           onDismiss={onHideModal}
         />
-        <ModalSaving visible={currentModal === 'publish-saving'} onDismiss={onHideModal} />
-        <ModalSaveOverwriteError
-          visible={currentModal === 'save-overwrite-experience-error'}
+        <ModalPublishing visible={currentModal === 'publish-working'} onDismiss={onHideModal} />
+        <ModalPublishOverwriteError
+          visible={currentModal === 'publish-overwrite-experience-error'}
           onDismiss={onHideModal}
           username={viewer && viewer.username}
           slug={name}

@@ -13,7 +13,7 @@ type Props = {
 export const Shortcuts = [
   {
     type: 'save',
-    description: 'Save changes',
+    description: 'Publish changes',
     combo: [KeyMap.Meta, KeyMap.S],
   },
   {

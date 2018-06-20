@@ -10,14 +10,16 @@ type Props = {|
   onDismiss: () => mixed,
 |};
 
-export default class ModalSaveUnknownError extends React.PureComponent<Props> {
+export default class ModalPublishUnknownError extends React.PureComponent<Props> {
   render() {
     return (
       <ModalDialog
         visible={this.props.visible}
         onDismiss={this.props.onDismiss}
-        title="Couldn't save the Snack!">
-        <p className={css(styles.text)}>An unknown error occurred when saving your Snack. Please try again later.</p>
+        title="Couldn't publish the Snack!">
+        <p className={css(styles.text)}>
+          An unknown error occurred when publishing your Snack. Please try again later.
+        </p>
       </ModalDialog>
     );
   }

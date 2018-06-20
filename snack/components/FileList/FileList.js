@@ -27,7 +27,6 @@ import selectEntry from '../../actions/selectEntry';
 import openEntry from '../../actions/openEntry';
 import updateEntry from '../../actions/updateEntry';
 import { isPackageJson, getUniquePath, isInsideFolder } from '../../utils/fileUtilities';
-import colors from '../../configs/colors';
 import type { SDKVersion } from '../../configs/sdk';
 import type { FileSystemEntry, TextFileEntry, AssetFileEntry } from '../../types';
 
@@ -39,7 +38,7 @@ type Props = {
   entries: Array<FileSystemEntry>,
   uploadFileAsync: (file: File) => Promise<string>,
   onDownloadCode: () => Promise<void>,
-  isSaved: boolean,
+  isPublished: boolean,
   hasSnackId: boolean,
   sdkVersion: SDKVersion,
   theme: ThemeName,
@@ -320,7 +319,7 @@ class FileList extends React.PureComponent<Props, State> {
                       onImportFilesClick={onImportStart}
                       onImportRepoClick={this._handleShowRepoManager}
                       onExportClick={this.props.onDownloadCode}
-                      isSaved={this.props.isSaved}
+                      isPublished={this.props.isPublished}
                       hasSnackId={this.props.hasSnackId}
                     />,
                   ]}>

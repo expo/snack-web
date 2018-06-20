@@ -14,18 +14,19 @@ import SearchButton from './Search/SearchButton';
 type Props = {|
   name: string,
   description: string,
-  isSaving: boolean,
+  hasSnackId: boolean,
+  isPublishing: boolean,
   isDownloading: boolean,
-  isSaved: boolean,
+  isPublished: boolean,
   isResolving: boolean,
   isEditModalVisible: boolean,
   onShowEditModal: () => mixed,
-  onSaveEditModal: (details: { name: string, description: string }) => mixed,
+  onSubmitEditModal: (details: { name: string, description: string }) => mixed,
   onDismissEditModal: () => mixed,
   onShowEmbedCode: () => void,
   onDownloadCode: () => Promise<void>,
   onShowQRCode: () => void,
-  onSaveAsync: () => Promise<void>,
+  onPublishAsync: () => Promise<void>,
   creatorUsername?: string,
 |};
 
@@ -34,18 +35,18 @@ export default class EditorToolbar extends React.PureComponent<Props, void> {
     const {
       name,
       description,
-      isSaving,
-      isSaved,
+      isPublishing,
       isDownloading,
+      isPublished,
       isResolving,
       isEditModalVisible,
       onShowEditModal,
-      onSaveEditModal,
+      onSubmitEditModal,
       onDismissEditModal,
       onShowEmbedCode,
       onDownloadCode,
       onShowQRCode,
-      onSaveAsync,
+      onPublishAsync,
       creatorUsername,
     } = this.props;
 
@@ -58,7 +59,7 @@ export default class EditorToolbar extends React.PureComponent<Props, void> {
               description={description}
               isEditModalVisible={isEditModalVisible}
               onShowEditModal={onShowEditModal}
-              onSaveEditModal={onSaveEditModal}
+              onSubmitEditModal={onSubmitEditModal}
               onDismissEditModal={onDismissEditModal}
             />
           ) : (
@@ -76,7 +77,7 @@ export default class EditorToolbar extends React.PureComponent<Props, void> {
             title="Export to XDE"
             label="Export"
             onClick={onDownloadCode}
-            disabled={isDownloading || isSaving}>
+            disabled={isDownloading || isPublishing}>
             <svg width="24px" height="16px" viewBox="0 0 24 16">
               <g transform="translate(-5976.000000, -4236.000000)">
                 <path
@@ -96,11 +97,11 @@ export default class EditorToolbar extends React.PureComponent<Props, void> {
           </IconButton>
           <Button
             variant="accent"
-            onClick={onSaveAsync}
-            disabled={isSaving || isResolving || isSaved}
-            loading={isSaving}
+            onClick={onPublishAsync}
+            disabled={isPublishing || isResolving || isPublished}
+            loading={isPublishing}
             className={css(styles.saveButton)}>
-            {isSaving ? 'Saving…' : isSaved ? 'Changes saved' : 'Save changes'}
+            {isPublishing ? 'Publishing…' : isPublished ? 'Published' : 'Publish changes'}
           </Button>
         </div>
       </ToolbarShell>
@@ -117,6 +118,6 @@ const styles = StyleSheet.create({
   },
 
   saveButton: {
-    minWidth: 128,
+    minWidth: 140,
   },
 });

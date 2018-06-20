@@ -15,7 +15,7 @@ type Props = {
   isEditModalVisible: boolean,
   onShowEditModal: () => mixed,
   onDismissEditModal: () => mixed,
-  onSaveEditModal: (details: { name: string, description: string }) => mixed,
+  onSubmitEditModal: (details: { name: string, description: string }) => mixed,
   theme: ThemeName,
 };
 
@@ -42,7 +42,7 @@ class EditorTitle extends React.PureComponent<Props> {
           visible={this.props.isEditModalVisible}
           onDismiss={this.props.onDismissEditModal}
           onSubmit={details => {
-            this.props.onSaveEditModal(details);
+            this.props.onSubmitEditModal(details);
             this.props.onDismissEditModal();
           }}
           description={this.props.description}

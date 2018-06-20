@@ -50,8 +50,7 @@ export default class App extends React.Component {
     return (
       <View style={styles.container}>
         <Text style={styles.paragraph}>
-          Change code in the editor and watch it change on your phone!
-          Save to get a shareable url.
+          Change code in the editor and watch it change on your phone! Publish to get a shareable url.
         </Text>
         <Card title="Local Modules">
           <AssetExample />
@@ -288,8 +287,6 @@ class App extends React.Component<Props, State> {
       wasUpgraded,
     };
   }
-
-  state: State;
 
   componentDidMount() {
     if (window.location.host.includes('expo.io')) {
@@ -739,7 +736,7 @@ class App extends React.Component<Props, State> {
   };
 
   // TODO: (tc) Remove flowFixMe once types.js has been fixed
-  _handleSaveAsync = async (options: { allowedOnProfile?: boolean }) => {
+  _handlePublishAsync = async (options: { allowedOnProfile?: boolean }) => {
     // Send updated code first
     this._sendCodeNotDebounced();
 
@@ -855,7 +852,7 @@ class App extends React.Component<Props, State> {
                 name={this.state.snackSessionState.name}
                 description={this.state.snackSessionState.description}
                 sdkVersion={this.state.snackSessionState.sdkVersion}
-                isSaved={this.state.snackSessionState.isSaved}
+                isPublished={this.state.snackSessionState.isSaved}
                 isResolving={this.state.snackSessionState.isResolving}
                 loadingMessage={this.state.snackSessionState.loadingMessage}
                 dependencies={this.state.snackSessionState.dependencies}
@@ -866,7 +863,7 @@ class App extends React.Component<Props, State> {
                 onChangeDescription={this._handleChangeDescription}
                 onChangeSDKVersion={this._handleChangeSDKVersion}
                 onClearDeviceLogs={this._handleClearDeviceLogs}
-                onSaveAsync={this._handleSaveAsync}
+                onPublishAsync={this._handlePublishAsync}
                 onSignIn={this._updateUser}
                 onDownloadAsync={this._handleDownloadAsync}
                 uploadFileAsync={this._uploadAssetAsync}

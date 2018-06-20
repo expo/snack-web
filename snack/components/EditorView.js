@@ -76,7 +76,7 @@ type Props = PreferencesContextType & {|
     platform?: 'android' | 'ios',
   },
   channel: string,
-  isSaved: boolean,
+  isPublished: boolean,
   isResolving: boolean,
   loadingMessage: ?string,
   sessionID: ?string,
@@ -90,7 +90,7 @@ type Props = PreferencesContextType & {|
   onChangeName: (name: string) => void,
   onChangeDescription: (description: string) => void,
   onChangeSDKVersion: (sdkVersion: SDKVersion) => void,
-  onSaveAsync: (options: { allowedOnProfile?: boolean }) => Promise<void>,
+  onPublishAsync: (options: { allowedOnProfile?: boolean }) => Promise<void>,
   onDownloadAsync: () => Promise<void>,
   onSignIn: () => Promise<void>,
   uploadFileAsync: (file: File) => Promise<string>,
@@ -199,12 +199,12 @@ class EditorView extends React.Component<Props, State> {
     window.removeEventListener('beforeunload', this._handleUnload);
   }
 
-  _isSaved = () => {
-    return this.props.isSaved && this.props.name === this.state.name;
+  _isPublished = () => {
+    return this.props.isPublished && this.props.name === this.state.name;
   };
 
   _handleUnload = (e: any) => {
-    if (this._isSaved() || this.state.shouldPreventRedirectWarning) {
+    if (this._isPublished() || this.state.shouldPreventRedirectWarning) {
       this._allowRedirectWarning();
       return;
     }
@@ -320,11 +320,11 @@ class EditorView extends React.Component<Props, State> {
     this.setState({ currentModal: 'embed' });
   };
 
-  _handleSaveAsync = async (options: *) => {
+  _handlePublishAsync = async (options: *) => {
     this.props.onChangeName(this.state.name);
     this.props.onChangeDescription(this.state.description);
 
-    await this.props.onSaveAsync(options);
+    await this.props.onPublishAsync(options);
   };
 
   _handleOpenPath = (path: string): Promise<void> =>
@@ -466,18 +466,18 @@ class EditorView extends React.Component<Props, State> {
           name={name}
           description={description}
           onSubmitMetadata={this._handleSubmitMetadata}
-          onSaveAsync={this._handleSaveAsync}
+          onPublishAsync={this._handlePublishAsync}
           onShowModal={this._handleShowModal}
           onHideModal={this._handleHideModal}
           currentModal={currentModal}
           nameHasChanged={this.props.name !== this.state.name}>
-          {({ onSaveAsync, isSaving }) => {
+          {({ onPublishAsync, isPublishing }) => {
             const handleDownloadCode = async () => {
               // Make sure file is saved before downloading
               this.setState({ isDownloading: true });
 
-              if (!this._isSaved()) {
-                await onSaveAsync();
+              if (!this._isPublished()) {
+                await onPublishAsync();
               }
 
               Segment.getInstance().logEvent('DOWNLOADED_CODE');
@@ -493,7 +493,9 @@ class EditorView extends React.Component<Props, State> {
                   bindings={Shortcuts}
                   onTrigger={({ type }: *) => {
                     const commands = {
-                      save: this._isSaved() ? null : this.props.isResolving ? null : onSaveAsync,
+                      save: this._isPublished()
+                        ? null
+                        : this.props.isResolving ? null : onPublishAsync,
                       tree: this._toggleFileTree,
                       panels: this._togglePanels,
                       format: this._prettier,
@@ -506,18 +508,18 @@ class EditorView extends React.Component<Props, State> {
                 <EditorToolbar
                   name={name}
                   description={description}
-                  isSaving={isSaving}
+                  isPublishing={isPublishing}
                   isDownloading={isDownloading}
-                  isSaved={this._isSaved()}
+                  isPublished={this._isPublished()}
                   isResolving={this.props.isResolving}
                   isEditModalVisible={currentModal === 'edit-info'}
                   onShowEditModal={this._handleShowTitleDescriptionModal}
                   onDismissEditModal={this._handleDismissEditModal}
-                  onSaveEditModal={this._handleSubmitMetadata}
+                  onSubmitEditModal={this._handleSubmitMetadata}
                   onShowQRCode={this._handleShowDeviceInstructions}
                   onShowEmbedCode={this._handleShowEmbedCode}
                   onDownloadCode={handleDownloadCode}
-                  onSaveAsync={onSaveAsync}
+                  onPublishAsync={onPublishAsync}
                   creatorUsername={this.props.creatorUsername}
                 />
                 <div className={css(styles.editorAreaOuterWrapper)}>
@@ -533,7 +535,7 @@ class EditorView extends React.Component<Props, State> {
                         onDownloadCode={handleDownloadCode}
                         preventRedirectWarning={this._preventRedirectWarning}
                         hasSnackId={hasSnackId}
-                        isSaved={this._isSaved()}
+                        isPublished={this._isPublished()}
                         sdkVersion={sdkVersion}
                       />
                       {/* Don't load it conditionally since we need the _EditorComponent object to be available */}

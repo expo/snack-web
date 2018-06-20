@@ -13,7 +13,7 @@ type Props = {|
   visible: boolean,
   snackUrl?: string,
   zipUrl?: string,
-  isSaving: boolean,
+  isPublishing: boolean,
   onDismiss: () => mixed,
   onPublish: () => mixed,
 |};
@@ -45,7 +45,7 @@ class ModalPublishToProfile extends React.PureComponent<Props> {
     return (
       <ModalDialog
         visible={this.props.visible}
-        title="Save your snack"
+        title="Publish your snack"
         onDismiss={this.props.onDismiss}>
         <p className={css(styles.text)} style={{ marginTop: 16 }}>
           The shareable link to your Snack{' '}
@@ -60,7 +60,7 @@ class ModalPublishToProfile extends React.PureComponent<Props> {
           large
           variant="secondary"
           onClick={this.props.onPublish}
-          loading={this.props.isSaving}>
+          loading={this.props.isPublishing}>
           {cta}
         </Button>
         {this.props.zipUrl ? (

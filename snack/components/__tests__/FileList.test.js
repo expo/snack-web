@@ -26,7 +26,7 @@ it('renders children', () => {
       onDownloadCode={jest.fn()}
       preventRedirectWarning={jest.fn()}
       hasSnackId={false}
-      isSaved={false}
+      isPublished={false}
       sdkVersion="28.0.0"
       visible
     />
@@ -57,7 +57,7 @@ it('closes entry', () => {
       onDownloadCode={jest.fn()}
       preventRedirectWarning={jest.fn()}
       hasSnackId={false}
-      isSaved={false}
+      isPublished={false}
       sdkVersion="28.0.0"
       visible
     />
@@ -104,7 +104,7 @@ it('deletes entry', () => {
       onDownloadCode={jest.fn()}
       preventRedirectWarning={jest.fn()}
       hasSnackId={false}
-      isSaved={false}
+      isPublished={false}
       sdkVersion="28.0.0"
       visible
     />
@@ -131,7 +131,7 @@ it('copies item to clipboard', () => {
       onDownloadCode={jest.fn()}
       preventRedirectWarning={jest.fn()}
       hasSnackId={false}
-      isSaved={false}
+      isPublished={false}
       sdkVersion="28.0.0"
       visible
     />

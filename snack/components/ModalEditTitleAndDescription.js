@@ -21,7 +21,7 @@ type Props = {|
   onDismiss: () => mixed,
   description: ?string,
   name: string,
-  isSaving?: boolean,
+  isPublishing?: boolean,
 |};
 
 type State = {
@@ -57,7 +57,7 @@ export default class ModalEditTitleAndDescription extends React.Component<Props,
       : new Error('Name cannot be empty.');
 
   render() {
-    const { visible, onSkip, onDismiss, isSaving } = this.props;
+    const { visible, onSkip, onDismiss, isPublishing } = this.props;
 
     return (
       <ModalDialog visible={visible} title={this.props.title} onDismiss={onDismiss}>
@@ -78,8 +78,8 @@ export default class ModalEditTitleAndDescription extends React.Component<Props,
             default={defaults.DEFAULT_DESCRIPTION}
           />
           <div className={css(styles.buttons)}>
-            <FormButton type="submit" large variant="secondary" loading={isSaving}>
-              Save
+            <FormButton type="submit" large variant="secondary" loading={isPublishing}>
+              Publish
             </FormButton>
           </div>
           {onSkip ? (

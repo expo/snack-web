@@ -10,7 +10,7 @@ type Props = {
   onImportRepoClick: () => mixed,
   onExportClick: () => mixed,
   hasSnackId: boolean,
-  isSaved: boolean,
+  isPublished: boolean,
 };
 
 type State = {
@@ -94,7 +94,7 @@ export default class FileListImportExportMenu extends React.PureComponent<Props,
             {
               label: 'Export project',
               handler: this.props.onExportClick,
-              disabled: !(this.props.isSaved && this.props.hasSnackId),
+              disabled: !(this.props.isPublished && this.props.hasSnackId),
             },
           ]}
           onHide={this._hideContextMenu}

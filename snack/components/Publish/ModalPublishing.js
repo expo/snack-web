@@ -13,7 +13,7 @@ type Props = {|
   theme: ThemeName,
 |};
 
-class ModalSaving extends React.PureComponent<Props> {
+class ModalPublishing extends React.PureComponent<Props> {
   render() {
     return (
       <ModalDialog
@@ -36,7 +36,7 @@ class ModalSaving extends React.PureComponent<Props> {
   }
 }
 
-export default withThemeName(ModalSaving);
+export default withThemeName(ModalPublishing);
 
 const styles = StyleSheet.create({
   content: {
