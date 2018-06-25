@@ -118,6 +118,6 @@ const styles = StyleSheet.create({
   },
 
   saveButton: {
-    minWidth: 140,
+    minWidth: 132,
   },
 });

@@ -19,7 +19,7 @@ class ModalPublishing extends React.PureComponent<Props> {
       <ModalDialog
         visible={this.props.visible}
         onDismiss={this.props.onDismiss}
-        title="Saving Snack…">
+        title="Publishing Snack…">
         <div className={css(styles.content)}>
           <LoadingIndicator
             segmentLength={6}

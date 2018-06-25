@@ -39,6 +39,8 @@ class EditorTitle extends React.PureComponent<Props> {
           </p>
         </div>
         <ModalEditTitleAndDescription
+          title="Edit Snack Details"
+          action="Done"
           visible={this.props.isEditModalVisible}
           onDismiss={this.props.onDismissEditModal}
           onSubmit={details => {

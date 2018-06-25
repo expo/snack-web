@@ -10,12 +10,11 @@ import ModalPublishOverwriteError from './ModalPublishOverwriteError';
 import ModalPublishing from './ModalPublishing';
 import withAuth, { type AuthProps } from '../../auth/withAuth';
 import { isIntentionallyNamed } from '../../utils/projectNames';
-import * as Strings from '../../utils/strings';
 import type { SDKVersion } from '../../configs/sdk';
 
 export type PublishModals =
   | 'auth'
-  | 'publish'
+  | 'publish-prompt-save'
   | 'publish-edit-name'
   | 'publish-success'
   | 'publish-working'
@@ -47,16 +46,13 @@ type Props = AuthProps & {
 
 type State = {
   isPublishing: boolean,
-  didDismissAuthFlow: boolean,
-  isAllowedOnProfile: boolean,
+  hasShownEditNameDialog: boolean,
 };
 
 class PublishManager extends React.Component<Props, State> {
   state = {
     isPublishing: false,
-    didDismissAuthFlow: false,
-    isAllowedOnProfile:
-      !!this.props.viewer && this.props.creatorUsername === this.props.viewer.username,
+    hasShownEditNameDialog: false,
   };
 
   _publishWithOptionsAsync = async (options: PublishOptions) => {
@@ -77,64 +73,51 @@ class PublishManager extends React.Component<Props, State> {
     }
   };
 
-  _publishAndShowSuccess = async () => {
-    if (this.props.viewer) {
-      await this._publishWithOptionsAsync({
-        allowedOnProfile: this.state.isAllowedOnProfile,
-      });
+  _handleSaveToProfile = async () => {
+    const isLoggedIn = Boolean(this.props.viewer);
 
-      this.props.onShowModal('publish-success');
+    if (isLoggedIn) {
+      // Show a spinner so we dismiss the auth modal
+      this.props.onShowModal('publish-working');
+
+      this._handlePublishAsync();
     } else {
       this.props.onShowModal('auth');
     }
   };
 
-  _handlePublishToProfile = async () => {
-    this.setState({ isAllowedOnProfile: true }, () => {
-      if (!isIntentionallyNamed(this.props.name)) {
-        this.props.onShowModal('publish-edit-name');
-      } else {
-        this._publishAndShowSuccess();
-      }
-    });
-  };
-
-  _handleHideAuthFlowModal = () => {
-    this.props.onHideModal();
-    this.setState({ didDismissAuthFlow: true });
-  };
-
-  _handleSubmitMetadata = async (details: { name: string, description: string }) => {
+  _handleSubmitMetadata = async (details: *) => {
+    // Save the new name and description, then publish the snack
     await this.props.onSubmitMetadata(details);
-    this._publishAndShowSuccess();
-  };
-
-  _handleSkipEdit = () => {
-    this.props.onShowModal('publish-working');
-    this._publishAndShowSuccess();
+    await this._handlePublishAsync();
   };
 
   _handlePublishAsync = async () => {
-    // TODO: remove this, this is a patch for bad prod behaviour where users cannot save their own snack
-    const savingOwnSnack =
-      this.props.viewer && this.props.viewer.username === this.props.creatorUsername;
+    const isLoggedIn = Boolean(this.props.viewer);
 
-    await this._publishWithOptionsAsync({
-      allowedOnProfile:
-        savingOwnSnack || (this.state.isAllowedOnProfile && !this.props.nameHasChanged),
-    });
-
-    if (this.state.didDismissAuthFlow) {
-      this.props.onHideModal();
+    if (
+      // Ask for name if name is empty
+      !this.props.name ||
+      // Or if the name was a generated name and we haven't asked for a name previously
+      (!isIntentionallyNamed(this.props.name) && !this.state.hasShownEditNameDialog)
+    ) {
+      this.props.onShowModal('publish-edit-name');
+      this.setState({ hasShownEditNameDialog: true });
     } else {
-      if (
-        !this.props.viewer || // user is logged out and saves snack changes
-        (this.props.viewer && this.props.nameHasChanged) || // user is logged in and changes the name of a project
-        (this.props.viewer && this.props.viewer.username !== this.props.creatorUsername) // when a user is logged in and saving someone elses snack.
-      ) {
-        this.props.onShowModal('publish');
+      if (isLoggedIn) {
+        // If user is logged in, save the snack to profile
+        await this._publishWithOptionsAsync({
+          allowedOnProfile: true,
+        });
+
+        this.props.onShowModal('publish-success');
       } else {
-        this.props.onHideModal();
+        // If user is a guest, publish and prompt to save to profile
+        await this._publishWithOptionsAsync({
+          allowedOnProfile: false,
+        });
+
+        this.props.onShowModal('publish-prompt-save');
       }
     }
   };
@@ -151,23 +134,23 @@ class PublishManager extends React.Component<Props, State> {
         <ModalEditTitleAndDescription
           visible={currentModal === 'publish-edit-name'}
           title="Publish your Snack"
-          onDismiss={this._handleHideAuthFlowModal}
+          action={this.state.isPublishing ? 'Publishing…' : 'Publish'}
+          isWorking={this.state.isPublishing}
+          onDismiss={onHideModal}
           name={name}
           description={description}
           onSubmit={this._handleSubmitMetadata}
-          onSkip={this._handleSkipEdit}
-          isPublishing={this.state.isPublishing}
         />
         <ModalAuthentication
           visible={currentModal === 'auth'}
-          onDismiss={this._handleHideAuthFlowModal}
-          onComplete={this._publishAndShowSuccess}
+          onDismiss={onHideModal}
+          onComplete={this._handleSaveToProfile}
         />
         <ModalPublishToProfile
-          visible={currentModal === 'publish'}
-          onDismiss={this._handleHideAuthFlowModal}
+          visible={currentModal === 'publish-prompt-save'}
+          onDismiss={onHideModal}
           snackUrl={snackId ? `https://snack.expo.io/${snackId}` : undefined}
-          onPublish={this._handlePublishToProfile}
+          onPublish={this._handleSaveToProfile}
           isPublishing={this.state.isPublishing}
         />
         <ModalSuccessfulPublish

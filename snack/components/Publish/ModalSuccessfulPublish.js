@@ -26,16 +26,12 @@ class ModalSuccessfulPublish extends React.PureComponent<Props> {
     }
   }
 
-  _openProfileAndDismissModal = () => {
+  _dismissModal = () => {
     if (this.props.onDismiss) {
       this.props.onDismiss();
     }
 
     Segment.getInstance().logEvent('VIEWED_OWNED_USER_SNACKS');
-
-    if (this.props.viewer) {
-      window.open(`https://expo.io/snacks/@${this.props.viewer.username}/`);
-    }
   };
 
   render() {
@@ -48,19 +44,21 @@ class ModalSuccessfulPublish extends React.PureComponent<Props> {
             <Avatar src={picture} size="80px" />
           </div>
         ) : null}
-        <h2 className={css(styles.heading)}>Your Snack was Saved</h2>
+        <h2 className={css(styles.heading)}>Your Snack was published</h2>
         <p className={css(styles.text)}>
           You can now find your Snack on your profile and link others to it. Share it with your
           friends!
         </p>
-        <p className={css(styles.caption)}>
-          <span
-            className={css(styles.link)}
-            onClick={this._openProfileAndDismissModal}
-            target="blank">
-            View your Snacks
-          </span>
-        </p>
+        {this.props.viewer ? (
+          <p className={css(styles.caption)}>
+            <a
+              href={`https://expo.io/snacks/@${this.props.viewer.username}/`}
+              onClick={this._dismissModal}
+              target="blank">
+              View your Snacks
+            </a>
+          </p>
+        ) : null}
       </ModalDialog>
     );
   }
@@ -94,10 +92,5 @@ const styles = StyleSheet.create({
     fontSize: '16px',
     lineHeight: '22px',
     textAlign: 'center',
-  },
-  link: {
-    cursor: 'pointer',
-    color: colors.primary,
-    textDecoration: 'underline',
   },
 });

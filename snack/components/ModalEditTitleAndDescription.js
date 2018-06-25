@@ -15,13 +15,13 @@ import * as defaults from '../configs/defaults';
 
 type Props = {|
   visible: boolean,
-  title?: string,
+  title: string,
+  action: string,
   onSubmit: (details: { name: string, description: string }) => mixed,
-  onSkip?: () => mixed,
   onDismiss: () => mixed,
   description: ?string,
   name: string,
-  isPublishing?: boolean,
+  isWorking?: boolean,
 |};
 
 type State = {
@@ -33,10 +33,6 @@ const FormButton = withStatus(Button);
 const ValidatedInput = withValidation(LargeInput);
 
 export default class ModalEditTitleAndDescription extends React.Component<Props, State> {
-  static defaultProps = {
-    title: 'Edit Snack Details',
-  };
-
   state = {
     name: this.props.name || '',
     description: this.props.description || '',
@@ -57,10 +53,10 @@ export default class ModalEditTitleAndDescription extends React.Component<Props,
       : new Error('Name cannot be empty.');
 
   render() {
-    const { visible, onSkip, onDismiss, isPublishing } = this.props;
+    const { visible, title, onDismiss, isWorking, action } = this.props;
 
     return (
-      <ModalDialog visible={visible} title={this.props.title} onDismiss={onDismiss}>
+      <ModalDialog visible={visible} title={title} onDismiss={onDismiss}>
         <Form onSubmit={this._handleSubmit}>
           <h4 className={css(styles.subtitle)}>Project name</h4>
           <ValidatedInput
@@ -78,17 +74,10 @@ export default class ModalEditTitleAndDescription extends React.Component<Props,
             default={defaults.DEFAULT_DESCRIPTION}
           />
           <div className={css(styles.buttons)}>
-            <FormButton type="submit" large variant="secondary" loading={isPublishing}>
-              Publish
+            <FormButton type="submit" large variant="secondary" loading={isWorking}>
+              {action}
             </FormButton>
           </div>
-          {onSkip ? (
-            <p className={css(styles.caption)}>
-              <span className={css(styles.link)} onClick={onSkip} target="blank">
-                Skip this step
-              </span>
-            </p>
-          ) : null}
         </Form>
       </ModalDialog>
     );
