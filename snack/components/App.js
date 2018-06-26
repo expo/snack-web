@@ -4,7 +4,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { create, persist } from 'web-worker-proxy';
 import nullthrows from 'nullthrows';
-import JSON5 from 'json5';
 import mapValues from 'lodash/mapValues';
 import Raven from 'raven-js';
 import debounce from 'lodash/debounce';
@@ -804,6 +803,7 @@ class App extends React.Component<Props, State> {
           {({ loaded, data: Comp }) =>
             loaded && this.state.snackSessionReady ? (
               <Comp
+                createdAt={this.props.snack ? this.props.snack.created : undefined}
                 creatorUsername={this.state.params.username}
                 fileEntries={this.state.fileEntries}
                 entry={this._findFocusedEntry(this.state.fileEntries)}

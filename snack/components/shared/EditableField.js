@@ -3,109 +3,116 @@
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import classnames from 'classnames';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
+import colors from '../../configs/colors';
 
 type Props = {
   value: string,
-  readOnly?: boolean,
-  onChangeText: Function,
-  after?: React.Node,
+  onSubmitText: (value: string) => mixed,
   className?: string,
+  theme: ThemeName,
 };
 
 type State = {
-  width: number,
+  value: string,
 };
 
-export default class EditableField extends React.PureComponent<Props, State> {
+const RETURN_KEYCODE = 13;
+const ESCAPE_KEYCODE = 27;
+
+class EditableField extends React.Component<Props, State> {
   state = {
-    width: 0,
+    value: this.props.value || '',
   };
 
-  componentDidMount() {
-    this._adjustWidth();
-  }
+  _handleChangeText = (e: *) => this.setState({ value: e.target.value });
 
-  componentDidUpdate(nextProps: Props) {
-    if (nextProps.value !== this.props.value) {
-      this._adjustWidth();
+  _handleFocus = (e: *) => e.target.select();
+
+  _handleBlur = () => this.props.onSubmitText(this.state.value);
+
+  _handleKeyDown = (e: *) => {
+    if (e.keyCode === RETURN_KEYCODE || e.keyCode === ESCAPE_KEYCODE) {
+      e.target.blur();
     }
-  }
-
-  _adjustWidth = () => {
-    setTimeout(() => {
-      const size = this._phantom.getBoundingClientRect();
-      this.setState({
-        width: size.width,
-      });
-    }, 0);
   };
-
-  _handleChangeText = (e: any) => this.props.onChangeText(e.target.value);
-
-  _phantom: any;
 
   render() {
     return (
       <div className={css(styles.container)}>
-        <span
-          ref={c => (this._phantom = c)}
-          className={classnames(css(styles.field, styles.phantom), this.props.className)}>
-          {this.props.value}
-        </span>
-        {this.state.width ? (
-          <input
-            readOnly={this.props.readOnly}
-            value={this.props.value}
-            onChange={this._handleChangeText}
-            className={classnames(
-              css(styles.field, !this.props.readOnly && styles.editable),
-              this.props.className
-            )}
-            style={{ width: this.state.width }}
-          />
-        ) : (
-          <span className={classnames(css(styles.field), this.props.className)}>
-            {this.props.value}
-          </span>
-        )}
-        {this.props.after}
+        <div className={classnames(css(styles.field, styles.phantom), this.props.className)}>
+          {this.state.value.replace(/\n/g, '')}&nbsp;
+        </div>
+        <input
+          onFocus={this._handleFocus}
+          onBlur={this._handleBlur}
+          onKeyDown={this._handleKeyDown}
+          value={this.state.value}
+          onChange={this._handleChangeText}
+          className={classnames(
+            css(
+              styles.field,
+              styles.editable,
+              this.props.theme === 'dark' ? styles.editableDark : styles.editableLight
+            ),
+            this.props.className
+          )}
+        />
       </div>
     );
   }
 }
 
+export default withThemeName(EditableField);
+
 const styles = StyleSheet.create({
   container: {
     display: 'flex',
-    flex: 1,
-    minWidth: 0,
-    margin: '0 .5em',
+    alignItems: 'center',
+    maxWidth: '100%',
     position: 'relative',
   },
 
   field: {
     display: 'inline-block',
-    appearance: 'none',
-    outline: 0,
     margin: 0,
-    padding: '.25em .5em',
-    borderRadius: 3,
-    border: '1px solid transparent',
-    transition: 'border .2s',
-    maxWidth: '100%',
+    padding: '1px 6px',
   },
 
   editable: {
+    position: 'absolute',
+    appearance: 'none',
+    background: 'none',
+    outline: 0,
+    border: 0,
+    left: 0,
+    width: '100%',
+    borderRadius: 0,
+
     ':focus': {
-      border: '1px solid rgba(0, 0, 0, .24)',
+      boxShadow: `inset 0 0 0 1px ${colors.primary}`,
+    },
+
+    ':hover:focus': {
+      boxShadow: `inset 0 0 0 1px ${colors.primary}`,
+    },
+  },
+
+  editableLight: {
+    ':hover': {
+      boxShadow: `inset 0 0 0 1px rgba(0, 0, 0, .16)`,
+    },
+  },
+
+  editableDark: {
+    ':hover': {
+      boxShadow: `inset 0 0 0 1px rgba(255, 255, 255, .16)`,
     },
   },
 
   phantom: {
-    position: 'absolute',
-    left: 0,
-    maxWidth: '100%',
     display: 'inline-block',
+    maxWidth: '100%',
     pointerEvents: 'none',
     whiteSpace: 'pre',
     overflow: 'hidden',

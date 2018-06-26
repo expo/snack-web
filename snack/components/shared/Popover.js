@@ -3,20 +3,22 @@
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import colors from '../../configs/colors';
 
 const { PureComponent, Children, cloneElement } = React;
 
 type Props = {
-  children?: React.Node,
-  content: any,
+  children: React.Node,
+  content: React.Node,
+  theme: ThemeName,
 };
 
 type State = {
   popoverVisible: boolean,
 };
 
-export default class Popover extends PureComponent<Props, State> {
+class Popover extends PureComponent<Props, State> {
   state = {
     popoverVisible: false,
   };
@@ -71,7 +73,7 @@ export default class Popover extends PureComponent<Props, State> {
   _popover: ?HTMLElement;
 
   render() {
-    const { children, content } = this.props;
+    const { children, content, theme } = this.props;
 
     return (
       <div className={css(styles.container)}>
@@ -83,15 +85,21 @@ export default class Popover extends PureComponent<Props, State> {
           ref={c => (this._popover = c)}
           className={css(
             styles.popover,
+            theme === 'dark' ? styles.popoverDark : styles.popoverLight,
             this.state.popoverVisible ? styles.visible : styles.hidden
           )}>
-          <span ref={c => (this._arrow = c)} className={css(styles.arrow)} />
+          <span
+            ref={c => (this._arrow = c)}
+            className={css(styles.arrow, theme === 'dark' ? styles.arrowDark : styles.arrowLight)}
+          />
           {content}
         </div>
       </div>
     );
   }
 }
+
+export default withThemeName(Popover);
 
 const styles = StyleSheet.create({
   container: {
@@ -103,14 +111,23 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: '100%',
     margin: 12,
-    padding: 16,
     width: '18em',
-    border: `1px solid ${colors.border}`,
     borderRadius: 3,
     zIndex: 99,
     backgroundColor: 'inherit',
     color: 'inherit',
     transition: 'transform .2s, opacity .2s',
+    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.16), 0 0 3px rgba(0, 0, 0, 0.08)',
+  },
+
+  popoverLight: {
+    backgroundColor: colors.content.light,
+    border: 0,
+  },
+
+  popoverDark: {
+    backgroundColor: colors.content.dark,
+    border: `1px solid ${colors.ayu.mirage.border}`,
   },
 
   arrow: {
@@ -120,10 +137,18 @@ const styles = StyleSheet.create({
     top: -9,
     transform: 'translateX(-50%) rotate(45deg)',
     backgroundColor: 'inherit',
-    borderColor: colors.border,
-    borderWidth: '1px 0 0 1px',
-    borderStyle: 'solid',
     borderTopLeftRadius: 4,
+    boxShadow: '-.5px -.5px 0 rgba(0, 0, 0, .12)',
+  },
+
+  arrowLight: {
+    border: 0,
+  },
+
+  arrowDark: {
+    borderStyle: 'solid',
+    borderWidth: '1px 0 0 1px',
+    borderColor: colors.ayu.mirage.border,
   },
 
   visible: {
@@ -134,6 +159,6 @@ const styles = StyleSheet.create({
   hidden: {
     opacity: 0,
     pointerEvents: 'none',
-    transform: 'translateX(-50%) translateY(-.5em)',
+    transform: 'translateX(-50%) translateY(-4px)',
   },
 });

@@ -77,7 +77,7 @@ class EmbeddedEditorTitle extends React.PureComponent<Props, State> {
       <div className={css(styles.header)}>
         <h1 className={css(styles.title)}>{name}</h1>
         <div className={css(styles.iconContainer)}>
-          <Popover content={description}>
+          <Popover content={<p className={css(styles.description)}>description</p>}>
             <button
               className={css(styles.icon, theme === 'light' ? styles.infoLight : styles.infoDark)}
             />
@@ -132,6 +132,10 @@ const styles = StyleSheet.create({
     ':hover': {
       opacity: 0.8,
     },
+  },
+
+  description: {
+    margin: 16,
   },
 
   infoLight: {

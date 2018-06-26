@@ -25,6 +25,7 @@
     "babylon": "^6.18.0",
     "classnames": "^2.2.5",
     "cookie": "^0.3.1",
+    "date-fns": "^1.29.0",
     "es6-error": "^4.1.1",
     "escape-html": "^1.0.3",
     "escape-string-regexp": "^1.0.5",

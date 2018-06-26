@@ -2,14 +2,19 @@
 
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
+import { format } from 'date-fns';
 
+import Popover from './shared/Popover';
+import EditableField from './shared/EditableField';
 import ModalEditTitleAndDescription from './ModalEditTitleAndDescription';
 import withThemeName, { type ThemeName } from './Preferences/withThemeName';
+import colors from '../configs/colors';
 import * as defaults from '../configs/defaults';
 
 type Props = {
   name: string,
   description: ?string,
+  createdAt?: string,
   isEditModalVisible: boolean,
   onShowEditModal: () => mixed,
   onDismissEditModal: () => mixed,
@@ -18,35 +23,61 @@ type Props = {
 };
 
 class EditorTitle extends React.PureComponent<Props> {
+  _handleSubmitTitle = name =>
+    this.props.onSubmitEditModal({ name, description: this.props.description || '' });
+
   render() {
+    const {
+      description,
+      name,
+      createdAt,
+      theme,
+      isEditModalVisible,
+      onShowEditModal,
+      onSubmitEditModal,
+      onDismissEditModal,
+    } = this.props;
+
     return (
       <div className={css(styles.container)}>
-        <div className={css(styles.header)} onClick={this.props.onShowEditModal}>
+        <div className={css(styles.header)}>
           <div className={css(styles.titleContainer)}>
-            <h1 className={css(styles.title)}>{this.props.name}</h1>
-            <button
-              className={css(
-                styles.icon,
-                this.props.theme === 'light' ? styles.editIconLight : styles.editIconDark
-              )}
-              onClick={this.props.onShowEditModal}
-            />
+            <h1 className={css(styles.title)}>
+              <EditableField value={name} onSubmitText={this._handleSubmitTitle} />
+            </h1>
+            <Popover
+              content={
+                <React.Fragment>
+                  <p className={css(styles.description)}>
+                    {description || defaults.DEFAULT_DESCRIPTION}
+                  </p>
+                  <button onClick={onShowEditModal} className={css(styles.editButton)}>
+                    Edit details
+                  </button>
+                </React.Fragment>
+              }>
+              <button
+                className={css(styles.icon, theme === 'light' ? styles.infoLight : styles.infoDark)}
+              />
+            </Popover>
           </div>
-          <p className={css(styles.description)}>
-            {this.props.description || defaults.DEFAULT_DESCRIPTION}
+          <p className={css(styles.timestamp)}>
+            {createdAt
+              ? format(new Date(createdAt), '[Created on] Do MMM, YYYY [at] h:mm a')
+              : 'Created just now'}
           </p>
         </div>
         <ModalEditTitleAndDescription
           title="Edit Snack Details"
           action="Done"
-          visible={this.props.isEditModalVisible}
-          onDismiss={this.props.onDismissEditModal}
+          visible={isEditModalVisible}
+          onDismiss={onDismissEditModal}
           onSubmit={details => {
-            this.props.onSubmitEditModal(details);
-            this.props.onDismissEditModal();
+            onSubmitEditModal(details);
+            onDismissEditModal();
           }}
-          description={this.props.description}
-          name={this.props.name}
+          description={description}
+          name={name}
         />
       </div>
     );
@@ -58,33 +89,19 @@ export default withThemeName(EditorTitle);
 const styles = StyleSheet.create({
   container: {
     display: 'flex',
-    flexDirection: 'row',
     alignItems: 'center',
     minWidth: 0,
-    margin: '0 1em',
-    padding: '.25em 0',
+    height: '100%',
   },
 
   header: {
-    display: 'block',
-    appearance: 'none',
-    backgroundColor: 'transparent',
-    outline: 0,
-    padding: 0,
-    margin: 0,
-    border: 0,
+    padding: 2,
     minWidth: 0,
-    textAlign: 'left',
-    whiteSpace: 'nowrap',
-    cursor: 'pointer',
-
-    '@media (max-width: 480px)': {
-      whiteSpace: 'normal',
-    },
   },
 
   title: {
     fontSize: '1.3em',
+    lineHeight: '1.3em',
     fontWeight: 500,
     margin: 0,
     textOverflow: 'ellipsis',
@@ -97,9 +114,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
 
-  description: {
+  timestamp: {
     fontSize: 12,
-    margin: 0,
+    margin: '0 6px',
     opacity: 0.5,
     textOverflow: 'ellipsis',
     overflow: 'hidden',
@@ -110,18 +127,19 @@ const styles = StyleSheet.create({
   },
 
   icon: {
-    display: 'flex',
-    flexShrink: 0,
+    display: 'block',
+    position: 'relative',
     appearance: 'none',
     backgroundColor: 'transparent',
     backgroundRepeat: 'no-repeat',
-    backgroundSize: 'contain',
+    backgroundSize: 16,
+    backgroundPosition: 'center',
     border: 0,
     outline: 0,
-    padding: 0,
-    margin: '4px 12px',
-    height: 16,
-    width: 16,
+    margin: 0,
+    padding: 4,
+    height: 24,
+    width: 40,
     opacity: 0.3,
     transition: '.2s',
 
@@ -130,12 +148,8 @@ const styles = StyleSheet.create({
     },
   },
 
-  editIconLight: {
-    backgroundImage: `url(${require('../assets/edit-icon.png')})`,
-  },
-
-  editIconDark: {
-    backgroundImage: `url(${require('../assets/edit-icon-light.png')})`,
+  description: {
+    margin: 16,
   },
 
   modal: {
@@ -146,12 +160,20 @@ const styles = StyleSheet.create({
     boxShadow: '0 1px 8px rgba(0, 0, 0, 0.07)',
   },
 
-  h2: {
-    fontSize: '1.5em',
-    marginTop: '.5em',
+  infoLight: {
+    backgroundImage: `url(${require('../assets/info-icon.png')})`,
   },
 
-  h4: {
-    fontSize: '1em',
+  infoDark: {
+    backgroundImage: `url(${require('../assets/info-icon-light.png')})`,
+  },
+
+  editButton: {
+    width: '100%',
+    background: 'none',
+    outline: 0,
+    borderWidth: '1px 0 0 0',
+    borderColor: colors.border,
+    padding: '8px 16px',
   },
 });

@@ -16,6 +16,7 @@ export type ExpoSnackFiles = {
 
 export type Snack = {
   id: string,
+  created: string,
   code?: ExpoSnackFiles,
   manifest?: {
     name: string,

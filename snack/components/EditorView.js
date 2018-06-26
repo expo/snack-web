@@ -63,6 +63,7 @@ type DeviceLog = {|
 
 type Props = PreferencesContextType & {|
   viewer?: Viewer,
+  createdAt?: string,
   creatorUsername?: string,
   fileEntries: FileSystemEntry[],
   entry: TextFileEntry | AssetFileEntry,
@@ -432,6 +433,7 @@ class EditorView extends React.Component<Props, State> {
       channel,
       entry,
       params,
+      createdAt,
       loadingMessage,
       sdkVersion,
       connectedDevices,
@@ -510,6 +512,8 @@ class EditorView extends React.Component<Props, State> {
                 <EditorToolbar
                   name={name}
                   description={description}
+                  createdAt={createdAt}
+                  hasSnackId={hasSnackId}
                   isPublishing={isPublishing}
                   isDownloading={isDownloading}
                   isPublished={this._isPublished()}
