@@ -35,7 +35,6 @@ export class EditorImportTitle extends React.PureComponent<Props, State> {
     } else if (this.state.status === 'error') {
       this._handleDismissError();
     } else {
-      
     }
   };
 
@@ -66,7 +65,7 @@ export class EditorImportTitle extends React.PureComponent<Props, State> {
       }, TIMEOUT_MS);
 
       if (!process.env.IMPORT_SERVER_URL) {
-        throw 'missing IMPORT_SERVER_URL';
+        throw new Error('Missing IMPORT_SERVER_URL');
       }
       const IMPORT_API_URL = `${process.env.IMPORT_SERVER_URL}/git`;
 

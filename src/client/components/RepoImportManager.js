@@ -67,7 +67,7 @@ class RepoImportManager extends React.PureComponent<Props, State> {
     let didFail = false;
     try {
       if (!process.env.IMPORT_SERVER_URL) {
-        throw 'missing IMPORT_SERVER_URL';
+        throw new Error('Missing IMPORT_SERVER_URL');
       }
       const IMPORT_API_URL = `${process.env.IMPORT_SERVER_URL}/git`;
 
