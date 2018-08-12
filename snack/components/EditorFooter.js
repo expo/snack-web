@@ -6,10 +6,10 @@ import { StyleSheet, css } from 'aphrodite';
 import ToggleSwitch from './shared/ToggleSwitch';
 import ToggleButtons from './shared/ToggleButtons';
 import LoadingText from './shared/LoadingText';
+import FooterShell from './Shell/FooterShell';
 import SDKVersionSwitcher from './SDKVersionSwitcher';
 import colors from '../configs/colors';
 import withThemeName, { type ThemeName } from './theming/withThemeName';
-
 
 import type { Annotation } from '../utils/convertErrorToAnnotation';
 import type { SDKVersion } from '../configs/sdk';
@@ -74,15 +74,7 @@ class EditorFooter extends React.PureComponent<Props, State> {
     const isLight = theme !== 'light' || isLoading || isErrorFatal;
 
     return (
-      <div
-        className={css(
-          styles.footer,
-          isErrorFatal && !isLoading ? styles.footerErrorFatal : undefined,
-          isLoading ? styles.footerLoading : undefined,
-          isErrorFatal || isLoading
-            ? undefined
-            : theme === 'light' ? styles.footerLight : styles.footerDark
-        )}>
+      <FooterShell type={isErrorFatal && !isLoading ? 'error' : isLoading ? 'loading' : null}>
         <div className={css(styles.left)}>
           {isLoading ? (
             <LoadingText className={css(styles.loadingText)}>{loadingMessage}</LoadingText>
@@ -185,7 +177,7 @@ class EditorFooter extends React.PureComponent<Props, State> {
             />
           </div>
         </div>
-      </div>
+      </FooterShell>
     );
   }
 }
@@ -193,16 +185,6 @@ class EditorFooter extends React.PureComponent<Props, State> {
 export default withThemeName(EditorFooter);
 
 const styles = StyleSheet.create({
-  footer: {
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: '0 .25em',
-    borderTop: `1px solid ${colors.border}`,
-    zIndex: 10,
-  },
-
   left: {
     display: 'flex',
     alignItems: 'stretch',
@@ -251,26 +233,6 @@ const styles = StyleSheet.create({
       display: 'block',
       padding: '.5em .5em .5em .25em',
     },
-  },
-
-  footerLight: {
-    backgroundColor: colors.content.light,
-    color: '#999',
-  },
-
-  footerDark: {
-    backgroundColor: colors.content.dark,
-    color: 'rgba(255, 255, 255, .5)',
-  },
-
-  footerErrorFatal: {
-    backgroundColor: colors.error,
-    color: 'rgba(255, 255, 255, .7)',
-  },
-
-  footerLoading: {
-    backgroundColor: colors.primary,
-    color: 'rgba(255, 255, 255, .7)',
   },
 
   loadingText: {

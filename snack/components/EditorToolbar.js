@@ -3,13 +3,12 @@
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 
-
 import Button from './shared/Button';
+import ToolbarShell from './Shell/ToolbarShell';
+import ToolbarTitleShell from './Shell/ToolbarTitleShell';
 import EditorTitle from './EditorTitle';
 import EditorImportTitle from './EditorImportTitle';
 import SearchButton from './Search/SearchButton';
-import colors from '../configs/colors';
-import withThemeName, { type ThemeName } from './theming/withThemeName';
 
 type Props = {|
   name: string,
@@ -27,11 +26,10 @@ type Props = {|
   onDownloadCode: () => Promise<void>,
   onShowQRCode: () => void,
   onSaveAsync: () => Promise<void>,
-  theme: ThemeName,
   creatorUsername?: string,
 |};
 
-class EditorToolbar extends React.PureComponent<Props, void> {
+export default class EditorToolbar extends React.PureComponent<Props, void> {
   render() {
     const {
       name,
@@ -50,25 +48,11 @@ class EditorToolbar extends React.PureComponent<Props, void> {
       onShowQRCode,
       onSaveAsync,
       creatorUsername,
-      theme,
     } = this.props;
 
     return (
-      <div
-        className={css(
-          styles.toolbar,
-          theme === 'light' ? styles.toolbarLight : styles.toolbarDark
-        )}>
-        <div className={css(styles.left)}>
-          <img
-            src={
-              theme === 'dark'
-                ? require('../assets/snack-icon-dark.svg')
-                : require('../assets/snack-icon.svg')
-            }
-            alt="Snack"
-            className={css(styles.logo)}
-          />
+      <ToolbarShell>
+        <ToolbarTitleShell>
           {creatorUsername !== 'git' || !name || !description ? (
             <EditorTitle
               name={name}
@@ -81,7 +65,7 @@ class EditorToolbar extends React.PureComponent<Props, void> {
           ) : (
             <EditorImportTitle name={name} description={description} />
           )}
-        </div>
+        </ToolbarTitleShell>
         <div className={css(styles.buttons)}>
           <SearchButton />
           <Button disabled={!hasSnackId} onClick={onShowEmbedCode}>
@@ -100,51 +84,18 @@ class EditorToolbar extends React.PureComponent<Props, void> {
             {isSaving ? 'Saving…' : isSaved ? 'Changes saved' : 'Save changes'}
           </Button>
         </div>
-      </div>
+      </ToolbarShell>
     );
   }
 }
 
-export default withThemeName(EditorToolbar);
-
 const styles = StyleSheet.create({
-  toolbar: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottom: `1px solid ${colors.border}`,
-    padding: 4,
-  },
-
-  toolbarLight: {
-    backgroundColor: colors.content.light,
-  },
-
-  toolbarDark: {
-    backgroundColor: colors.content.dark,
-  },
-
-  left: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    minWidth: 0,
-    flex: 1,
-  },
-
-  logo: {
-    width: 36,
-    height: 'auto',
-    margin: '0 .5em 0 .75em',
-  },
-
   buttons: {
     display: 'flex',
     flexDirection: 'row',
   },
 
   saveButton: {
-    minWidth: '9.2em',
+    minWidth: 128,
   },
 });

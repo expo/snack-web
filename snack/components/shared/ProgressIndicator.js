@@ -6,21 +6,23 @@ import classnames from 'classnames';
 import colors from '../../configs/colors';
 
 type Props = {
-  duration: string,
+  delay: number,
+  duration: number,
   className?: string,
 };
 
-export default function ProgressIndicator({ duration, className }: Props) {
+export default function ProgressIndicator({ delay, duration, className }: Props) {
   return (
     <div
       className={classnames(css(styles.progress), className)}
-      style={{ animationDuration: duration }}
+      style={{ animationDelay: `${delay}ms`, animationDuration: `${duration}ms` }}
     />
   );
 }
 
 ProgressIndicator.defaultProps = {
-  duration: '2s',
+  delay: 0,
+  duration: 2000,
 };
 
 const progressKeyframes = {
@@ -48,6 +50,7 @@ const styles = StyleSheet.create({
     height: 2,
     zIndex: 1,
     backgroundColor: colors.primary,
+    transform: 'scale3d(0, 1, 1)',
     transformOrigin: 'top left',
     animationName: [progressKeyframes],
     animationIterationCount: 'infinite',

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { parse } from 'query-string';
 import SnackDataManager from './SnackDataManager';
+import AppShell from './Shell/AppShell';
 import App from './App';
 import EmbeddedApp from './EmbeddedApp';
 import NonExistent from './NonExistent';
@@ -26,7 +27,7 @@ export default class Router extends React.Component<{}> {
           case 'error':
             return <NonExistent />;
           default:
-            return null;
+            return <AppShell />;
         }
       }}
     />

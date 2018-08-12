@@ -11,6 +11,9 @@ import LazyLoad from './shared/LazyLoad';
 import ModalDialog from './shared/ModalDialog';
 import Banner from './shared/Banner';
 import KeybindingsManager from './shared/KeybindingsManager';
+import ProgressIndicator from './shared/ProgressIndicator';
+import ContentShell from './Shell/ContentShell';
+import LayoutShell from './Shell/LayoutShell';
 import PageMetadata from './PageMetadata';
 import DeviceInstructionsModal, {
   type ConnectionMethod,
@@ -31,7 +34,6 @@ import openEntry from '../actions/openEntry';
 
 import FeatureFlags from '../utils/FeatureFlags';
 import { isInsideFolder, changeParentPath } from '../utils/fileUtilities';
-import colors from '../configs/colors';
 import * as defaults from '../configs/defaults';
 
 import convertErrorToAnnotation from '../utils/convertErrorToAnnotation';
@@ -107,6 +109,7 @@ type Props = {|
 |};
 
 type State = {|
+  isEditorLoading: boolean,
   currentModal: PublishModals | 'device-instructions' | 'embed' | 'edit-info' | 'shortcuts' | null,
   currentBanner: 'connected' | 'disconnected' | 'reconnect' | 'slow-connection' | null,
   isDownloading: boolean,
@@ -125,29 +128,25 @@ type State = {|
 |};
 
 class EditorView extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      currentModal: null,
-      currentBanner: null,
-      isDownloading: false,
-      deviceLogsShown: false,
-      fileTreeShown: isNotMobile(),
-      devicePreviewShown: true,
-      editorMode: 'normal',
-      panelsShown: false,
-      panelType: 'errors',
-      lintErrors: [],
-      devicePreviewPlatform:
-        this.props.initialPreviewPlatform || this.props.testPreviewPlatform || 'android',
-      deviceConnectionMethod: this.props.testConnectionMethod || 'device-id',
-      name: this.props.name,
-      description: this.props.description,
-      shouldPreventRedirectWarning: false,
-    };
-  }
-
-  state: State;
+  state = {
+    isEditorLoading: true,
+    currentModal: null,
+    currentBanner: null,
+    isDownloading: false,
+    deviceLogsShown: false,
+    fileTreeShown: isNotMobile(),
+    devicePreviewShown: true,
+    editorMode: 'normal',
+    panelsShown: false,
+    panelType: 'errors',
+    lintErrors: [],
+    devicePreviewPlatform:
+      this.props.initialPreviewPlatform || this.props.testPreviewPlatform || 'android',
+    deviceConnectionMethod: this.props.testConnectionMethod || 'device-id',
+    name: this.props.name,
+    description: this.props.description,
+    shouldPreventRedirectWarning: false,
+  };
 
   componentWillMount() {
     if (typeof window !== 'undefined' && window.localStorage) {
@@ -532,11 +531,8 @@ class EditorView extends React.Component<Props, State> {
         : description;
 
     return (
-      <main
-        className={css(
-          styles.container,
-          theme === 'light' ? styles.backgroundLight : styles.backgroundDark
-        )}>
+      <ContentShell>
+        {this.state.isEditorLoading ? <ProgressIndicator /> : null}
         <PageMetadata name={metadataName} description={metadataDescription} params={params} />
         <PublishManager
           snackId={params.id}
@@ -602,7 +598,7 @@ class EditorView extends React.Component<Props, State> {
                 />
                 <div className={css(styles.editorAreaOuterWrapper)}>
                   <div className={css(styles.editorAreaOuter)}>
-                    <div className={css(styles.editorArea)}>
+                    <LayoutShell>
                       <FileList
                         visible={fileTreeShown}
                         entries={this.props.fileEntries}
@@ -640,6 +636,7 @@ class EditorView extends React.Component<Props, State> {
                             FullEditor.catch(() => SimpleEditor),
                             SimpleEditor,
                           ]).then(editor => {
+                            this.setState({ isEditorLoading: false });
                             clearTimeout(timeout);
                             return editor;
                           });
@@ -676,7 +673,7 @@ class EditorView extends React.Component<Props, State> {
                           return null;
                         }}
                       </LazyLoad>
-                    </div>
+                    </LayoutShell>
                     {panelsShown ? (
                       <EditorPanels
                         annotations={annotations}
@@ -689,6 +686,7 @@ class EditorView extends React.Component<Props, State> {
                       />
                     ) : null}
                   </div>
+                  }
                   {devicePreviewShown ? (
                     <DevicePreview
                       detachable
@@ -773,7 +771,7 @@ class EditorView extends React.Component<Props, State> {
             );
           }}
         </PublishManager>
-      </main>
+      </ContentShell>
     );
   }
 }
@@ -788,36 +786,6 @@ export default withThemeName(
 );
 
 const styles = StyleSheet.create({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    width: '100%',
-    overflow: 'hidden',
-  },
-
-  backgroundLight: {
-    backgroundColor: colors.background.light,
-    color: colors.text.light,
-  },
-
-  backgroundDark: {
-    backgroundColor: colors.background.dark,
-    color: colors.text.dark,
-  },
-
-  editorArea: {
-    display: 'flex',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    position: 'relative',
-    height: '100%',
-    // Without this firefox doesn't shrink content
-    minHeight: 0,
-    minWidth: 0,
-  },
-
   editorAreaOuter: {
     display: 'flex',
     flex: 1,

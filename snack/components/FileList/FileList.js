@@ -7,6 +7,7 @@ import { isModulePreloaded } from 'snack-sdk';
 import withThemeName, { type ThemeName } from '../theming/withThemeName';
 import ResizablePane from '../shared/ResizablePane';
 import Toast from '../shared/Toast';
+import SidebarShell from '../Shell/SidebarShell';
 import FileListPane from './FileListPane';
 import FileListOpenEntry from './FileListOpenEntry';
 import FileListChildren from './FileListChildren';
@@ -265,113 +266,110 @@ class FileList extends React.PureComponent<Props, State> {
         uploadFileAsync={this.props.uploadFileAsync}
         render={({ onImportStart }) =>
           this.props.visible ? (
-            <ResizablePane
-              direction="horizontal"
-              className={css(
-                styles.pane,
-                this.props.theme === 'dark' ? styles.paneDark : styles.paneLight
-              )}>
-              <RepoImportManager
-                visible={this.state.isRepoManagerShown}
-                onHide={this._handleHideRepoManager}
-                preventRedirectWarning={this.props.preventRedirectWarning}
-              />
-              <FileListPane
-                title="Open files"
-                expanded={this.state.openFilesPane}
-                onClick={this._toggleOpenFilesPane}>
-                <ul className={css(styles.tabs)} data-test-id="file-list-open-files-content">
-                  {this.props.entries
-                    /* $FlowFixMe */
-                    .filter(e => e.item.type === 'file' && e.state.isOpen)
-                    .map((e: any) => (
-                      <FileListOpenEntry
-                        key={e.item.path}
-                        entry={e}
-                        onOpen={() => this._handleEntryOpen(e.item.path)}
-                        onClose={() => this._handleEntryClose(e.item.path)}
-                        onCloseOthers={() => this._handleEntryCloseOthers(e.item.path)}
-                        onCloseAll={this._handleEntryCloseAll}
+            <ResizablePane direction="horizontal" className={css(styles.pane)}>
+              <SidebarShell>
+                <RepoImportManager
+                  visible={this.state.isRepoManagerShown}
+                  onHide={this._handleHideRepoManager}
+                  preventRedirectWarning={this.props.preventRedirectWarning}
+                />
+                <FileListPane
+                  title="Open files"
+                  expanded={this.state.openFilesPane}
+                  onClick={this._toggleOpenFilesPane}>
+                  <ul className={css(styles.tabs)} data-test-id="file-list-open-files-content">
+                    {this.props.entries
+                      /* $FlowFixMe */
+                      .filter(e => e.item.type === 'file' && e.state.isOpen)
+                      .map((e: any) => (
+                        <FileListOpenEntry
+                          key={e.item.path}
+                          entry={e}
+                          onOpen={() => this._handleEntryOpen(e.item.path)}
+                          onClose={() => this._handleEntryClose(e.item.path)}
+                          onCloseOthers={() => this._handleEntryCloseOthers(e.item.path)}
+                          onCloseAll={this._handleEntryCloseAll}
+                        />
+                      ))}
+                  </ul>
+                </FileListPane>
+                <FileListPane
+                  className={css(styles.project)}
+                  title="Project"
+                  expanded={this.state.projectPane}
+                  onClick={this._toggleProjectPane}
+                  buttons={[
+                    <FileListPaneButton key="create-file" onClick={() => this._handleCreateFile()}>
+                      <path
+                        fillOpacity="0.7"
+                        d="M3,2 L13,2 L13,14 L3,14 L3,2 Z M9,2 L13,6 L13,2 L9,2 Z M9,6 L9,2 L8,2 L8,7 L13,7 L13,6 L9,6 Z"
                       />
-                    ))}
-                </ul>
-              </FileListPane>
-              <FileListPane
-                className={css(styles.project)}
-                title="Project"
-                expanded={this.state.projectPane}
-                onClick={this._toggleProjectPane}
-                buttons={[
-                  <FileListPaneButton key="create-file" onClick={() => this._handleCreateFile()}>
-                    <path
-                      fillOpacity="0.7"
-                      d="M3,2 L13,2 L13,14 L3,14 L3,2 Z M9,2 L13,6 L13,2 L9,2 Z M9,6 L9,2 L8,2 L8,7 L13,7 L13,6 L9,6 Z"
-                    />
-                    <AddIcon />
-                  </FileListPaneButton>,
-                  <FileListPaneButton
-                    key="create-folder"
-                    onClick={() => this._handleCreateFolder()}>
-                    <path
-                      fillOpacity="0.7"
-                      d="M7.25,4 L7.5,4 L7.5,3 L7,3.5 L7,2 L15,2 L15,4 L7.25,4 Z M6.75,4 L5,4 L7,2 L7,3.5 L6.5,4 L6.75,4 Z M1,4 L15,4 L15,14 L1,14 L1,4 Z M7.5,3 L7.5,4 L14,4 L14,3 L7.5,3 Z"
-                    />
-                    <AddIcon />
-                  </FileListPaneButton>,
-                  <FileListImportExportMenu
-                    key="menu"
-                    onImportFilesClick={onImportStart}
-                    onImportRepoClick={this._handleShowRepoManager}
-                    onExportClick={this.props.onDownloadCode}
-                    isSaved={this.props.isSaved}
-                    hasSnackId={this.props.hasSnackId}
-                  />,
-                ]}>
-                <FileListEntryDropTarget
-                  className={css(styles.files)}
-                  rest={this.props.entries}
-                  onRename={this._handleEntryRename}>
-                  <div className={css(styles.children)} data-test-id="file-list-project-content">
-                    <FileListChildren
-                      parent=""
-                      entries={this.props.entries}
-                      clipboard={this.state.clipboard}
-                      onCreateFile={this._handleCreateFile}
-                      onCreateFolder={this._handleCreateFolder}
-                      onOpen={this._handleEntryOpen}
-                      onSelect={this._handleEntrySelect}
-                      onFocus={this._handleEntryFocus}
-                      onPaste={this._handleEntryPaste}
-                      onRename={this._handleEntryRename}
-                      onExpand={this._handleEntryExpand}
-                      onDelete={this._handleEntryDelete}
-                      onCopy={this._handleCopy}
-                      onClearClipboard={this._handleClearClipboard}
-                      theme={this.props.theme}
-                      className={css(styles.list)}
-                    />
-                  </div>
-                </FileListEntryDropTarget>
-              </FileListPane>
-              {this.state.deleted
-                .map(group => (
-                  <Toast
-                    key={group.id}
-                    label={`Deleted ${group.path.split('/').pop()}`}
-                    actions={[
-                      {
-                        label: 'Undo',
-                        action: () => {
-                          this._restoreEntries(group.entries);
-                          this._handleDismissDelete(group.id);
+                      <AddIcon />
+                    </FileListPaneButton>,
+                    <FileListPaneButton
+                      key="create-folder"
+                      onClick={() => this._handleCreateFolder()}>
+                      <path
+                        fillOpacity="0.7"
+                        d="M7.25,4 L7.5,4 L7.5,3 L7,3.5 L7,2 L15,2 L15,4 L7.25,4 Z M6.75,4 L5,4 L7,2 L7,3.5 L6.5,4 L6.75,4 Z M1,4 L15,4 L15,14 L1,14 L1,4 Z M7.5,3 L7.5,4 L14,4 L14,3 L7.5,3 Z"
+                      />
+                      <AddIcon />
+                    </FileListPaneButton>,
+                    <FileListImportExportMenu
+                      key="menu"
+                      onImportFilesClick={onImportStart}
+                      onImportRepoClick={this._handleShowRepoManager}
+                      onExportClick={this.props.onDownloadCode}
+                      isSaved={this.props.isSaved}
+                      hasSnackId={this.props.hasSnackId}
+                    />,
+                  ]}>
+                  <FileListEntryDropTarget
+                    className={css(styles.files)}
+                    rest={this.props.entries}
+                    onRename={this._handleEntryRename}>
+                    <div className={css(styles.children)} data-test-id="file-list-project-content">
+                      <FileListChildren
+                        parent=""
+                        entries={this.props.entries}
+                        clipboard={this.state.clipboard}
+                        onCreateFile={this._handleCreateFile}
+                        onCreateFolder={this._handleCreateFolder}
+                        onOpen={this._handleEntryOpen}
+                        onSelect={this._handleEntrySelect}
+                        onFocus={this._handleEntryFocus}
+                        onPaste={this._handleEntryPaste}
+                        onRename={this._handleEntryRename}
+                        onExpand={this._handleEntryExpand}
+                        onDelete={this._handleEntryDelete}
+                        onCopy={this._handleCopy}
+                        onClearClipboard={this._handleClearClipboard}
+                        theme={this.props.theme}
+                        className={css(styles.list)}
+                      />
+                    </div>
+                  </FileListEntryDropTarget>
+                </FileListPane>
+                {this.state.deleted
+                  .map(group => (
+                    <Toast
+                      key={group.id}
+                      label={`Deleted ${group.path.split('/').pop()}`}
+                      actions={[
+                        {
+                          label: 'Undo',
+                          action: () => {
+                            this._restoreEntries(group.entries);
+                            this._handleDismissDelete(group.id);
+                          },
                         },
-                      },
-                      { label: 'Dismiss' },
-                    ]}
-                    onDismiss={() => this._handleDismissDelete(group.id)}
-                  />
-                ))
-                .reverse()}
+                        { label: 'Dismiss' },
+                      ]}
+                      onDismiss={() => this._handleDismissDelete(group.id)}
+                    />
+                  ))
+                  .reverse()}
+              </SidebarShell>
             </ResizablePane>
           ) : null}
       />
@@ -397,14 +395,7 @@ const styles = StyleSheet.create({
     width: 240,
     minWidth: 240,
     height: '100%',
-    borderRight: `1px solid ${colors.border}`,
     zIndex: 10,
-  },
-  paneLight: {
-    backgroundColor: colors.content.light,
-  },
-  paneDark: {
-    backgroundColor: colors.content.dark,
   },
   project: {
     flex: 1,

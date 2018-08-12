@@ -126,7 +126,7 @@ class RepoImportManager extends React.PureComponent<Props, State> {
         visible={this.props.visible}
         onDismiss={this._hideImportModal}
         title="Import git repository">
-        {importing ? <ProgressIndicator duration="45s" className={css(styles.progress)} /> : null}
+        {importing ? <ProgressIndicator duration={45000} className={css(styles.progress)} /> : null}
         <form onSubmit={this._handleImportRepoClick}>
           <p className={!error ? css(styles.paragraph) : css(styles.errorParagraph)}>
             {!error
