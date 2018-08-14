@@ -26,7 +26,6 @@ spec:
       containers:
         - name: snack
           image: "gcr.io/exponentjs/snack:${TAG}"
-          imagePullPolicy: Always
           env:
             - name: SNACK_PORT
               value: "3011"
