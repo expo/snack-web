@@ -20,15 +20,12 @@ const ASSETS = __WEBPACK_BUILD_STATS__.assets
 self.addEventListener('install', event => {
   // Pre-cache all JavaScript, JSON and CSS code
   // This will skip any other assets such as images, they'll be cached when first requested
-  // We don't have this in event.waitUntil because it's not critical to have these before install
-  // These can be fetched later after the service worker is installed
+  // We don't have this in event.waitUntil because we don't want to wait too long before activating
+  // On slower connections, it might take a long time to download all the assets during install
+  // So we activate early and the assets can be downloaded when the page is loading
   caches
     .open(CACHE_NAME)
-    .then(cache => cache.addAll(ASSETS.filter(item => /\.(css|js|json)$/.test(item))))
-    .then(() => {
-      // Activate the service worker when the cache is ready
-      self.skipWaiting();
-    });
+    .then(cache => cache.addAll(ASSETS.filter(item => /\.(css|js|json)$/.test(item))));
 });
 
 self.addEventListener('activate', event => {
@@ -59,5 +56,12 @@ self.addEventListener('fetch', event => {
         });
       })
     );
+  }
+});
+
+self.addEventListener('message', event => {
+  if (event.data === 'skipWaiting') {
+    // The client will let us know when the service worker is ready to take over
+    self.skipWaiting();
   }
 });
