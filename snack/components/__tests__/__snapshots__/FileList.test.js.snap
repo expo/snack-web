@@ -1,0 +1,221 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`closes entry 1`] = `
+Array [
+  Array [
+    Object {
+      "item": Object {
+        "path": "test",
+        "type": "folder",
+      },
+      "state": Object {
+        "isExpanded": true,
+        "isSelected": false,
+      },
+    },
+    Object {
+      "item": Object {
+        "content": "",
+        "path": "test/App.js",
+        "type": "file",
+      },
+      "state": Object {
+        "isOpen": true,
+        "isSelected": true,
+      },
+    },
+    Object {
+      "item": Object {
+        "path": "file.js",
+        "type": "file",
+      },
+      "state": Object {
+        "isOpen": true,
+      },
+    },
+  ],
+]
+`;
+
+exports[`closes entry 2`] = `
+Array [
+  Array [
+    Object {
+      "item": Object {
+        "path": "test",
+        "type": "folder",
+      },
+      "state": Object {
+        "isExpanded": true,
+        "isSelected": true,
+      },
+    },
+    Object {
+      "item": Object {
+        "content": "",
+        "path": "test/App.js",
+        "type": "file",
+      },
+      "state": Object {
+        "isFocused": false,
+        "isOpen": false,
+        "isSelected": false,
+      },
+    },
+    Object {
+      "item": Object {
+        "path": "file.js",
+        "type": "file",
+      },
+      "state": Object {
+        "isOpen": true,
+      },
+    },
+  ],
+]
+`;
+
+exports[`closes entry 3`] = `
+Array [
+  Array [
+    Object {
+      "item": Object {
+        "path": "test",
+        "type": "folder",
+      },
+      "state": Object {
+        "isExpanded": true,
+        "isSelected": true,
+      },
+    },
+    Object {
+      "item": Object {
+        "content": "",
+        "path": "test/App.js",
+        "type": "file",
+      },
+      "state": Object {
+        "isOpen": true,
+        "isSelected": true,
+      },
+    },
+    Object {
+      "item": Object {
+        "path": "file.js",
+        "type": "file",
+      },
+      "state": Object {
+        "isFocused": false,
+        "isOpen": false,
+        "isSelected": false,
+      },
+    },
+  ],
+]
+`;
+
+exports[`closes entry 4`] = `
+Array [
+  Array [
+    Object {
+      "item": Object {
+        "path": "test",
+        "type": "folder",
+      },
+      "state": Object {
+        "isExpanded": true,
+        "isSelected": false,
+      },
+    },
+    Object {
+      "item": Object {
+        "content": "",
+        "path": "test/App.js",
+        "type": "file",
+      },
+      "state": Object {
+        "isFocused": false,
+        "isOpen": false,
+        "isSelected": false,
+      },
+    },
+    Object {
+      "item": Object {
+        "path": "file.js",
+        "type": "file",
+      },
+      "state": Object {
+        "isOpen": true,
+      },
+    },
+  ],
+]
+`;
+
+exports[`closes entry 5`] = `
+Array [
+  Array [
+    Object {
+      "item": Object {
+        "path": "test",
+        "type": "folder",
+      },
+      "state": Object {
+        "isExpanded": true,
+        "isSelected": false,
+      },
+    },
+    Object {
+      "item": Object {
+        "content": "",
+        "path": "test/App.js",
+        "type": "file",
+      },
+      "state": Object {
+        "isFocused": false,
+        "isOpen": false,
+        "isSelected": false,
+      },
+    },
+    Object {
+      "item": Object {
+        "path": "file.js",
+        "type": "file",
+      },
+      "state": Object {
+        "isFocused": false,
+        "isOpen": false,
+        "isSelected": false,
+      },
+    },
+  ],
+]
+`;
+
+exports[`renders children 1`] = `
+<FileListImportManager
+  className="container_wgmchy"
+  entries={
+    Array [
+      Object {
+        "item": Object {
+          "content": "",
+          "path": "App.js",
+          "type": "file",
+        },
+        "state": Object {},
+      },
+      Object {
+        "item": Object {
+          "path": "components",
+          "type": "folder",
+        },
+        "state": Object {},
+      },
+    ]
+  }
+  onImportFile={[Function]}
+  render={[Function]}
+  uploadFileAsync={[MockFunction]}
+/>
+`;

@@ -1,0 +1,19 @@
+[ignore]
+; Ignore error from dependencies
+.*/node_modules/.*/__tests__/.*
+.*/node_modules/.*/test/.*
+
+[include]
+
+[libs]
+
+[lints]
+
+[options]
+suppress_type=$FlowFixMe
+
+suppress_comment=.*\\$FlowFixMe
+suppress_comment=.*\\$FlowIssue
+suppress_comment=.*\\$FlowIgnore
+
+[strict]

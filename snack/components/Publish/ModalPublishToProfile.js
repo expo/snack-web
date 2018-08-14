@@ -1,0 +1,101 @@
+/* @flow */
+
+import * as React from 'react';
+import { StyleSheet, css } from 'aphrodite';
+import { connect } from 'react-redux';
+
+import Button from '../shared/Button';
+import ModalDialog from '../shared/ModalDialog';
+import colors from '../../configs/colors';
+
+type Props = {|
+  authFlow?: 'save1' | 'save2',
+  visible: boolean,
+  snackUrl?: string,
+  zipUrl?: string,
+  isSaving: boolean,
+  onDismiss: () => mixed,
+  onPublish: () => mixed,
+|};
+
+class ModalPublishToProfile extends React.PureComponent<Props> {
+  componentDidMount() {
+    document.addEventListener('keydown', this._handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this._handleKeyDown);
+  }
+
+  _handleKeyDown = (e: any) => {
+    if (this.props.visible && e.keyCode === 13) {
+      e.preventDefault();
+      this.props.onPublish();
+    }
+  };
+
+  render() {
+    const copy =
+      this.props.authFlow === 'save2'
+        ? 'Want a stable and easy to remember URL?'
+        : 'Want to easily find this snack again?';
+
+    const cta = this.props.authFlow === 'save2' ? 'Save to your Expo Profile' : 'Save to Profile';
+
+    return (
+      <ModalDialog
+        visible={this.props.visible}
+        title="Save your snack"
+        onDismiss={this.props.onDismiss}>
+        <p className={css(styles.text)} style={{ marginTop: 16 }}>
+          The shareable link to your Snack{' '}
+          <a href={this.props.snackUrl} target="blank">
+            {this.props.snackUrl}
+          </a>
+        </p>
+        <p className={css(styles.text)}>
+          Every time you save, your shared link will be updated. {copy} Log in or sign up!
+        </p>
+        <Button
+          large
+          variant="secondary"
+          onClick={this.props.onPublish}
+          loading={this.props.isSaving}>
+          {cta}
+        </Button>
+        {this.props.zipUrl ? (
+          <p className={css(styles.caption)}>
+            <a className={css(styles.link)} href={this.props.zipUrl} target="blank">
+              Download .zip file
+            </a>
+          </p>
+        ) : null}
+      </ModalDialog>
+    );
+  }
+}
+
+export default connect(state => ({
+  authFlow: state.splitTestSettings.authFlow || 'save1',
+}))(ModalPublishToProfile);
+
+const styles = StyleSheet.create({
+  text: {
+    marginBottom: 24,
+    fontSize: '16px',
+    padding: '0 24px 0 24px',
+    lineHeight: '22px',
+    textAlign: 'center',
+  },
+  caption: {
+    marginTop: 24,
+    fontSize: '16px',
+    lineHeight: '22px',
+    textAlign: 'center',
+  },
+  link: {
+    color: colors.primary,
+    cursor: 'pointer',
+    textDecoration: 'underline',
+  },
+});

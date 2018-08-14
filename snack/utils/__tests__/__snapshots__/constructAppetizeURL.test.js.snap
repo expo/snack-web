@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`constructs appetize URL 1`] = `"https://appetize.io/embed/8bnmakzrptf1hv9dq7v7bnteem?screenOnly=false&autoplay=false&embed=true&device=iphone5&xdocMsg=true&deviceColor=black&xDocMsg=true&orientation=portrait&debug=true&params=%7B%22EXKernelLaunchUrlDefaultsKey%22%3A%22exp%3A%2F%2Fexpo.io%2F%40snack%2Fsdk.25.0.0-456a768%22%2C%22EXKernelDisableNuxDefaultsKey%22%3Atrue%7D"`;
+
+exports[`constructs appetize URL 2`] = `"https://appetize.io/embed/af5yxyj38991wyb09c5p7n1790?screenOnly=true&scale=2&autoplay=true&embed=true&device=nexus5&launchUrl=exp%3A%2F%2Fexpo.io%2F%40snack%2Fsdk.25.0.0-456a768&xdocMsg=true&deviceColor=black&xDocMsg=true&orientation=portrait&debug=true&pc=asdf&params=%7B%22EXKernelLaunchUrlDefaultsKey%22%3A%22exp%3A%2F%2Fexpo.io%2F%40snack%2Fsdk.25.0.0-456a768%22%2C%22EXKernelDisableNuxDefaultsKey%22%3Atrue%7D"`;
