@@ -1,8 +1,13 @@
 /* @flow */
 
-self.window = self; // needed for pubnub to work
+import nullthrows from 'nullthrows';
+import resources from '../../resources.json';
 
-const nullthrows = require('nullthrows').default;
+self.importScripts(resources['babel-polyfill']);
+
+self.window = self; // Needed for pubnub to work
+
+// Must load this with `require` to ensure proper order
 const { SnackSession } = require('snack-sdk');
 
 let snackSession;

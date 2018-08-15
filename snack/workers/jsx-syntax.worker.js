@@ -11,7 +11,7 @@ import resources from '../../resources.json';
 
 declare var ts;
 
-self.importScripts([resources.typescript]);
+self.importScripts(resources.typescript);
 
 function getLineNumberAndOffset(start, lines) {
   let line = 0;
