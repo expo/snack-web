@@ -14,6 +14,7 @@ import KeybindingsManager from './shared/KeybindingsManager';
 import ProgressIndicator from './shared/ProgressIndicator';
 import ContentShell from './Shell/ContentShell';
 import LayoutShell from './Shell/LayoutShell';
+import EditorShell from './Shell/EditorShell';
 import PageMetadata from './PageMetadata';
 import DeviceInstructionsModal, {
   type ConnectionMethod,
@@ -512,7 +513,6 @@ class EditorView extends React.Component<Props, State> {
       deviceError,
       onClearDeviceLogs,
       uploadFileAsync,
-      theme,
     } = this.props;
 
     const annotations = [];
@@ -670,7 +670,7 @@ class EditorView extends React.Component<Props, State> {
                             return <NoFileSelected />;
                           }
 
-                          return null;
+                          return <EditorShell />;
                         }}
                       </LazyLoad>
                     </LayoutShell>

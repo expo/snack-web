@@ -10,6 +10,7 @@ import ToolbarShell from './ToolbarShell';
 import ToolbarTitleShell from './ToolbarTitleShell';
 import FooterShell from './FooterShell';
 import SidebarShell from './SidebarShell';
+import EditorShell from './EditorShell';
 
 export default function AppShell() {
   return (
@@ -23,6 +24,7 @@ export default function AppShell() {
       </ToolbarShell>
       <LayoutShell>
         <SidebarShell />
+        <EditorShell />
       </LayoutShell>
       <FooterShell />
     </ContentShell>
