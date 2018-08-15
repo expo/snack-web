@@ -97,7 +97,7 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        exclude: /(node_modules|(vendor\/.+.bundle\.js))/,
+        exclude: /(node_modules|snack-sdk|(vendor\/.+.bundle\.js))/,
         use: {
           loader: 'babel-loader',
         },
