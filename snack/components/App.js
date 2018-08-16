@@ -298,6 +298,9 @@ class App extends React.Component<Props, State> {
   componentDidMount() {
     if (window.location.host.includes('expo.io')) {
       Raven.config('https://6501f7d527764d85b045b0ce31927c75@sentry.io/191351').install();
+      Raven.setTagsContext({
+        build_date: new Date(process.env.BUILD_TIMESTAMP || 0).toUTCString(),
+      });
     }
 
     this._intializeSnackSessionWorker();
