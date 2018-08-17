@@ -1,48 +1,59 @@
 /* @flow */
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
+import colors from '../../configs/colors';
 
-const Block = ({ className }) => (
+const Block = ({ className, white, black }) => (
   <svg width="82px" height="95px" viewBox="0 0 82 95" className={className}>
     <g
       transform="translate(2.000000, 2.000000)"
-      stroke="#000000"
+      stroke={black}
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth="3">
-      <polygon fill="#FFFFFF" points="0 22 40 44 40 91 0 69" />
-      <polygon fill="#FFFFFF" points="0 22 39 0 78 22 39 44" />
-      <polygon fill="#000000" points="78 69 40 91 40 44 78 22" />
+      <polygon fill={white} points="0 22 40 44 40 91 0 69" />
+      <polygon fill={white} points="0 22 39 0 78 22 39 44" />
+      <polygon fill={black} points="78 69 40 91 40 44 78 22" />
     </g>
   </svg>
 );
 
-const Sphere = ({ className }) => (
+const Sphere = ({ className, white, black }) => (
   <svg width="48px" height="48px" viewBox="0 0 54 54" className={className}>
-    <g transform="translate(2.000000, 2.000000)" stroke="#000000" strokeWidth="3">
-      <circle fill="#FFFFFF" cx="24" cy="24" r="24" />
+    <g transform="translate(2.000000, 2.000000)" stroke={black} strokeWidth="3">
+      <circle fill={white} cx="24" cy="24" r="24" />
       <path
         d="M44.6358987,12 C41.7645228,28.8507274 27.0454631,41.1867351 9.80745621,41.1896317 C8.85831621,41.1896317 7.9291581,41.1896317 7,41.0707734 C15.5879325,49.5304234 29.1803651,50.3420227 38.7303845,42.9653834 C48.2804039,35.5887441 50.8101654,22.3240171 44.6358987,12 Z"
-        fill="#000000"
+        fill={black}
       />
     </g>
   </svg>
 );
 
-export default function AnimatedLogo() {
+type Props = {
+  theme: ThemeName,
+};
+
+function AnimatedLogo({ theme }: Props) {
+  const white = theme === 'dark' ? colors.content.dark : colors.content.light;
+  const black = theme === 'dark' ? colors.text.dark : colors.text.light;
+
   return (
     <div className={css(styles.container)}>
-      <Block className={css(styles.item, styles.a)} />
-      <Block className={css(styles.item, styles.e)} />
-      <Block className={css(styles.item, styles.b)} />
-      <Block className={css(styles.item, styles.c)} />
-      <Block className={css(styles.item, styles.d)} />
-      <Block className={css(styles.item, styles.f)} />
-      <Block className={css(styles.item, styles.g)} />
-      <Sphere className={css(styles.item, styles.o)} />
+      <Block white={white} black={black} className={css(styles.item, styles.a)} />
+      <Block white={white} black={black} className={css(styles.item, styles.e)} />
+      <Block white={white} black={black} className={css(styles.item, styles.b)} />
+      <Block white={white} black={black} className={css(styles.item, styles.c)} />
+      <Block white={white} black={black} className={css(styles.item, styles.d)} />
+      <Block white={white} black={black} className={css(styles.item, styles.f)} />
+      <Block white={white} black={black} className={css(styles.item, styles.g)} />
+      <Sphere white={white} black={black} className={css(styles.item, styles.o)} />
     </div>
   );
 }
+
+export default withThemeName(AnimatedLogo);
 
 const translations = {
   a: 'translate3d(39px, 46.5px, 0)',
