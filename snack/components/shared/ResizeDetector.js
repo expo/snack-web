@@ -48,8 +48,11 @@ export default class ResizeDetector extends React.Component<Props> {
 
 const styles = StyleSheet.create({
   container: {
-    height: '100%',
-    width: '100%',
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    minWidth: 0,
+    minHeight: 0,
     position: 'relative',
   },
   phantom: {

@@ -696,7 +696,6 @@ class EditorView extends React.Component<Props, State> {
                       />
                     ) : null}
                   </div>
-                  }
                   {devicePreviewShown ? (
                     <DevicePreview
                       detachable
