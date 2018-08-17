@@ -2,12 +2,11 @@
 
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
-import classnames from 'classnames';
 
 import ToggleSwitch from './shared/ToggleSwitch';
 import ToggleButtons from './shared/ToggleButtons';
 import LoadingText from './shared/LoadingText';
-import colors from '../configs/colors';
+import EmbeddedFooterShell from './Shell/EmbeddedFooterShell';
 import withThemeName, { type ThemeName } from './theming/withThemeName';
 
 type Props = {|
@@ -18,7 +17,6 @@ type Props = {|
   onToggleDevicePreview: Function,
   onChangeDevicePreviewPlatform: Function,
   theme: ThemeName,
-  className?: string,
 |};
 
 class EmbeddedEditorFooter extends React.PureComponent<Props, void> {
@@ -31,16 +29,10 @@ class EmbeddedEditorFooter extends React.PureComponent<Props, void> {
       onToggleDevicePreview,
       onChangeDevicePreviewPlatform,
       theme,
-      className,
     } = this.props;
 
     return (
-      <div
-        className={classnames(
-          css(styles.footer),
-          className,
-          isResolving ? styles.footerLoading : undefined
-        )}>
+      <EmbeddedFooterShell type={isResolving ? 'loading' : undefined}>
         <div className={css(styles.left)}>
           {isResolving ? (
             <LoadingText className={css(styles.statusText)}>{loadingMessage}</LoadingText>
@@ -62,7 +54,7 @@ class EmbeddedEditorFooter extends React.PureComponent<Props, void> {
             label="Platform"
           />
         </div>
-      </div>
+      </EmbeddedFooterShell>
     );
   }
 }
@@ -70,22 +62,6 @@ class EmbeddedEditorFooter extends React.PureComponent<Props, void> {
 export default withThemeName(EmbeddedEditorFooter);
 
 const styles = StyleSheet.create({
-  footer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderTop: `1px solid ${colors.border}`,
-    color: '#999',
-    fontSize: '.85em',
-    transition: 'background .2s',
-    padding: '.25em 0',
-  },
-
-  footerLoading: {
-    backgroundColor: colors.primary,
-    color: '#fff',
-  },
-
   loadingText: {
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',

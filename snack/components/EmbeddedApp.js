@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import App from './App';
+import EmbeddedShell from './Shell/EmbeddedShell';
 import type { QueryParams } from '../types';
 
 type State = {|
@@ -44,7 +45,7 @@ export default class EmbeddedApp extends React.PureComponent<*, State> {
     const { query, receivedDataEvent } = this.state;
 
     if (query && query.waitForData && !receivedDataEvent) {
-      return null;
+      return <EmbeddedShell />;
     }
 
     return <App {...this.props} query={query} isEmbedded />;

@@ -5,6 +5,7 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { parse } from 'query-string';
 import SnackDataManager from './SnackDataManager';
 import AppShell from './Shell/AppShell';
+import EmbeddedShell from './Shell/EmbeddedShell';
 import App from './App';
 import EmbeddedApp from './EmbeddedApp';
 import NonExistent from './NonExistent';
@@ -14,10 +15,12 @@ export default class Router extends React.Component<{}> {
     <SnackDataManager
       params={props.match.params}
       render={status => {
+        const isEmbedded = props.location.pathname.split('/')[1] === 'embedded';
+
         switch (status.type) {
           case 'idle':
           case 'done':
-            if (props.location.pathname.split('/')[1] === 'embedded') {
+            if (isEmbedded) {
               return (
                 <EmbeddedApp {...props} query={parse(props.location.search)} snack={status.data} />
               );
@@ -27,6 +30,10 @@ export default class Router extends React.Component<{}> {
           case 'error':
             return <NonExistent />;
           default:
+            if (isEmbedded) {
+              return <EmbeddedShell />;
+            }
+
             return <AppShell />;
         }
       }}

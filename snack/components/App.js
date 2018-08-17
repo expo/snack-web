@@ -16,6 +16,7 @@ import AuthManager from '../auth/authManager';
 import ThemeProvider from './theming/ThemeProvider';
 import LazyLoad from './shared/LazyLoad';
 import AppShell from './Shell/AppShell';
+import EmbeddedShell from './Shell/EmbeddedShell';
 import AppDetails from './AppDetails';
 import constants from '../configs/constants';
 import { versions, DEFAULT_SDK_VERSION, FALLBACK_SDK_VERSION } from '../configs/sdk';
@@ -892,6 +893,8 @@ class App extends React.Component<Props, State> {
                   wasUpgraded={this.state.wasUpgraded}
                   viewer={this.props.viewer}
                 />
+              ) : this.props.isEmbedded ? (
+                <EmbeddedShell />
               ) : (
                 <AppShell />
               )}

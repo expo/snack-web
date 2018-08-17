@@ -5,10 +5,10 @@ import { connect } from 'react-redux';
 import { StyleSheet, css } from 'aphrodite';
 import shortid from 'shortid';
 
-
 import OpenWithExpoButton from './shared/OpenWithExpoButton';
 import LazyLoad from './shared/LazyLoad';
 
+import EmbeddedToolbarShell from './Shell/EmbeddedToolbarShell';
 import PageMetadata from './PageMetadata';
 import EmbeddedEditorTitle from './EmbeddedEditorTitle';
 import EmbeddedEditorFooter from './EmbeddedEditorFooter';
@@ -139,11 +139,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
           theme === 'light' ? styles.backgroundLight : styles.backgroundDark
         )}>
         <PageMetadata name={name} description={description} params={params} />
-        <div
-          className={css(
-            styles.toolbar,
-            theme === 'light' ? styles.toolbarLight : styles.toolbarDark
-          )}>
+        <EmbeddedToolbarShell>
           <EmbeddedEditorTitle
             name={name}
             description={description}
@@ -164,7 +160,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
               }
             />
           </a>
-        </div>
+        </EmbeddedToolbarShell>
         <div className={css(styles.editorArea)}>
           <SimpleEditor
             path={entry.item.path}
@@ -269,25 +265,6 @@ const styles = StyleSheet.create({
 
   backgroundDark: {
     backgroundColor: colors.background.dark,
-    color: colors.text.dark,
-  },
-
-  toolbar: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottom: `1px solid ${colors.border}`,
-    padding: '.25em',
-  },
-
-  toolbarLight: {
-    backgroundColor: '#fff',
-    color: colors.text.light,
-  },
-
-  toolbarDark: {
-    backgroundColor: '#242B38',
     color: colors.text.dark,
   },
 
