@@ -804,7 +804,7 @@ class App extends React.Component<Props, State> {
 
     this._sendAction({
       type: 'SET_DEVICE_ID',
-      payload: { deviceId },
+      payload: deviceId,
     });
   };
 
