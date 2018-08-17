@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import ReactDOM from 'react-dom';
-import withThemeName, { type ThemeName } from '../theming/withThemeName';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import { lastDraggedEntry } from './FileListEntryBase';
 import { getUniquePath } from '../../utils/fileUtilities';
 import dragEventIncludes from '../../utils/dragEventIncludes';

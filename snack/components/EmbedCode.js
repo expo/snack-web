@@ -11,7 +11,7 @@ import ToggleButtons from './shared/ToggleButtons';
 
 import colors from '../configs/colors';
 import constants from '../configs/constants';
-import withThemeName, { type ThemeName } from './theming/withThemeName';
+import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 
 const handleClick = (e: *) => e.target.select();
 

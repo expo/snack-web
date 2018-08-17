@@ -7,7 +7,7 @@ import Modal from '../shared/Modal';
 import ModalDialog from '../shared/ModalDialog';
 import convertDataTransferItemsToFiles from '../../utils/convertDataTransferItemsToFiles';
 import colors from '../../configs/colors';
-import withThemeName, { type ThemeName } from '../theming/withThemeName';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import { getUniquePath } from '../../utils/fileUtilities';
 import type {
   WebkitFileEntry,

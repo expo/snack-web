@@ -26,7 +26,7 @@ import { isNotMobile } from '../utils/detectPlatform';
 import type { TextFileEntry, FileSystemEntry, QueryParams } from '../types';
 import type { SDKVersion } from '../configs/sdk';
 
-import withThemeName, { type ThemeName } from './theming/withThemeName';
+import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 
 const SESSION_ID = `snack-session-${shortid()}`;
 

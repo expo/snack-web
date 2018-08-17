@@ -3,7 +3,7 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { StyleSheet, css } from 'aphrodite';
-import withThemeName, { type ThemeName } from '../theming/withThemeName';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import colors from '../../configs/colors';
 
 type Props = {

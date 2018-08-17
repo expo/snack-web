@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
-import withThemeName, { type ThemeName } from '../theming/withThemeName';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import AnimatedLogo from '../shared/AnimatedLogo';
 
 type Props = {

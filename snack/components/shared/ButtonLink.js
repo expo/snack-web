@@ -3,7 +3,7 @@
 import * as React from 'react';
 import classnames from 'classnames';
 import { getClassNames, type ButtonCommonProps } from './Button';
-import withThemeName, { type ThemeName } from '../theming/withThemeName';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import Segment from '../../utils/Segment';
 
 type Props = ButtonCommonProps & {|

@@ -5,7 +5,7 @@ import { StyleSheet, css } from 'aphrodite';
 
 import querystring from 'query-string';
 
-import withThemeName, { type ThemeName } from './theming/withThemeName';
+import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 
 type Props = {
   name: ?string,

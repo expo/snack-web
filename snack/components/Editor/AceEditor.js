@@ -6,7 +6,7 @@ import Helmet from 'react-helmet';
 import debounce from 'lodash/debounce';
 
 import AceSessionManager from '../../utils/AceSessionManager';
-import withThemeName, { type ThemeName } from '../theming/withThemeName';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import type { Annotation } from '../../utils/convertErrorToAnnotation';
 
 import constants from '../../configs/constants';

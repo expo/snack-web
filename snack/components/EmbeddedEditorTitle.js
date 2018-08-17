@@ -5,7 +5,7 @@ import { StyleSheet, css } from 'aphrodite';
 
 import Popover from './shared/Popover';
 import getSnackURLFromEmbed from '../utils/getSnackURLFromEmbed';
-import withThemeName, { type ThemeName } from './theming/withThemeName';
+import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 
 
 

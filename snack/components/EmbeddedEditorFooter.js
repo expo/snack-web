@@ -7,7 +7,7 @@ import ToggleSwitch from './shared/ToggleSwitch';
 import ToggleButtons from './shared/ToggleButtons';
 import LoadingText from './shared/LoadingText';
 import EmbeddedFooterShell from './Shell/EmbeddedFooterShell';
-import withThemeName, { type ThemeName } from './theming/withThemeName';
+import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 
 type Props = {|
   isResolving: boolean,

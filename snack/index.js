@@ -3,6 +3,7 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import PreferencesProvider from './components/Preferences/PreferencesProvider';
 import ServiceWorkerManager from './components/ServiceWorkerManager';
 import Router from './components/Router';
 import createStore from './redux/createStore';
@@ -15,7 +16,9 @@ class SnackEntry extends React.Component<{}> {
       <React.Fragment>
         <ServiceWorkerManager />
         <Provider store={store}>
-          <Router />
+          <PreferencesProvider>
+            <Router />
+          </PreferencesProvider>
         </Provider>
       </React.Fragment>
     );

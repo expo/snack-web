@@ -2,7 +2,7 @@
 /* eslint-disable flowtype/generic-spacing */
 
 import type { SDKVersion } from './configs/sdk';
-import type { ThemeName } from './components/theming/withThemeName';
+import type { ThemeName } from './components/Preferences/withThemeName';
 
 // TODO: unify with snack-sdk.types
 type RequiredSnackFileAttributes = {

@@ -13,7 +13,7 @@ import 'prismjs/components/prism-markup';
 import 'prismjs/components/prism-jsx';
 import 'prismjs/components/prism-json';
 import 'prismjs/components/prism-markdown';
-import withThemeName, { type ThemeName } from '../theming/withThemeName';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import light from './themes/simple-editor-light';
 import dark from './themes/simple-editor-dark';
 import constants from '../../configs/constants';

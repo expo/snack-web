@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import { ThemeContext } from './ThemeProvider';
+import { PreferencesContext } from './PreferencesProvider';
 
 export type ThemeName = 'light' | 'dark';
 
@@ -18,9 +18,9 @@ export default function withThemeName<C: React.ComponentType<*>>(
       const { forwardedRef, ...rest } = this.props;
 
       return (
-        <ThemeContext.Consumer>
-          {theme => <Comp ref={forwardedRef} theme={theme} {...rest} />}
-        </ThemeContext.Consumer>
+        <PreferencesContext.Consumer>
+          {props => <Comp ref={forwardedRef} theme={props.preferences.theme} {...rest} />}
+        </PreferencesContext.Consumer>
       );
     }
   }

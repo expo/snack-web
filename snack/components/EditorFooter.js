@@ -9,7 +9,7 @@ import LoadingText from './shared/LoadingText';
 import FooterShell from './Shell/FooterShell';
 import SDKVersionSwitcher from './SDKVersionSwitcher';
 import colors from '../configs/colors';
-import withThemeName, { type ThemeName } from './theming/withThemeName';
+import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 
 import type { Annotation } from '../utils/convertErrorToAnnotation';
 import type { SDKVersion } from '../configs/sdk';

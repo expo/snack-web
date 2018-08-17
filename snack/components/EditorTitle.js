@@ -4,7 +4,7 @@ import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 
 import ModalEditTitleAndDescription from './ModalEditTitleAndDescription';
-import withThemeName, { type ThemeName } from './theming/withThemeName';
+import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 import * as defaults from '../configs/defaults';
 
 

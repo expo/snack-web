@@ -13,7 +13,6 @@ import Segment from '../utils/Segment';
 import withAuth, { type AuthProps } from '../auth/withAuth';
 import AuthManager from '../auth/authManager';
 
-import ThemeProvider from './theming/ThemeProvider';
 import LazyLoad from './shared/LazyLoad';
 import AppShell from './Shell/AppShell';
 import EmbeddedShell from './Shell/EmbeddedShell';
@@ -187,7 +186,6 @@ type State = {|
   deviceLogs: Array<DeviceLog>,
   isPreview: boolean,
   wasUpgraded: boolean,
-  theme: 'light' | 'dark',
 |};
 
 class App extends React.Component<Props, State> {
@@ -206,7 +204,6 @@ class App extends React.Component<Props, State> {
     // TODO(satya164): is this correct? we don't match for sdkVersion in the router
     let sdkVersion = props.match.params.sdkVersion || DEFAULT_SDK_VERSION;
     let dependencies = usingDefaultCode ? INITIAL_DEPENDENCIES : {};
-    let theme = 'light';
 
     if (props.snack && props.snack.dependencies) {
       dependencies = props.snack.dependencies;
@@ -223,7 +220,6 @@ class App extends React.Component<Props, State> {
       name = props.query.name || name;
       description = props.query.description || description;
       sdkVersion = props.query.sdkVersion || sdkVersion;
-      theme = props.query.theme || theme;
       code = props.query.code || code;
     }
 
@@ -287,7 +283,6 @@ class App extends React.Component<Props, State> {
       deviceError: null,
       channel: '',
       deviceId: '',
-      theme,
       isPreview,
       params,
       wasUpgraded,
@@ -814,11 +809,6 @@ class App extends React.Component<Props, State> {
     });
   };
 
-  _handleToggleTheme = () =>
-    this.setState(state => ({
-      theme: state.theme === 'light' ? 'dark' : 'light',
-    }));
-
   _findFocusedEntry = (entries: FileSystemEntry[]): ?(TextFileEntry | AssetFileEntry) =>
     /* $FlowFixMe */
     entries.find(
@@ -847,59 +837,56 @@ class App extends React.Component<Props, State> {
       );
     } else {
       return (
-        <ThemeProvider name={this.state.theme}>
-          <LazyLoad
-            load={() => {
-              if (this.props.isEmbedded) {
-                return import('./EmbeddedEditorView');
-              } else {
-                return import('./EditorView');
-              }
-            }}>
-            {({ loaded, data: Comp }) =>
-              loaded ? (
-                <Comp
-                  creatorUsername={this.state.params.username}
-                  fileEntries={this.state.fileEntries}
-                  entry={this._findFocusedEntry(this.state.fileEntries)}
-                  channel={this.state.channel}
-                  name={this.state.snackSessionState.name}
-                  description={this.state.snackSessionState.description}
-                  sdkVersion={this.state.snackSessionState.sdkVersion}
-                  isSaved={this.state.snackSessionState.isSaved}
-                  isResolving={this.state.snackSessionState.isResolving}
-                  loadingMessage={this.state.snackSessionState.loadingMessage}
-                  dependencies={this.state.snackSessionState.dependencies}
-                  params={this.state.params}
-                  onToggleTheme={this._handleToggleTheme}
-                  onFileEntriesChange={this._handleFileEntriesChange}
-                  onChangeCode={this._handleChangeCode}
-                  onChangeName={this._handleChangeName}
-                  onChangeDescription={this._handleChangeDescription}
-                  onChangeSDKVersion={this._handleChangeSDKVersion}
-                  onClearDeviceLogs={this._handleClearDeviceLogs}
-                  onSaveAsync={this._handleSaveAsync}
-                  onSignIn={this._updateUser}
-                  onDownloadAsync={this._handleDownloadAsync}
-                  uploadFileAsync={this._uploadAssetAsync}
-                  syncDependenciesAsync={this._syncDependenciesAsync}
-                  setDeviceId={this._setDeviceId}
-                  deviceId={this.state.deviceId}
-                  connectedDevices={this.state.connectedDevices}
-                  deviceError={this.state.deviceError}
-                  deviceLogs={this.state.deviceLogs}
-                  sessionID={this.props.query.session_id}
-                  query={this.props.query}
-                  wasUpgraded={this.state.wasUpgraded}
-                  viewer={this.props.viewer}
-                />
-              ) : this.props.isEmbedded ? (
-                <EmbeddedShell />
-              ) : (
-                <AppShell />
-              )}
-          </LazyLoad>
-        </ThemeProvider>
+        <LazyLoad
+          load={() => {
+            if (this.props.isEmbedded) {
+              return import('./EmbeddedEditorView');
+            } else {
+              return import('./EditorView');
+            }
+          }}>
+          {({ loaded, data: Comp }) =>
+            loaded ? (
+              <Comp
+                creatorUsername={this.state.params.username}
+                fileEntries={this.state.fileEntries}
+                entry={this._findFocusedEntry(this.state.fileEntries)}
+                channel={this.state.channel}
+                name={this.state.snackSessionState.name}
+                description={this.state.snackSessionState.description}
+                sdkVersion={this.state.snackSessionState.sdkVersion}
+                isSaved={this.state.snackSessionState.isSaved}
+                isResolving={this.state.snackSessionState.isResolving}
+                loadingMessage={this.state.snackSessionState.loadingMessage}
+                dependencies={this.state.snackSessionState.dependencies}
+                params={this.state.params}
+                onFileEntriesChange={this._handleFileEntriesChange}
+                onChangeCode={this._handleChangeCode}
+                onChangeName={this._handleChangeName}
+                onChangeDescription={this._handleChangeDescription}
+                onChangeSDKVersion={this._handleChangeSDKVersion}
+                onClearDeviceLogs={this._handleClearDeviceLogs}
+                onSaveAsync={this._handleSaveAsync}
+                onSignIn={this._updateUser}
+                onDownloadAsync={this._handleDownloadAsync}
+                uploadFileAsync={this._uploadAssetAsync}
+                syncDependenciesAsync={this._syncDependenciesAsync}
+                setDeviceId={this._setDeviceId}
+                deviceId={this.state.deviceId}
+                connectedDevices={this.state.connectedDevices}
+                deviceError={this.state.deviceError}
+                deviceLogs={this.state.deviceLogs}
+                sessionID={this.props.query.session_id}
+                query={this.props.query}
+                wasUpgraded={this.state.wasUpgraded}
+                viewer={this.props.viewer}
+              />
+            ) : this.props.isEmbedded ? (
+              <EmbeddedShell />
+            ) : (
+              <AppShell />
+            )}
+        </LazyLoad>
       );
     }
   }

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import JSON5 from 'json5';
 import { isModulePreloaded } from 'snack-sdk';
-import withThemeName, { type ThemeName } from '../theming/withThemeName';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import ResizablePane from '../shared/ResizablePane';
 import Toast from '../shared/Toast';
 import SidebarShell from '../Shell/SidebarShell';

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import Textarea from 'react-textarea-autosize';
-import withThemeName, { type ThemeName } from '../theming/withThemeName';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import colors from '../../configs/colors';
 
 type Props = {

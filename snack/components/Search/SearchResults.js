@@ -8,7 +8,7 @@ import { StyleSheet, css } from 'aphrodite';
 import { AutoSizer, List, InfiniteLoader } from 'react-virtualized';
 import ProgressIndicator from '../shared/ProgressIndicator';
 import SearchPlaceholder from './SearchPlaceholder';
-import withThemeName, { type ThemeName } from '../theming/withThemeName';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import Segment from '../../utils/Segment';
 
 const gql: any = String.raw;

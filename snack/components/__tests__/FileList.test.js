@@ -7,7 +7,7 @@ import { shallow } from 'enzyme';
 import toJSON from 'enzyme-to-json';
 import FileList from '../FileList/FileList';
 
-jest.mock('../theming/withThemeName', () => c => c);
+jest.mock('../Preferences/withThemeName', () => c => c);
 
 beforeEach(StyleSheetTestUtils.suppressStyleInjection);
 afterEach(StyleSheetTestUtils.clearBufferAndResumeStyleInjection);

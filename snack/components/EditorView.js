@@ -40,9 +40,9 @@ import * as defaults from '../configs/defaults';
 import convertErrorToAnnotation from '../utils/convertErrorToAnnotation';
 import lintEntry from '../utils/lintEntry';
 import prettierCode from '../utils/prettierCode';
-import { isNotMobile } from '../utils/detectPlatform';
 import { isIntentionallyNamed } from '../utils/projectNames';
-import withThemeName, { type ThemeName } from './theming/withThemeName';
+import withPreferences, { type PreferencesContextType } from './Preferences/withPreferences';
+import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 
 import type { Error as DeviceError, Annotation } from '../utils/convertErrorToAnnotation';
 import type { SDKVersion } from '../configs/sdk';
@@ -63,7 +63,7 @@ type DeviceLog = {|
   payload: Array<any>,
 |};
 
-type Props = {|
+type Props = PreferencesContextType & {|
   viewer?: Viewer,
   creatorUsername?: string,
   fileEntries: FileSystemEntry[],
@@ -84,7 +84,6 @@ type Props = {|
   deviceError: ?DeviceError,
   deviceLogs: Array<DeviceLog>,
   sdkVersion: SDKVersion,
-  onToggleTheme: () => void,
   onClearDeviceLogs: () => void,
   onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<void>,
   onChangeCode: (code: string) => void,
@@ -102,7 +101,6 @@ type Props = {|
   setDeviceId: (deviceId: string) => Promise<void>,
   deviceId: ?string,
   theme: ThemeName,
-  initialPreviewPlatform?: 'android' | 'ios',
   testPreviewPlatform?: 'android' | 'ios',
   testConnectionMethod?: ConnectionMethod,
   previewQueue: 'standard' | 'test',
@@ -121,13 +119,6 @@ type State = {|
     | null,
   isDownloading: boolean,
   deviceLogsShown: boolean,
-  fileTreeShown: boolean,
-  devicePreviewShown: boolean,
-  devicePreviewPlatform: 'android' | 'ios',
-  deviceConnectionMethod: ConnectionMethod,
-  editorMode: 'vim' | 'normal',
-  panelsShown: boolean,
-  panelType: 'errors' | 'logs',
   lintErrors: Array<Annotation>,
   name: string,
   description: string,
@@ -144,25 +135,20 @@ class EditorView extends React.Component<Props, State> {
     currentBanner: null,
     isDownloading: false,
     deviceLogsShown: false,
-    fileTreeShown: isNotMobile(),
-    devicePreviewShown: true,
-    editorMode: 'normal',
-    panelsShown: false,
-    panelType: 'errors',
     lintErrors: [],
-    devicePreviewPlatform:
-      this.props.initialPreviewPlatform || this.props.testPreviewPlatform || 'android',
-    deviceConnectionMethod: this.props.testConnectionMethod || 'device-id',
     name: this.props.name,
     description: this.props.description,
     shouldPreventRedirectWarning: false,
   };
 
   componentWillMount() {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      // Make sure we are in the browser
-      this._restoreEditorConfig();
-      this._restoreEmbedSession();
+    const { testPreviewPlatform, testConnectionMethod, preferences } = this.props;
+
+    if (testPreviewPlatform || testConnectionMethod) {
+      this.props.setPreferences({
+        deviceConnectionMethod: testConnectionMethod || preferences.deviceConnectionMethod,
+        devicePreviewPlatform: testPreviewPlatform || preferences.devicePreviewPlatform,
+      });
     }
   }
 
@@ -206,20 +192,6 @@ class EditorView extends React.Component<Props, State> {
         // currentModal: 'device-instructions',
       });
       setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_LONG);
-    }
-  }
-
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    if (
-      this.props.theme !== prevProps.theme ||
-      this.state.panelType !== prevState.panelType ||
-      this.state.fileTreeShown !== prevState.fileTreeShown ||
-      this.state.devicePreviewShown !== prevState.devicePreviewShown ||
-      this.state.devicePreviewPlatform !== prevState.devicePreviewPlatform ||
-      this.state.deviceConnectionMethod !== prevState.deviceConnectionMethod ||
-      this.state.editorMode !== prevState.editorMode
-    ) {
-      this._saveEditorConfig();
     }
   }
 
@@ -275,36 +247,6 @@ class EditorView extends React.Component<Props, State> {
     }
   };
 
-  _saveEditorConfigNotDebounced = () => {
-    const {
-      panelType,
-      fileTreeShown,
-      devicePreviewShown,
-      devicePreviewPlatform,
-      deviceConnectionMethod,
-      editorMode,
-    } = this.state;
-
-    const { theme } = this.props;
-
-    try {
-      localStorage.setItem(
-        EDITOR_CONFIG_KEY,
-        JSON.stringify({
-          panelType,
-          fileTreeShown,
-          devicePreviewShown,
-          devicePreviewPlatform,
-          deviceConnectionMethod,
-          editorMode,
-          theme,
-        })
-      );
-    } catch (e) {
-      // Ignore
-    }
-  };
-
   _restoreEmbedSession = () => {
     const { sessionID, onChangeCode } = this.props;
 
@@ -322,7 +264,7 @@ class EditorView extends React.Component<Props, State> {
           }
 
           if (typeof session.platform === 'string') {
-            this.setState({
+            this.props.setPreferences({
               devicePreviewPlatform: session.platform,
             });
           }
@@ -332,33 +274,6 @@ class EditorView extends React.Component<Props, State> {
       // Ignore
     } finally {
       localStorage.removeItem(sessionID);
-    }
-  };
-
-  _saveEditorConfig = debounce(this._saveEditorConfigNotDebounced, 300);
-
-  _restoreEditorConfig = () => {
-    try {
-      const configString = localStorage.getItem(EDITOR_CONFIG_KEY);
-      if (configString) {
-        const config = JSON.parse(configString);
-        if (config) {
-          const { theme, devicePreviewPlatform, ...rest } = config;
-          this.setState({
-            devicePreviewPlatform:
-              this.props.initialPreviewPlatform ||
-              devicePreviewPlatform ||
-              this.props.testPreviewPlatform,
-            ...rest,
-          });
-
-          if (theme !== this.props.theme) {
-            this.props.onToggleTheme();
-          }
-        }
-      }
-    } catch (e) {
-      // Ignore
     }
   };
 
@@ -449,41 +364,46 @@ class EditorView extends React.Component<Props, State> {
   _editor: any;
 
   _showErrorPanel = () =>
-    this.setState({
+    this.props.setPreferences({
       panelType: 'errors',
     });
 
   _showDeviceLogs = () =>
-    this.setState({
+    this.props.setPreferences({
       panelType: 'logs',
     });
 
   _togglePanels = () =>
-    this.setState(state => ({
-      panelsShown: !state.panelsShown,
-    }));
+    this.props.setPreferences({
+      panelsShown: !this.props.preferences.panelsShown,
+    });
 
   _toggleFileTree = () =>
-    this.setState(state => ({
-      fileTreeShown: !state.fileTreeShown,
-    }));
+    this.props.setPreferences({
+      fileTreeShown: !this.props.preferences.fileTreeShown,
+    });
 
   _changeConnectionMethod = (deviceConnectionMethod: ConnectionMethod) =>
-    this.setState({ deviceConnectionMethod });
+    this.props.setPreferences({ deviceConnectionMethod });
 
   _toggleDevicePreview = () =>
-    this.setState(state => ({
-      devicePreviewShown: !state.devicePreviewShown,
-    }));
+    this.props.setPreferences({
+      devicePreviewShown: !this.props.preferences.devicePreviewShown,
+    });
 
   _toggleEditorMode = () =>
-    this.setState(state => ({
-      editorMode: state.editorMode === 'vim' ? 'normal' : 'vim',
-    }));
+    this.props.setPreferences({
+      editorMode: this.props.preferences.editorMode === 'vim' ? 'normal' : 'vim',
+    });
 
   _changeDevicePreviewPlatform = (platform: 'ios' | 'android') =>
-    this.setState({
+    this.props.setPreferences({
       devicePreviewPlatform: platform,
+    });
+
+  _toggleTheme = (theme: ThemeName) =>
+    this.props.setPreferences({
+      theme: this.props.preferences.theme === 'light' ? 'dark' : 'light',
     });
 
   _preventRedirectWarning = () =>
@@ -501,13 +421,6 @@ class EditorView extends React.Component<Props, State> {
       currentModal,
       currentBanner,
       isDownloading,
-      fileTreeShown,
-      devicePreviewShown,
-      devicePreviewPlatform,
-      deviceConnectionMethod,
-      editorMode,
-      panelsShown,
-      panelType,
       lintErrors,
       name,
       description,
@@ -524,6 +437,7 @@ class EditorView extends React.Component<Props, State> {
       deviceError,
       onClearDeviceLogs,
       uploadFileAsync,
+      preferences,
     } = this.props;
 
     const annotations = [];
@@ -610,7 +524,7 @@ class EditorView extends React.Component<Props, State> {
                   <div className={css(styles.editorAreaOuter)}>
                     <LayoutShell>
                       <FileList
-                        visible={fileTreeShown}
+                        visible={preferences.fileTreeShown}
                         entries={this.props.fileEntries}
                         onEntriesChange={this.props.onFileEntriesChange}
                         onRemoveFile={this._handleRemoveFile}
@@ -624,12 +538,12 @@ class EditorView extends React.Component<Props, State> {
                       />
                       {/* Don't load it conditionally since we need the _EditorComponent object to be available */}
                       <LazyLoad
-                        key={editorMode}
+                        key={preferences.editorMode}
                         load={() => {
                           let timeout;
 
                           const FullEditor =
-                            editorMode === 'vim'
+                            preferences.editorMode === 'vim'
                               ? import('./Editor/AceEditor')
                               : import('./Editor/MonacoEditor');
 
@@ -672,7 +586,7 @@ class EditorView extends React.Component<Props, State> {
                                   value={entry.item.content}
                                   onValueChange={this.props.onChangeCode}
                                   onOpenPath={this._handleOpenPath}
-                                  editorMode={editorMode}
+                                  editorMode={preferences.editorMode}
                                 />
                               );
                             }
@@ -684,7 +598,7 @@ class EditorView extends React.Component<Props, State> {
                         }}
                       </LazyLoad>
                     </LayoutShell>
-                    {panelsShown ? (
+                    {preferences.panelsShown ? (
                       <EditorPanels
                         annotations={annotations}
                         deviceLogs={deviceLogs}
@@ -692,18 +606,17 @@ class EditorView extends React.Component<Props, State> {
                         onShowDeviceLogs={this._showDeviceLogs}
                         onTogglePanels={this._togglePanels}
                         onClearDeviceLogs={onClearDeviceLogs}
-                        panelType={panelType}
+                        panelType={preferences.panelType}
                       />
                     ) : null}
                   </div>
-                  {devicePreviewShown ? (
+                  {preferences.devicePreviewShown ? (
                     <DevicePreview
                       detachable
                       channel={channel}
                       snackId={params.id}
                       sdkVersion={sdkVersion}
-                      platform={devicePreviewPlatform}
-                      className={css(styles.preview)}
+                      platform={preferences.devicePreviewPlatform}
                       onClickRunOnPhone={this._handleShowDeviceInstructions}
                       wasUpgraded={this.props.wasUpgraded}
                       previewQueue="main"
@@ -715,12 +628,12 @@ class EditorView extends React.Component<Props, State> {
                   loadingMessage={loadingMessage}
                   annotations={annotations}
                   connectedDevices={connectedDevices}
-                  fileTreeShown={fileTreeShown}
-                  devicePreviewShown={devicePreviewShown}
-                  editorMode={editorMode}
-                  devicePreviewPlatform={devicePreviewPlatform}
+                  fileTreeShown={preferences.fileTreeShown}
+                  devicePreviewShown={preferences.devicePreviewShown}
+                  editorMode={preferences.editorMode}
+                  devicePreviewPlatform={preferences.devicePreviewPlatform}
                   sdkVersion={sdkVersion}
-                  onToggleTheme={this.props.onToggleTheme}
+                  onToggleTheme={this._toggleTheme}
                   onTogglePanels={this._togglePanels}
                   onToggleFileTree={this._toggleFileTree}
                   onToggleDevicePreview={this._toggleDevicePreview}
@@ -734,7 +647,7 @@ class EditorView extends React.Component<Props, State> {
                   onSignIn={this.props.onSignIn}
                   onDismiss={this._handleHideModal}
                   onChangeMethod={this._changeConnectionMethod}
-                  method={deviceConnectionMethod}
+                  method={preferences.deviceConnectionMethod}
                   sdkVersion={sdkVersion}
                   channel={channel}
                   snackId={params.id}
@@ -789,12 +702,13 @@ class EditorView extends React.Component<Props, State> {
 }
 
 export default withThemeName(
-  connect((state, props) => ({
-    viewer: state.viewer,
-    initialPreviewPlatform: props.params.platform,
-    testPreviewPlatform: state.splitTestSettings.defaultPreviewPlatform,
-    testConnectionMethod: state.splitTestSettings.defaultConnectionMethod,
-  }))(EditorView)
+  withPreferences(
+    connect((state, props) => ({
+      viewer: state.viewer,
+      testPreviewPlatform: state.splitTestSettings.defaultPreviewPlatform,
+      testConnectionMethod: state.splitTestSettings.defaultConnectionMethod,
+    }))(EditorView)
+  )
 );
 
 const styles = StyleSheet.create({
@@ -812,10 +726,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     minHeight: 0,
     minWidth: 0,
-  },
-
-  preview: {
-    backgroundColor: 'black',
   },
 
   embedModal: {

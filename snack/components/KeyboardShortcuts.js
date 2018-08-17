@@ -4,7 +4,7 @@ import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import ShortcutLabel from './shared/ShortcutLabel';
 import { KeyMap } from './shared/KeybindingsManager';
-import withThemeName, { type ThemeName } from './theming/withThemeName';
+import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 
 type Props = {
   theme: ThemeName,

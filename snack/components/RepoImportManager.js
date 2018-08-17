@@ -10,7 +10,7 @@ import ProgressIndicator from './shared/ProgressIndicator';
 import ModalDialog from './shared/ModalDialog';
 import LargeInput from './shared/LargeInput';
 import Segment from '../utils/Segment';
-import withThemeName, { type ThemeName } from './theming/withThemeName';
+import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 
 type Props = {|
   visible: boolean,

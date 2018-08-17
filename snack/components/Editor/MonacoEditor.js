@@ -16,7 +16,7 @@ import TypingsWorker from '../../workers/typings.worker';
 import light from './themes/monaco-light';
 import dark from './themes/monaco-dark';
 import overrides from './themes/monaco-overrides';
-import withThemeName, { type ThemeName } from '../theming/withThemeName';
+import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import ResizeDetector from '../shared/ResizeDetector';
 import prettierCode from '../../utils/prettierCode';
 import getRelativePath from '../../utils/getRelativePath';
