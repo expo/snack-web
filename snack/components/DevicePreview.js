@@ -6,8 +6,6 @@ import classnames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import LoadingIndicator from 'react-loading-indicator';
 
-
-
 import ButtonLink from './shared/ButtonLink';
 import Button from './shared/Button';
 import ModalAuthentication from './Auth/ModalAuthentication';
@@ -17,6 +15,7 @@ import type { SDKVersion } from '../configs/sdk';
 import colors from '../configs/colors';
 import constants from '../configs/constants';
 import withAuth, { type AuthProps } from '../auth/withAuth';
+import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 
 type UserMetadata = {
   appetize_code?: string,
@@ -38,6 +37,7 @@ type Props = AuthProps & {|
     user_metadata: UserMetadata,
   },
   onClickRunOnPhone: () => mixed,
+  theme: ThemeName,
 |};
 
 type AppetizeStatus =
@@ -294,6 +294,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
       platform,
       previewQueue,
       screenOnly,
+      deviceColor: this.props.theme === 'dark' ? 'white' : 'black',
       scale: screenOnly ? (platform === 'android' ? 80 : 76) : undefined,
       payerCode:
         viewer && viewer.user_metadata && viewer.user_metadata.appetize_code
@@ -337,7 +338,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const { detachable, platform, screenOnly } = this.props;
+    const { detachable, platform, screenOnly, theme } = this.props;
 
     const url = this._getAppetizeURL();
 
@@ -348,7 +349,13 @@ class DevicePreview extends React.PureComponent<Props, State> {
           this.props.className
         )}>
         {detachable ? (
-          <button className={css(styles.popupButton)} onClick={this._handlePopup} />
+          <button
+            className={css(
+              styles.popupButton,
+              theme === 'dark' ? styles.popupButtonDark : styles.popupButtonLight
+            )}
+            onClick={this._handlePopup}
+          />
         ) : null}
         <div className={css(screenOnly ? styles.screen : styles.device)}>
           <iframe
@@ -488,15 +495,15 @@ class DevicePreview extends React.PureComponent<Props, State> {
   };
 }
 
-export default withAuth(DevicePreview);
+export default withThemeName(withAuth(DevicePreview));
 
 const styles = StyleSheet.create({
   container: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '2em',
-    width: '28em',
+    padding: '2em 0',
+    width: '24em',
     maxWidth: '50%',
     overflow: 'auto',
   },
@@ -516,7 +523,6 @@ const styles = StyleSheet.create({
     border: 0,
     outline: 0,
     opacity: 0.8,
-    backgroundImage: `url(${require('../assets/open-link-icon-light.png')})`,
     backgroundSize: 16,
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
@@ -526,6 +532,12 @@ const styles = StyleSheet.create({
     ':hover': {
       opacity: 1,
     },
+  },
+  popupButtonDark: {
+    backgroundImage: `url(${require('../assets/open-link-icon-light.png')})`,
+  },
+  popupButtonLight: {
+    backgroundImage: `url(${require('../assets/open-link-icon.png')})`,
   },
   loading: {
     position: 'absolute',
@@ -685,7 +697,7 @@ const styles = StyleSheet.create({
   buttonFrame: {
     height: 70,
     width: 225,
-    backgroundColor: 'rgba(24, 93, 141, 1)',
+    backgroundColor: colors.content.light,
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
@@ -694,7 +706,7 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   buttonText: {
-    color: '#fff',
+    color: colors.content.dark,
     fontSize: 20,
     fontWeight: '400',
   },

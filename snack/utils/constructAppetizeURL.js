@@ -16,6 +16,7 @@ type Props = {
   scale?: number,
   payerCode?: string,
   host?: string,
+  deviceColor?: 'black' | 'white',
 };
 
 export default function appetizeUrlFor({
@@ -29,6 +30,7 @@ export default function appetizeUrlFor({
   payerCode,
   previewQueue,
   host,
+  deviceColor = 'black',
 }: Props) {
   const experienceURL = constructExperienceURL({
     sdkVersion,
@@ -45,7 +47,7 @@ export default function appetizeUrlFor({
     device: platform === 'ios' ? 'iphone5' : 'nexus5',
     launchUrl: platform === 'android' ? experienceURL : undefined,
     xdocMsg: true,
-    deviceColor: 'black',
+    deviceColor,
     xDocMsg: true,
     orientation: 'portrait',
     debug: true,
