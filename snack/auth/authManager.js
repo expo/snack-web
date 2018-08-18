@@ -299,8 +299,7 @@ export default class AuthenticationManager {
  * On success, a set of token data (as defined by the Auth0TokenData Flow type)
  * will be returned.
  *
- * On error, either an error of type "Auth0Error" or a generic error will be
- * thrown.
+ * On error, a generic error will be thrown.
  */
 const _performResourceOwnerGrant = _handleApiErrors(
   async (username: string, password: string): Promise<?Object> => {
