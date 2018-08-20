@@ -43,7 +43,7 @@ class ModalSuccessfulPublish extends React.PureComponent<Props> {
             <Avatar source={picture} size={80} />
           </div>
         ) : null}
-        <h2 className={css(styles.heading)}>Your Snack was published</h2>
+        <h2 className={css(styles.heading)}>Your Snack was saved</h2>
         <p className={css(styles.text)}>
           You can now find your Snack on your profile and link others to it. Share it with your
           friends!

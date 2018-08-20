@@ -146,8 +146,8 @@ class PublishManager extends React.Component<Props, State> {
         })}
         <ModalEditTitleAndDescription
           visible={isPublishInProgress && currentModal === 'publish-edit-name'}
-          title="Publish your Snack"
-          action={this.state.isPublishing ? 'Publishing…' : 'Publish'}
+          title="Save your Snack"
+          action={this.state.isPublishing ? 'Saving…' : 'Save'}
           isWorking={this.state.isPublishing}
           name={name}
           description={description}

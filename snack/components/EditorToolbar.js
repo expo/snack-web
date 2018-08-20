@@ -107,7 +107,7 @@ export default class EditorToolbar extends React.PureComponent<Props, void> {
             disabled={isPublishing || isResolving || isPublished}
             loading={isPublishing}
             className={css(styles.saveButton)}>
-            {isPublishing ? 'Publishing…' : isPublished ? 'Published' : 'Publish changes'}
+            {isPublishing ? 'Saving…' : isPublished ? 'Saved' : 'Save changes'}
           </Button>
           <UserMenu
             isAuthModalVisible={isAuthModalVisible}
@@ -130,6 +130,6 @@ const styles = StyleSheet.create({
   },
 
   saveButton: {
-    minWidth: 132,
+    minWidth: 120,
   },
 });

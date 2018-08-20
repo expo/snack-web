@@ -18,7 +18,7 @@ type Props = {|
   onPublish: () => mixed,
 |};
 
-class ModalPublishToProfile extends React.PureComponent<Props> {
+class ModalPublishToProfile extends React.Component<Props> {
   componentDidMount() {
     document.addEventListener('keydown', this._handleKeyDown);
   }
@@ -45,7 +45,7 @@ class ModalPublishToProfile extends React.PureComponent<Props> {
     return (
       <ModalDialog
         visible={this.props.visible}
-        title="Publish your snack"
+        title="Save your snack"
         onDismiss={this.props.onDismiss}>
         <p className={css(styles.text)} style={{ marginTop: 16 }}>
           The shareable link to your Snack{' '}

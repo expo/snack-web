@@ -14,7 +14,7 @@ type Props = {|
   onDismiss: () => mixed,
 |};
 
-export default class ModalPublishOverwriteError extends React.PureComponent<Props> {
+export default class ModalPublishOverwriteError extends React.Component<Props> {
   render() {
     return (
       <ModalDialog

@@ -13,13 +13,13 @@ type Props = {|
   theme: ThemeName,
 |};
 
-class ModalPublishing extends React.PureComponent<Props> {
+class ModalPublishing extends React.Component<Props> {
   render() {
     return (
       <ModalDialog
         visible={this.props.visible}
         onDismiss={this.props.onDismiss}
-        title="Publishing Snack…">
+        title="Saving Snack…">
         <div className={css(styles.content)}>
           <LoadingIndicator
             segmentLength={6}

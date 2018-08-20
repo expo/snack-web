@@ -16,9 +16,9 @@ export default class ModalPublishUnknownError extends React.PureComponent<Props>
       <ModalDialog
         visible={this.props.visible}
         onDismiss={this.props.onDismiss}
-        title="Couldn't publish the Snack!">
+        title="Couldn't save the Snack!">
         <p className={css(styles.text)}>
-          An unknown error occurred when publishing your Snack. Please try again later.
+          An unknown error occurred when saving your Snack. Please try again later.
         </p>
       </ModalDialog>
     );
