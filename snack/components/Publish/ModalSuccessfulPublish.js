@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 
 import ModalDialog from '../shared/ModalDialog';
 import Avatar from '../shared/Avatar';
-import colors from '../../configs/colors';
 import Segment from '../../utils/Segment';
 import { type Viewer } from '../../types';
 
@@ -41,7 +40,7 @@ class ModalSuccessfulPublish extends React.PureComponent<Props> {
       <ModalDialog visible={this.props.visible} onDismiss={this.props.onDismiss}>
         {picture ? (
           <div className={css(styles.avatar)}>
-            <Avatar src={picture} size="80px" />
+            <Avatar source={picture} size={80} />
           </div>
         ) : null}
         <h2 className={css(styles.heading)}>Your Snack was published</h2>

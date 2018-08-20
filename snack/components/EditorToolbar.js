@@ -10,19 +10,22 @@ import IconButton from './shared/IconButton';
 import EditorTitle from './EditorTitle';
 import EditorImportTitle from './EditorImportTitle';
 import SearchButton from './Search/SearchButton';
+import UserMenu from './UserMenu';
 
 type Props = {|
   name: string,
   description: string,
-  hasSnackId: boolean,
   isPublishing: boolean,
   isDownloading: boolean,
   isPublished: boolean,
   isResolving: boolean,
+  isAuthModalVisible: boolean,
   isEditModalVisible: boolean,
   onShowEditModal: () => mixed,
   onSubmitEditModal: (details: { name: string, description: string }) => mixed,
   onDismissEditModal: () => mixed,
+  onShowAuthModal: () => mixed,
+  onDismissAuthModal: () => mixed,
   onShowEmbedCode: () => void,
   onDownloadCode: () => Promise<void>,
   onShowQRCode: () => void,
@@ -40,9 +43,12 @@ export default class EditorToolbar extends React.PureComponent<Props, void> {
       isPublished,
       isResolving,
       isEditModalVisible,
+      isAuthModalVisible,
       onShowEditModal,
       onSubmitEditModal,
       onDismissEditModal,
+      onShowAuthModal,
+      onDismissAuthModal,
       onShowEmbedCode,
       onDownloadCode,
       onShowQRCode,
@@ -103,6 +109,11 @@ export default class EditorToolbar extends React.PureComponent<Props, void> {
             className={css(styles.saveButton)}>
             {isPublishing ? 'Publishing…' : isPublished ? 'Published' : 'Publish changes'}
           </Button>
+          <UserMenu
+            isAuthModalVisible={isAuthModalVisible}
+            onShowAuthModal={onShowAuthModal}
+            onDismissAuthModal={onDismissAuthModal}
+          />
         </div>
       </ToolbarShell>
     );
@@ -113,6 +124,7 @@ const styles = StyleSheet.create({
   buttons: {
     display: 'flex',
     flexDirection: 'row',
+    alignItems: 'center',
     position: 'relative',
     zIndex: 5,
   },

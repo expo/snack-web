@@ -46,7 +46,7 @@ export default class FileListEntry extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('click', this._handleDocumentContextMenu);
+    document.removeEventListener('click', this._handleDocumentClick);
     document.removeEventListener('contextmenu', this._handleDocumentContextMenu);
   }
 
@@ -181,6 +181,7 @@ export default class FileListEntry extends React.Component<Props, State> {
         />
         <ContextMenu
           ref={c => (this._menu = ReactDOM.findDOMNode(c))}
+          visible={Boolean(menu)}
           position={menu}
           actions={actions}
           onHide={this._hideContextMenu}

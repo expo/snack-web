@@ -45,12 +45,14 @@ type Props = AuthProps & {
 };
 
 type State = {
+  isPublishInProgress: boolean,
   isPublishing: boolean,
   hasShownEditNameDialog: boolean,
 };
 
 class PublishManager extends React.Component<Props, State> {
   state = {
+    isPublishInProgress: false,
     isPublishing: false,
     hasShownEditNameDialog: false,
   };
@@ -93,6 +95,9 @@ class PublishManager extends React.Component<Props, State> {
   };
 
   _handlePublishAsync = async () => {
+    // When the publish flow starts, we set this so we know if we need to show the modals
+    this.setState({ isPublishInProgress: true });
+
     const isLoggedIn = Boolean(this.props.viewer);
 
     if (
@@ -122,8 +127,16 @@ class PublishManager extends React.Component<Props, State> {
     }
   };
 
+  _handlePublishAbort = () => {
+    this.props.onHideModal();
+
+    // When publish flow ends, we don't need to show any modals
+    this.setState({ isPublishInProgress: false });
+  };
+
   render() {
-    const { snackId, viewer, name, description, currentModal, onHideModal, children } = this.props;
+    const { snackId, viewer, name, description, currentModal, children } = this.props;
+    const { isPublishInProgress } = this.state;
 
     return (
       <React.Fragment>
@@ -132,43 +145,46 @@ class PublishManager extends React.Component<Props, State> {
           isPublishing: this.state.isPublishing,
         })}
         <ModalEditTitleAndDescription
-          visible={currentModal === 'publish-edit-name'}
+          visible={isPublishInProgress && currentModal === 'publish-edit-name'}
           title="Publish your Snack"
           action={this.state.isPublishing ? 'Publishing…' : 'Publish'}
           isWorking={this.state.isPublishing}
-          onDismiss={onHideModal}
           name={name}
           description={description}
           onSubmit={this._handleSubmitMetadata}
+          onDismiss={this._handlePublishAbort}
         />
         <ModalAuthentication
-          visible={currentModal === 'auth'}
-          onDismiss={onHideModal}
+          visible={isPublishInProgress && currentModal === 'auth'}
           onComplete={this._handleSaveToProfile}
+          onDismiss={this._handlePublishAbort}
         />
         <ModalPublishToProfile
-          visible={currentModal === 'publish-prompt-save'}
-          onDismiss={onHideModal}
+          visible={isPublishInProgress && currentModal === 'publish-prompt-save'}
           snackUrl={snackId ? `https://snack.expo.io/${snackId}` : undefined}
           onPublish={this._handleSaveToProfile}
           isPublishing={this.state.isPublishing}
+          onDismiss={this._handlePublishAbort}
         />
         <ModalSuccessfulPublish
-          visible={currentModal === 'publish-success'}
+          visible={isPublishInProgress && currentModal === 'publish-success'}
           viewer={viewer}
-          onDismiss={onHideModal}
+          onDismiss={this._handlePublishAbort}
         />
         <ModalPublishUnknownError
-          visible={currentModal === 'publish-unknown-error'}
-          onDismiss={onHideModal}
+          visible={isPublishInProgress && currentModal === 'publish-unknown-error'}
+          onDismiss={this._handlePublishAbort}
         />
-        <ModalPublishing visible={currentModal === 'publish-working'} onDismiss={onHideModal} />
+        <ModalPublishing
+          visible={isPublishInProgress && currentModal === 'publish-working'}
+          onDismiss={this._handlePublishAbort}
+        />
         <ModalPublishOverwriteError
-          visible={currentModal === 'publish-overwrite-experience-error'}
-          onDismiss={onHideModal}
-          username={viewer && viewer.username}
+          visible={isPublishInProgress && currentModal === 'publish-overwrite-experience-error'}
           slug={name}
+          username={viewer && viewer.username}
           onEditName={() => this.props.onShowModal('publish-edit-name')}
+          onDismiss={this._handlePublishAbort}
         />
       </React.Fragment>
     );

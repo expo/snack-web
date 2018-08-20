@@ -1,6 +1,7 @@
 /* @flow */
 
 import * as React from 'react';
+import classnames from 'classnames';
 import { StyleSheet, css } from 'aphrodite';
 import ShortcutLabel from './ShortcutLabel';
 import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
@@ -8,18 +9,20 @@ import colors from '../../configs/colors';
 
 export type Action = {|
   label: string,
-  handler: Function,
+  handler: () => mixed,
   disabled?: boolean,
   combo?: number[],
 |};
 
 type Props = {|
+  visible: boolean,
   actions: Array<?Action>,
-  position: ?{
+  position?: ?{
     pageX: number,
     pageY: number,
   },
   onHide: () => void,
+  className?: string,
   theme: ThemeName,
 |};
 
@@ -28,9 +31,9 @@ const MENU_ITEM_HEIGHT = 28;
 
 class ContextMenu extends React.PureComponent<Props, void> {
   render() {
-    const { position, actions, theme, onHide } = this.props;
+    const { visible, position, actions, theme, onHide, className } = this.props;
 
-    if (!position) {
+    if (!visible) {
       return null;
     }
 
@@ -38,14 +41,23 @@ class ContextMenu extends React.PureComponent<Props, void> {
 
     return (
       <ul
-        className={css(styles.menu, theme === 'dark' ? styles.menuDark : styles.menuLight)}
-        style={{
-          top: Math.min(
-            position.pageY,
-            window.innerHeight - BOTTOM_OFFSET - shownActions.length * MENU_ITEM_HEIGHT
-          ),
-          left: position.pageX,
-        }}>
+        className={classnames(
+          css(styles.menu, theme === 'dark' ? styles.menuDark : styles.menuLight),
+          className
+        )}
+        style={
+          position
+            ? {
+                position: 'fixed',
+                top: Math.min(
+                  position.pageY,
+                  window.innerHeight - BOTTOM_OFFSET - shownActions.length * MENU_ITEM_HEIGHT
+                ),
+                left: position.pageX,
+                marginTop: -8,
+              }
+            : {}
+        }>
         {(shownActions: Action[]).map(({ label, handler, disabled, combo }: Action) => (
           <li key={label}>
             <button
@@ -71,22 +83,28 @@ class ContextMenu extends React.PureComponent<Props, void> {
 
 export default withThemeName(ContextMenu);
 
+const fadeIn = {
+  from: { opacity: 0 },
+  to: { opacity: 1 },
+};
+
 const styles = StyleSheet.create({
   menu: {
-    position: 'fixed',
     zIndex: 10,
     listStyle: 'none',
     padding: '4px 0',
-    borderWidth: 1,
+    borderRadius: 3,
     borderStyle: 'solid',
-    boxShadow: '0 3px 12px rgba(0, 0, 0, 0.16)',
-    marginTop: -8,
+    boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.16)',
     minWidth: 160,
+    animationName: fadeIn,
+    animationDuration: '0.083s',
+    animationTimingfunction: 'linear',
   },
 
   menuLight: {
     backgroundColor: colors.content.light,
-    borderColor: colors.border,
+    borderWidth: 0,
   },
 
   menuDark: {

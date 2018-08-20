@@ -7,8 +7,6 @@ import ModalEditTitleAndDescription from './ModalEditTitleAndDescription';
 import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 import * as defaults from '../configs/defaults';
 
-
-
 type Props = {
   name: string,
   description: ?string,
@@ -121,7 +119,7 @@ const styles = StyleSheet.create({
     border: 0,
     outline: 0,
     padding: 0,
-    margin: '2px 12px',
+    margin: '4px 12px',
     height: 16,
     width: 16,
     opacity: 0.3,

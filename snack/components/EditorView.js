@@ -296,6 +296,10 @@ class EditorView extends React.Component<Props, State> {
     this.setState({ currentModal: 'device-instructions' });
   };
 
+  _handleShowAuthModal = () => {
+    this.setState({ currentModal: 'auth' });
+  };
+
   _handleShowShortcuts = () => {
     this.setState({ currentModal: 'shortcuts' });
   };
@@ -513,9 +517,12 @@ class EditorView extends React.Component<Props, State> {
                   isPublished={this._isPublished()}
                   isResolving={this.props.isResolving}
                   isEditModalVisible={currentModal === 'edit-info'}
+                  isAuthModalVisible={currentModal === 'auth'}
                   onShowEditModal={this._handleShowTitleDescriptionModal}
                   onDismissEditModal={this._handleDismissEditModal}
                   onSubmitEditModal={this._handleSubmitMetadata}
+                  onShowAuthModal={this._handleShowAuthModal}
+                  onDismissAuthModal={this._handleHideModal}
                   onShowQRCode={this._handleShowDeviceInstructions}
                   onShowEmbedCode={this._handleShowEmbedCode}
                   onDownloadCode={handleDownloadCode}

@@ -37,7 +37,7 @@ class FileListOpenEntry extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('click', this._handleDocumentContextMenu);
+    document.removeEventListener('click', this._handleDocumentClick);
     document.removeEventListener('contextmenu', this._handleDocumentContextMenu);
   }
 
@@ -110,6 +110,7 @@ class FileListOpenEntry extends React.PureComponent<Props, State> {
         </div>
         <ContextMenu
           ref={c => (this._menu = ReactDOM.findDOMNode(c))}
+          visible={Boolean(this.state.menu)}
           position={this.state.menu}
           actions={[
             {

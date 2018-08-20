@@ -81,6 +81,7 @@ export default class FileListImportExportMenu extends React.PureComponent<Props,
         </FileListPaneButton>
         <ContextMenu
           ref={c => (this._menu = ReactDOM.findDOMNode(c))}
+          visible={Boolean(this.state.menu)}
           position={this.state.menu}
           actions={[
             {

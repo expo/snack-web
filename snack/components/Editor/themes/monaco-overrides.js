@@ -17,9 +17,9 @@ export default css`
   .snack-monaco-editor .context-view.monaco-menu-container {
     font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     padding: 4px 0;
-    border-width: 1px;
+    border-radius: 3px;
     border-style: solid;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.16);
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.16);
   }
 
   .snack-monaco-editor .monaco-menu .monaco-action-bar.vertical .action-item .action-label,
@@ -69,14 +69,15 @@ export default css`
 
   .snack-monaco-editor.theme-light .context-view.monaco-menu-container {
     background-color: ${colors.content.light};
-    border-color: ${colors.border};
     color: ${colors.text.light};
+    border-width: 0;
   }
 
   .snack-monaco-editor.theme-dark .context-view.monaco-menu-container {
     background-color: ${colors.ayu.mirage.background};
     border-color: ${colors.ayu.mirage.border};
     color: ${colors.ayu.mirage.text};
+    border-width: 1px;
   }
 
   /* Light theme overrides */

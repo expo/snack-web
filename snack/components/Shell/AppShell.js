@@ -21,6 +21,7 @@ export default function AppShell() {
         <Button variant="accent" onClick={() => {}} className={css(styles.saveButton)}>
           {'\u00A0'}
         </Button>
+        <div className={css(styles.avatar)} />
       </ToolbarShell>
       <LayoutShell>
         <SidebarShell />
@@ -35,5 +36,13 @@ const styles = StyleSheet.create({
   saveButton: {
     width: 132,
     pointerEvents: 'none',
+  },
+  avatar: {
+    backgroundColor: 'currentColor',
+    opacity: 0.2,
+    height: 40,
+    width: 40,
+    borderRadius: 20,
+    margin: '0 8px 0 4px',
   },
 });
