@@ -10,15 +10,15 @@ import { connect } from 'react-redux';
 import AuthManager from './authManager';
 import type { Viewer } from '../types';
 
-export type AuthProps = {
+export type AuthProps = {|
   login: ({ username: string, password: string }) => Promise<{ success: boolean }>,
   logout: () => Promise<void>,
   getSessionSecret: () => string,
   getToken: () => string,
   setMetadata: ({ appetizeCode: string }) => Promise<void>,
   viewer?: ?Viewer,
-  dispatch: ({ type: string, viewer: any }) => any,
-};
+  dispatch: ({ type: string, viewer: Viewer }) => mixed,
+|};
 
 const Auth = new AuthManager();
 
@@ -114,7 +114,7 @@ const enhanceWithAuthMethods = Comp => {
   };
 };
 
-export default function withAuth<C: React.ComponentType<*>>(
+export default function withAuth<Props: *, C: React.ComponentType<Props>>(
   Comp: C
 ): React.ComponentType<$Diff<React.ElementConfig<C>, AuthProps>> {
   return compose(

@@ -3,8 +3,6 @@
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 
-
-
 import SegmentedButton from '../shared/SegmentedButton';
 import ButtonLink from '../shared/ButtonLink';
 import ModalDialog from '../shared/ModalDialog';
@@ -50,7 +48,8 @@ export default class DeviceInstructionsModal extends React.Component<Props> {
       isEmbedded,
       wasUpgraded,
       snackId,
-      ...rest
+      sdkVersion,
+      channel,
     } = this.props;
     // Avoid using the snack id to run the experience on a device so that outdated snacks fetch a version the
     // latest client is able to run
@@ -98,9 +97,11 @@ export default class DeviceInstructionsModal extends React.Component<Props> {
                     content = (
                       <AccountTab
                         key={id}
-                        onSuccess={onSignIn}
+                        isEmbedded={isEmbedded}
+                        sdkVersion={sdkVersion}
+                        channel={channel}
                         snackId={connectionSnackId}
-                        {...rest}
+                        onSuccess={onSignIn}
                       />
                     );
                     break;
@@ -108,8 +109,8 @@ export default class DeviceInstructionsModal extends React.Component<Props> {
                     content = (
                       <QRCodeTab
                         key={id}
-                        sdkVersion={rest.sdkVersion}
-                        channel={rest.channel}
+                        sdkVersion={sdkVersion}
+                        channel={channel}
                         snackId={connectionSnackId}
                       />
                     );

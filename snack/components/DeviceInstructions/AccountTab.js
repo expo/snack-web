@@ -3,8 +3,6 @@
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 
-
-
 import WhyNoQrBanner from './WhyNoQrBanner';
 import SignedInInstructions from './SignedInInstructions';
 import SendProjectLink from './SendProjectLink';
@@ -15,15 +13,13 @@ import type { SDKVersion } from '../../configs/sdk';
 
 export type ConnectionMethod = 'device-id' | 'sign-in' | 'qr-code';
 
-type Props = AuthProps & {
-  isEmbedded?: boolean,
+type Props = AuthProps & {|
+  isEmbedded: boolean,
   sdkVersion: SDKVersion,
   channel: string,
   snackId: ?string,
   onSuccess?: () => Promise<void>,
-  viewer: any,
-  logout: () => mixed,
-};
+|};
 
 class AccountTab extends React.Component<Props> {
   render() {

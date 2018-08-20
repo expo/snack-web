@@ -8,7 +8,7 @@ export type ThemeName = 'light' | 'dark';
 
 // react-redux doesn't work with forwardRef: https://github.com/reduxjs/react-redux/issues/914
 // so this HOC always needs wrap a connect call, and a connect call cannot wrap this
-export default function withThemeName<C: React.ComponentType<*>>(
+export default function withThemeName<Props: *, C: React.ComponentType<Props>>(
   Comp: C
 ): React.ComponentType<$Diff<React.ElementConfig<C>, { theme: ThemeName }>> {
   class ThemedComponent extends React.Component<*> {
