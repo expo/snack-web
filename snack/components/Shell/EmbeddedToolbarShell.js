@@ -39,6 +39,6 @@ const styles = StyleSheet.create({
 
   toolbarDark: {
     backgroundColor: colors.content.dark,
-    color: colors.text.light,
+    color: colors.text.dark,
   },
 });

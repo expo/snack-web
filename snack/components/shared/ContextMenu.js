@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   menu: {
     zIndex: 10,
     listStyle: 'none',
-    padding: '4px 0',
+    padding: 4,
     borderRadius: 3,
     borderStyle: 'solid',
     boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.16)',
@@ -124,9 +124,10 @@ const styles = StyleSheet.create({
     border: 0,
     outline: 0,
     width: '100%',
-    padding: '8px 16px',
+    padding: '8px 12px',
     textAlign: 'left',
     userSelect: 'none',
+    borderRadius: 2,
 
     ':hover': {
       background: colors.primary,

@@ -16,10 +16,14 @@ export default css`
   /* Context menu overrides */
   .snack-monaco-editor .context-view.monaco-menu-container {
     font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    padding: 4px 0;
+    padding: 4px;
     border-radius: 3px;
     border-style: solid;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.16);
+  }
+
+  .snack-monaco-editor .monaco-menu .monaco-action-bar.vertical .action-item {
+    border-radius: 2px;
   }
 
   .snack-monaco-editor .monaco-menu .monaco-action-bar.vertical .action-item .action-label,
@@ -59,7 +63,7 @@ export default css`
 
   .snack-monaco-editor .monaco-menu .monaco-action-bar.vertical .keybinding,
   .snack-monaco-editor .monaco-menu .monaco-action-bar.vertical .action-label:not(.separator) {
-    padding: 8px 16px;
+    padding: 8px 12px;
   }
 
   .snack-monaco-editor .monaco-action-bar.vertical .action-label.separator {

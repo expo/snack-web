@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    margin: '0 8px 0 4px',
+    margin: '0 16px 0 12px',
   },
   menu: {
     position: 'absolute',
