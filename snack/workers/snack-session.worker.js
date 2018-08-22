@@ -61,7 +61,7 @@ self.addEventListener('message', event => {
             type: 'SAVE_ERROR',
             payload: {
               version: payload.version,
-              error,
+              error: { message: error.message, stack: error.stack },
             },
           });
         }
@@ -86,7 +86,7 @@ self.addEventListener('message', event => {
             type: 'UPLOAD_ASSET_ERROR',
             payload: {
               version: payload.version,
-              error,
+              error: { message: error.message, stack: error.stack },
             },
           });
         }
@@ -121,7 +121,7 @@ self.addEventListener('message', event => {
               type: 'SYNC_DEPENDENCIES_ERROR',
               payload: {
                 version: payload.version,
-                error,
+                error: { message: error.message, stack: error.stack },
               },
             });
           }

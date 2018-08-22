@@ -642,7 +642,12 @@ class App extends React.Component<Props, State> {
           resolve(data.payload.result);
           remove();
         } else if (data.type === `${type}_ERROR` && data.payload.version === version) {
-          reject(data.payload.error);
+          const { message, stack } = data.payload.error;
+          const error = new Error(message);
+
+          error.stack = stack;
+
+          reject(error);
           remove();
         } else if (
           data.type === `${type}_CALLBACK` &&
