@@ -6,27 +6,68 @@ import Segment from '../components/SegmentDocumentComponent';
 import resources from '../../../resources.json';
 
 type Props = {
+  id: ?string,
   splitTestSettings: Object,
+  data:
+    | {
+        type: 'success',
+        snack: ?Object,
+      }
+    | {
+        type: 'error',
+        error: { message: string },
+      },
 };
 
 const css: any = String.raw;
 
+const DEFAULT_DESCRIPTION = 'No description';
+const DEFAULT_METADATA_NAME = 'Snack - React Native in the browser';
+const DEFAULT_METADATA_DESCRIPTION_EMPTY = `Write code in Expo's online editor and instantly use it on your phone.`;
+const DEFAULT_METADATA_DESCRIPTION_SAVED = `Try this project on your phone! Use Expo's online editor to make changes and save your own copy.`;
+
 export default class Document extends React.Component<Props> {
   render() {
-    const { splitTestSettings } = this.props;
+    const { id, data, splitTestSettings } = this.props;
+    const title =
+      data.type === 'success' && data.snack && data.snack.manifest.name
+        ? data.snack.manifest.name
+        : DEFAULT_METADATA_NAME;
+    const description =
+      data.type === 'success' && data.snack
+        ? data.snack.manifest.description && data.snack.manifest.description !== DEFAULT_DESCRIPTION
+          ? data.snack.manifest.description
+          : DEFAULT_METADATA_DESCRIPTION_EMPTY
+        : DEFAULT_METADATA_DESCRIPTION_SAVED;
+    const url = id ? `https://snack.expo.io/${id}` : `https://snack.expo.io`;
 
     return (
       <html>
         <head>
           <meta charSet="utf-8" />
-          <title>Snack</title>
+          <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1" />
+
+          <title>{title}</title>
+
+          <meta property="og:url" content={url} />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="og:type" content="website" />
+          <meta
+            property="og:image"
+            content="https://s3.amazonaws.com/exp-brand-assets/ExpoIcon_200.png"
+          />
+          <meta property="og:image:width" content="200" />
+          <meta property="og:image:height" content="200" />
+
           <link rel="shortcut icon" href="/favicon.ico" />
+
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,500,600"
           />
           <link rel="stylesheet" href={resources.normalize} />
-          <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1" />
+
           <style
             type="text/css"
             dangerouslySetInnerHTML={{
@@ -79,11 +120,10 @@ export default class Document extends React.Component<Props> {
           />
           <script
             dangerouslySetInnerHTML={{
-              __html: `
-              window.__INITIAL_DATA__ = {
-                splitTestSettings: ${JSON.stringify(splitTestSettings)},
-              }
-            `,
+              __html: `window.__INITIAL_DATA__ = ${JSON.stringify({
+                data,
+                splitTestSettings,
+              })}`,
             }}
           />
         </head>

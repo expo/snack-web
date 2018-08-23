@@ -8,7 +8,7 @@ import ServiceWorkerManager from './components/ServiceWorkerManager';
 import Router from './components/Router';
 import createStore from './redux/createStore';
 
-const store = createStore(window.__INITIAL_DATA__);
+const store = createStore({ splitTestSettings: window.__INITIAL_DATA__.splitTestSettings });
 
 class SnackEntry extends React.Component<{}> {
   render() {
@@ -17,7 +17,7 @@ class SnackEntry extends React.Component<{}> {
         <ServiceWorkerManager />
         <Provider store={store}>
           <PreferencesProvider>
-            <Router />
+            <Router data={window.__INITIAL_DATA__.data} />
           </PreferencesProvider>
         </Provider>
       </React.Fragment>

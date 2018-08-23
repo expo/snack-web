@@ -3,42 +3,38 @@
 import * as React from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { parse } from 'query-string';
-import SnackDataManager from './SnackDataManager';
-import AppShell from './Shell/AppShell';
-import EmbeddedShell from './Shell/EmbeddedShell';
 import App from './App';
 import EmbeddedApp from './EmbeddedApp';
 import NonExistent from './NonExistent';
 
-export default class Router extends React.Component<{}> {
-  _renderRoute = (props: *) => (
-    <SnackDataManager
-      params={props.match.params}
-      render={status => {
-        const isEmbedded = props.location.pathname.split('/')[1] === 'embedded';
+type Props = {
+  data:
+    | {
+        type: 'success',
+        snack: ?Object,
+      }
+    | {
+        type: 'error',
+        error: { message: string },
+      }
+    | null,
+};
 
-        switch (status.type) {
-          case 'idle':
-          case 'done':
-            if (isEmbedded) {
-              return (
-                <EmbeddedApp {...props} query={parse(props.location.search)} snack={status.data} />
-              );
-            }
+export default class Router extends React.Component<Props> {
+  _renderRoute = (props: *) => {
+    const data = this.props.data;
+    const isEmbedded = props.location.pathname.split('/')[1] === 'embedded';
 
-            return <App {...props} query={parse(props.location.search)} snack={status.data} />;
-          case 'error':
-            return <NonExistent />;
-          default:
-            if (isEmbedded) {
-              return <EmbeddedShell />;
-            }
+    if (data && data.type === 'success') {
+      if (isEmbedded) {
+        return <EmbeddedApp {...props} query={parse(props.location.search)} snack={data.snack} />;
+      }
 
-            return <AppShell />;
-        }
-      }}
-    />
-  );
+      return <App {...props} query={parse(props.location.search)} snack={data.snack} />;
+    } else {
+      return <NonExistent />;
+    }
+  };
 
   render() {
     return (
