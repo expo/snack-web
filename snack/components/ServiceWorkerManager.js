@@ -43,8 +43,9 @@ export default class ServiceWorkerManager extends React.Component<{}, State> {
       // This might happen if the user refreshed the page without updating the worker
       serviceWorker.ready.then(registration => {
         const worker = registration.waiting;
+        const isEmbedded = window.location.pathname.split('/')[1] === 'embedded';
 
-        if (worker && worker.state === 'installed') {
+        if (!isEmbedded && worker && worker.state === 'installed') {
           this.setState({ banner: true });
         }
       });
