@@ -11,6 +11,7 @@ import querystring from 'query-string';
 import * as Constants from './constants';
 import * as Validations from './validations';
 import Storage from './storage';
+import Segment from '../utils/Segment';
 
 type SignupFormData = {
   password: string,
@@ -114,7 +115,9 @@ export default class AuthenticationManager {
     } else {
       this._saveTokenAndUserData(tokenData);
     }
-    return await _getUserProfile();
+    const profile = await _getUserProfile();
+    Segment.getInstance().identify({ username: profile.username });
+    return profile;
   }
 
   async getProfile() {
