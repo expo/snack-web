@@ -53,12 +53,9 @@ export default class Segment {
     });
   }
 
-  // Assumes we are inside the withAuth context
   identify = (viewer: Object) => {
-    if (viewer && viewer.user_id) {
-      analytics.identify(viewer.user_id, {
-        username: viewer.username,
-      });
+    if (viewer) {
+      analytics.identify(viewer);
     }
   };
 
