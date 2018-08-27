@@ -31,7 +31,9 @@ export default class ServiceWorkerManager extends React.Component<{}, State> {
               switch (worker.state) {
                 case 'installed':
                   // A new service worker is available and installed
-                  if (serviceWorker.controller) {
+
+                  const isEmbedded = window.location.pathname.split('/')[1] === 'embedded';
+                  if (!isEmbedded && serviceWorker.controller) {
                     this.setState({ banner: true });
                   }
               }
