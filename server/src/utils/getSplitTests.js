@@ -37,7 +37,7 @@ export default async (ctx: any) => {
   };
 
   const testSettings = {
-    defaultPreviewPlatform: chooseWithWeights({ android: 0.9, ios: 0.1 }),
+    defaultPreviewPlatform: chooseWithWeights({ android: 0.1, ios: 0.9 }),
     defaultConnectionMethod: chooseWithWeights({
       'device-id': 0.5,
       'qr-code': 0.25,
