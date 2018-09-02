@@ -15,5 +15,10 @@
     "transform-object-rest-spread",
     "lodash",
     "webpack-chunkname"
-  ]
+  ],
+  "env": {
+    "test": {
+      "plugins": ["dynamic-import-node"]
+    }
+  }
 }

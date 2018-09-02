@@ -1,30 +1,56 @@
 # Snack
 
-This is the Snack website. The server uses a Koa server on production and `webpack-serve` in development.
+Snack lets you to run complete React Native projects in the browser. This is the web app for [snack.expo.io](https://snack.expo.io/).
 
-## File organization
+## Pre-requisites
 
-The web server is under `server`, which has a `src/` subdirectory where the source code resides. The build scripts also generate a `build` subdirectory with the compiled JS; this is the JS that actually runs.
+Before running the web app, make sure to have the following packages installed globally on your system:
 
-The code for the client is located under `snack/`. The webpack build creates a `dist/` folder and a `static/` folder (when `ASSET_PREFIX` environment variable is set) which are ignored from version control.
+- [nodejs](https://nodejs.org/)
+- [yarn](https://yarnpkg.com/lang/en/)
+- [direnv](https://direnv.net/)
 
-Scripts related to deployment, like the Dockerfile, are under `deploy`. Note: even though the scripts are under `deploy`, you must run them from this directory; they are sensitive to `cwd`.
+If you don't want to install `direnv`, check the [.envrc](.envrc) file and make sure you have the environment variables available.
 
-Files related to Jest tests, like the Jest configuration, are under `jest`.
+## Getting started
 
-Local environment variables for development are set up in `.envrc`.
+### Quick start
 
-## Developing
+After cloning the repo, open a terminal in the directory and run following to install the dependencies and start the server:
 
-To start the server, run `yarn start`. You must also start the www server by running `yarn start` in `www` in another terminal. Visit `http://snack.expo.test` or `http://localhost:3011` in your browser to load the site.
+```sh
+# Install dependencies
+yarn
 
-`yarn start` runs a Gulp pipeline that compiles the server JS, sets up a file watcher to compile changes on the fly, and starts a Koa server listening on port 3011 in Nodemon. The server is primarily responsible for routing and setting some HTTP headers (ex: for CORS). It also sets up Next.js in development mode and runs it in the same Node process.
+# Start the server
+yarn start
+```
 
-Nodemon is also configured with the `--inspect` flag, which lets you debug Node from Chrome. We use a non-default port for the inspector (9311 instead of 9229) since www's inspector uses the default port.
+Now you can access the web app at [localhost:3011](http://localhost:3011).
 
-The page is rendered fully on the client. The server serves a HTML page for all the routes and the client handles the routing. During development, webpack will watch and rebuild client side files. The client uses a service worker, which means you need some extra steps to get it setup for development:
+### Using the `snack.expo.test` domain
 
-### Setup HTTPS with self-signed certifcate
+We develop Snack under [snack.expo.test](https://snack/expo.test). We use [hotel](https://github.com/typicode/hotel) to do that. To set it up, open the file `~/.hotel/conf.json` and make sure you have the `tld` set to `test`:
+
+```json
+{
+  "tld": "test"
+}
+```
+
+Also add the following to `~/.hotel/servers/snack.expo.json`:
+
+```json
+{
+  "target": "http://localhost:3011"
+}
+```
+
+Configure your system to use configure proxies automatically following [these instructions](https://github.com/typicode/hotel/blob/master/docs/README.md#system-configuration-recommended).
+
+Now you should be able to access the snack server at [http://snack.expo.test](http://snack/expo.test).
+
+### Setting up HTTPS with self-signed certifcate
 
 The service worker needs HTTPS to work on the `snack.expo.test` domain. To set it up with Hotel, we need to add the `cert.pem` and `key.pem` files under the `~/.hotel` directory. To create these files, first create a configuration file for the certificate with the following content (let's call it `req.conf`):
 
@@ -59,18 +85,36 @@ Place the generated `cert.pem` and `key.pem` files under the `~/.hotel` director
 
 You'll also need to add the certificate to the system. Under `Keychain Access` > `Certificates`, drag and drop the `cert.pem` file to do that. Double click the certificate and mark it as trusted under the "Trust" section. You'll also need to add the certificate as an exception in the browser. You can do that by clicking the padlock in the URL bar.
 
+Now you should be able to access the snack server at [https://snack.expo.test](https://snack/expo.test).
+
+## File organization
+
+The web server is under `server`, which has a `src/` subdirectory where the source code resides. The build scripts also generate a `build` subdirectory with the compiled JS; this is the JS that actually runs.
+
+The code for the client is located under `snack/`. The webpack build creates a `dist/` folder which is ignored from version control.
+
+Scripts related to deployment, like the Dockerfile, are under `deploy`. Note: even though the scripts are under `deploy`, you must run them from this directory; they are sensitive to `cwd`.
+
+Files related to Jest tests, like the Jest configuration, are under `jest`.
+
+Local environment variables for development are set up in `.envrc`.
+
+## Developing
+
+The server uses a Koa server on production and `webpack-serve` in development.
+
+To start the server, run `yarn start`. If you have access to the monorepo, to test with the local API server, you need to run `yarn start` in `www/` in another terminal, and make sure the `API_SERVER_URL` environment variable is set to `http://localhost:3000`. Visit `http://snack.expo.test` or `http://localhost:3011` in your browser to load the site.
+
+`yarn start` runs a Gulp pipeline that compiles the server JavaScript, sets up a file watcher to compile changes on the fly, and starts a Koa server listening on port 3011 with Nodemon. The server is responsible for routing, serving the assets and running the weback server in development mode.
+
+Nodemon is also configured with the `--inspect` flag, which lets you debug Node from Chrome. We use a non-default port for the inspector (9311 instead of 9229) since www's inspector uses the default port.
+
+The page is rendered fully on the client. The server serves a HTML page for all the routes and the client handles the routing. During development, webpack will watch and rebuild client side files. The client uses a service worker, which means you need some extra steps to get it setup for development.
+
 ### Disabling cache with Service Worker
 
 In chrome devtools, check "Bypass for network" under `Application` > `Service workers` to skip the service worker cache when working on the page.
 
-## Testing
+### Running the tests
 
 We run unit tests with Jest. Run `yarn test` in another terminal to start Jest and have it continuously watch for changes. You also can run `yarn jest` if you want to run Jest without the watcher. Keep unit tests fast so that the feedback loop from them is fast.
-
-## Deploying
-
-The website is deployed using CircleCI and Kubernetes. We build a Docker image with `deploy/build_image.sh`. The image contains the built site, ready to run. Before we run it, though, we use the image to export the static assets that Next.js created, and then upload those static assets to S3.
-
-The generated static assets are served from CloudFront, which reads from the S3 bucket. The key thing is that, because the generated assets aren't served from Node, whether someone has loaded the older version of a site before a deploy or a newer version after a deploy, when their browser makes a request to fetch JS for the page, CloudFront is able to serve both the old and new JS assets.
-
-To deploy the server, we push the Docker image to our registry in Google Cloud and then update our Kubernetes deployment to use the new image. Kubernetes then gracefully starts new containers and drains traffic from the old ones.
