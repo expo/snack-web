@@ -12,7 +12,7 @@
     "start-all": "./bin/start_server.sh"
   },
   "author": "Expo",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "eslintConfig": {
     "extends": [
       "universe/node",
