@@ -2,10 +2,11 @@
 
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { create, persist } from 'web-worker-proxy';
+import nullthrows from 'nullthrows';
 import JSON5 from 'json5';
 import mapValues from 'lodash/mapValues';
 import Raven from 'raven-js';
-import shortid from 'shortid';
 import debounce from 'lodash/debounce';
 
 import SnackSessionWorker from '../workers/snack-session.worker';
@@ -27,7 +28,14 @@ import updateEntry from '../actions/updateEntry';
 import FeatureFlags from '../utils/FeatureFlags';
 
 import type { SDKVersion } from '../configs/sdk';
-import type { FileSystemEntry, TextFileEntry, AssetFileEntry, Snack, QueryParams } from '../types';
+import type {
+  FileSystemEntry,
+  TextFileEntry,
+  AssetFileEntry,
+  ExpoSnackFiles,
+  Snack,
+  QueryParams,
+} from '../types';
 
 const Auth = new AuthManager();
 
@@ -165,17 +173,20 @@ type Props = AuthProps & {|
   isEmbedded?: boolean,
 |};
 
+type SnackSessionState = {
+  name: string,
+  description: ?string,
+  files: {},
+  dependencies: {},
+  sdkVersion: SDKVersion,
+  isSaved: boolean,
+  isResolving: boolean,
+  loadingMessage: ?string,
+};
+
 type State = {|
-  snackSessionState: {
-    name: string,
-    description: ?string,
-    files: {},
-    dependencies: {},
-    sdkVersion: SDKVersion,
-    isSaved: boolean,
-    isResolving: boolean,
-    loadingMessage: ?string,
-  },
+  snackSessionState: SnackSessionState,
+  snackSessionReady: boolean,
   channel: string,
   deviceId: string,
   params: Params,
@@ -186,6 +197,38 @@ type State = {|
   isPreview: boolean,
   wasUpgraded: boolean,
 |};
+
+type SnackSessionProxy = {
+  create: (options: Object) => Promise<void>,
+  session: {
+    // Properties
+    expoApiUrl: string,
+    snackagerUrl: string,
+    snackagerCloudfrontUrl: string,
+    host: string,
+
+    // Methods
+    startAsync: () => Promise<void>,
+    saveAsync: () => Promise<{ id: string }>,
+    uploadAssetAsync: (asset: File) => Promise<string>,
+    syncDependenciesAsync: (modules: { [name: string]: ?string }, callback: *) => Promise<void>,
+    sendCodeAsync: (payload: ExpoSnackFiles) => Promise<void>,
+    setSdkVersion: (version: SDKVersion) => Promise<void>,
+    setUser: (user: { sessionSecret: ?string }) => Promise<void>,
+    setName: (name: string) => Promise<void>,
+    setDescription: (description: string) => Promise<void>,
+    setDeviceId: (id: string) => Promise<void>,
+    getState: () => Promise<SnackSessionState>,
+    getChannel: () => Promise<string>,
+  },
+
+  // Event listeners
+  addStateListener: (listener: *) => Promise<void>,
+  addPresenceListener: (listener: *) => Promise<void>,
+  addErrorListener: (listener: *) => Promise<void>,
+  addLogListener: (listener: *) => Promise<void>,
+  setDependencyErrorListener: (listener: *) => Promise<void>,
+};
 
 class App extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -274,6 +317,7 @@ class App extends React.Component<Props, State> {
 
     this.state = {
       snackSessionState,
+      snackSessionReady: false,
       fileEntries: FeatureFlags.isAvailable('PROJECT_DEPENDENCIES', sdkVersion)
         ? [...fileEntries, this._getPackageJson(snackSessionState)]
         : fileEntries,
@@ -296,303 +340,12 @@ class App extends React.Component<Props, State> {
       Segment.getInstance().identify({ build_date });
     }
 
-    this._intializeSnackSessionWorker();
-  }
-
-  _isSnackSessionWorkerReady: boolean;
-  _actionQueue = [];
-
-  _sendAction = (action: { type: string, payload?: any }) => {
-    if (this._isSnackSessionWorkerReady) {
-      // If worker is ready, send the action
-      this._snackSessionWorker.postMessage(action);
-    } else {
-      // Otherwise add the actions to a queue we'll send when it's ready
-      this._actionQueue.push(action);
-    }
-  };
-
-  _intializeSnackSessionWorker = () => {
     /* $FlowFixMe */
     this._snackSessionWorker = new SnackSessionWorker();
+    this._snack = create(this._snackSessionWorker);
 
-    this._snackSessionWorker.addEventListener('message', event => {
-      const { type, payload } = event.data;
-
-      switch (type) {
-        case 'READY':
-          this._isSnackSessionWorkerReady = true;
-          this._initializeSnackSession();
-
-          // When the worker is ready, send all the queued actions
-          this._actionQueue.forEach(action => this._sendAction(action));
-          this._actionQueue = [];
-          break;
-        case 'STATE': {
-          const snackSessionState = payload;
-
-          this.setState(state => {
-            let { fileEntries } = state;
-
-            const currentFile = this._findFocusedEntry(fileEntries);
-
-            if (
-              currentFile &&
-              snackSessionState.files.hasOwnProperty(currentFile.item.path) &&
-              snackSessionState.files[currentFile.item.path].contents !==
-                (currentFile.item.asset ? currentFile.item.uri : currentFile.item.content)
-            ) {
-              const contents = snackSessionState.files[currentFile.item.path].contents;
-
-              fileEntries = fileEntries.map(entry => {
-                if (entry.item.path === currentFile.item.path && entry.item.type === 'file') {
-                  if (entry.item.asset) {
-                    if (entry.item.uri !== contents) {
-                      return updateEntry(entry, {
-                        item: { uri: contents },
-                      });
-                    }
-                  } else {
-                    if (entry.item.content !== contents) {
-                      return updateEntry(entry, {
-                        item: { content: contents },
-                      });
-                    }
-                  }
-                }
-
-                return entry;
-              });
-            }
-
-            if (state.snackSessionState.sdkVersion !== snackSessionState.sdkVersion) {
-              const packageJson = fileEntries.find(entry => isPackageJson(entry.item.path));
-
-              if (
-                FeatureFlags.isAvailable(
-                  'PROJECT_DEPENDENCIES',
-                  ((snackSessionState.sdkVersion: any): SDKVersion)
-                )
-              ) {
-                if (!packageJson) {
-                  fileEntries = [...fileEntries, this._getPackageJson(snackSessionState)];
-                }
-              } else {
-                if (packageJson) {
-                  fileEntries = fileEntries.filter(entry => !isPackageJson(entry.item.path));
-                }
-              }
-            }
-
-            if (
-              state.snackSessionState.dependencies !== snackSessionState.dependencies &&
-              FeatureFlags.isAvailable(
-                'PROJECT_DEPENDENCIES',
-                ((snackSessionState.sdkVersion: any): SDKVersion)
-              )
-            ) {
-              fileEntries = fileEntries.map(entry => {
-                if (isPackageJson(entry.item.path)) {
-                  let previous = null;
-
-                  try {
-                    // Use JSON5 for a more forgiving approach, e.g. trailing commas
-                    // $FlowFixMe
-                    previous = JSON5.parse(entry.item.content);
-                    const dependencies = mapValues(
-                      snackSessionState.dependencies,
-                      dep => dep.version
-                    );
-                    // $FlowFixMe
-                    return {
-                      ...entry,
-                      item: {
-                        ...entry.item,
-                        content: JSON.stringify(
-                          {
-                            ...previous,
-                            dependencies: {
-                              ...previous.dependencies,
-                              ...dependencies,
-                            },
-                          },
-                          null,
-                          2
-                        ),
-                      },
-                    };
-                  } catch (e) {
-                    // Do nothing
-                  }
-                }
-
-                return entry;
-              });
-            }
-
-            return {
-              snackSessionState,
-              fileEntries,
-            };
-          });
-          break;
-        }
-
-        case 'PRESENCE': {
-          if (payload.status === 'join') {
-            this.setState(state => ({
-              connectedDevices: [...state.connectedDevices, payload.device],
-            }));
-          } else if (payload.status === 'leave') {
-            this.setState(state => ({
-              connectedDevices: state.connectedDevices.filter(
-                device => device.id !== payload.device.id
-              ),
-            }));
-          }
-
-          break;
-        }
-
-        case 'ERROR': {
-          const errors = payload;
-
-          let deviceError: ?DeviceError = null;
-
-          if (errors.length) {
-            deviceError = {
-              message: errors[0].message,
-            };
-
-            if (errors[0].startColumn && errors[0].startLine) {
-              deviceError.loc = [errors[0].startLine, errors[0].startColumn];
-            }
-
-            if (errors[0].startLine) {
-              deviceError.line = errors[0].startLine;
-            }
-
-            if (errors[0].startColumn) {
-              deviceError.column = errors[0].startColumn;
-            }
-          }
-
-          this.setState({
-            deviceError,
-          });
-
-          break;
-        }
-
-        case 'LOG': {
-          const deviceLog = {
-            device: payload.device,
-            method: payload.method,
-            payload: payload.arguments,
-          };
-
-          this.setState(state => ({
-            deviceLogs: [...state.deviceLogs.slice(-99), deviceLog],
-          }));
-
-          break;
-        }
-
-        case 'CHANNEL':
-          this.setState({ channel: payload });
-          break;
-
-        case 'DEPENDENCY_ERROR':
-          Raven.captureMessage(payload);
-          break;
-      }
-    });
-  };
-
-  _initializeSnackSession = () => {
-    const { snackSessionState, params, wasUpgraded } = this.state;
-
-    let deviceId;
-
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        deviceId = localStorage.getItem(DEVICE_ID_KEY);
-      }
-
-      if (deviceId) {
-        this.setState({ deviceId });
-      }
-    } catch (e) {
-      // Ignore error
-    }
-
-    this._sendAction({
-      type: 'INIT',
-      payload: {
-        verbose: false,
-        snackId: !wasUpgraded ? params.id : null,
-        files: snackSessionState.files,
-        name: snackSessionState.name,
-        description: snackSessionState.description,
-        sdkVersion: snackSessionState.sdkVersion,
-        dependencies: snackSessionState.dependencies,
-        user: { idToken: Auth.currentIdToken, sessionSecret: Auth.currentSessionSecret },
-        deviceId,
-      },
-    });
-
-    const isLocal = window.location.host.includes('expo.test');
-    const isStaging = window.location.host.includes('staging');
-
-    if (isStaging) {
-      this._sendAction({
-        type: 'SET_PROPERTIES',
-        payload: { host: 'staging.expo.io' },
-      });
-    } else if (isLocal) {
-      this._sendAction({
-        type: 'SET_PROPERTIES',
-        payload: { host: constants.ngrok },
-      });
-    }
-
-    if (this.props.query.local_snackager === 'true') {
-      this._sendAction({
-        type: 'SET_PROPERTIES',
-        payload: {
-          snackagerUrl: 'http://localhost:3001',
-          snackagerCloudfrontUrl: 'https://ductmb1crhe2d.cloudfront.net',
-        },
-      });
-    } else if (isStaging) {
-      this._sendAction({
-        type: 'SET_PROPERTIES',
-        payload: {
-          snackagerUrl: 'https://staging.snackager.expo.io',
-          snackagerCloudfrontUrl: 'https://ductmb1crhe2d.cloudfront.net',
-        },
-      });
-    }
-
-    const sessionSecret = this.props.getSessionSecret();
-
-    if (sessionSecret) {
-      this._sendAction({
-        type: 'SET_USER',
-        payload: { sessionSecret },
-      });
-    }
-
-    this._sendAction({ type: 'START' });
-
-    Segment.getInstance().setCommonData({
-      snackId: this.state.params.id,
-      isEmbedded: this.props.isEmbedded || false,
-    });
-    Segment.getInstance().logEvent('LOADED_SNACK', {
-      sdkVersion: this.state.snackSessionState.sdkVersion,
-    });
-  };
+    this._initializeSnackSession();
+  }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (this.state.fileEntries === prevState.fileEntries) {
@@ -621,47 +374,270 @@ class App extends React.Component<Props, State> {
 
   componentWillUnmount() {
     this._snackSessionWorker && this._snackSessionWorker.terminate();
+    this._snackSessionDependencyErrorListener &&
+      this._snackSessionDependencyErrorListener.dispose();
+    this._snackSessionLogListener && this._snackSessionLogListener.dispose();
+    this._snackSessionErrorListener && this._snackSessionErrorListener.dispose();
+    this._snackSessionPresenceListener && this._snackSessionPresenceListener.dispose();
+    this._snackSessionStateListener && this._snackSessionStateListener.dispose();
   }
 
+  _initializeSnackSession = async () => {
+    const { snackSessionState, params, wasUpgraded } = this.state;
+
+    let deviceId;
+
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        deviceId = localStorage.getItem(DEVICE_ID_KEY);
+      }
+
+      if (deviceId) {
+        this.setState({ deviceId });
+      }
+    } catch (e) {
+      // Ignore error
+    }
+
+    await this._snack.create({
+      verbose: false,
+      snackId: !wasUpgraded ? params.id : null,
+      files: snackSessionState.files,
+      name: snackSessionState.name,
+      description: snackSessionState.description,
+      sdkVersion: snackSessionState.sdkVersion,
+      dependencies: snackSessionState.dependencies,
+      user: { idToken: Auth.currentIdToken, sessionSecret: Auth.currentSessionSecret },
+      deviceId,
+    });
+
+    this._snack.session.expoApiUrl = nullthrows(process.env.API_SERVER_URL);
+
+    const isLocal = window.location.host.includes('expo.test');
+    const isStaging = window.location.host.includes('staging');
+
+    if (isStaging) {
+      this._snack.session.host = 'staging.expo.io';
+    } else if (isLocal) {
+      this._snack.session.host = constants.ngrok;
+    }
+
+    if (this.props.query.local_snackager === 'true') {
+      this._snack.session.snackagerUrl = 'http://localhost:3001';
+      this._snack.session.snackagerCloudfrontUrl = 'https://ductmb1crhe2d.cloudfront.net';
+    } else if (isStaging) {
+      this._snack.session.snackagerUrl = 'https://staging.snackager.expo.io';
+      this._snack.session.snackagerCloudfrontUrl = 'https://ductmb1crhe2d.cloudfront.net';
+    }
+
+    const sessionSecret = this.props.getSessionSecret();
+
+    if (sessionSecret) {
+      await this._snack.session.setUser({ sessionSecret });
+    }
+
+    // Add the listeners
+    this._snackSessionDependencyErrorListener = persist(this._handleSnackDependencyError);
+    this._snackSessionLogListener = persist(this._handleSnackSessionLog);
+    this._snackSessionErrorListener = persist(this._handleSnackSessionError);
+    this._snackSessionPresenceListener = persist(this._handleSnackSessionPresence);
+    this._snackSessionStateListener = persist(this._handleSnackSessionState);
+
+    this._snack.setDependencyErrorListener(this._snackSessionDependencyErrorListener);
+    this._snack.addLogListener(this._snackSessionLogListener);
+    this._snack.addErrorListener(this._snackSessionErrorListener);
+    this._snack.addPresenceListener(this._snackSessionPresenceListener);
+    this._snack.addStateListener(this._snackSessionStateListener);
+
+    await this._snack.session.startAsync();
+
+    const channel = await this._snack.session.getChannel();
+    const sessionState = await this._snack.session.getState();
+
+    this.setState({
+      channel,
+      snackSessionState: sessionState,
+      snackSessionReady: true,
+    });
+
+    Segment.getInstance().setCommonData({
+      snackId: this.state.params.id,
+      isEmbedded: this.props.isEmbedded || false,
+    });
+    Segment.getInstance().logEvent('LOADED_SNACK', {
+      sdkVersion: this.state.snackSessionState.sdkVersion,
+    });
+  };
+
+  _snack: SnackSessionProxy;
   _snackSessionWorker: Worker;
+  _snackSessionDependencyErrorListener: *;
+  _snackSessionLogListener: *;
+  _snackSessionErrorListener: *;
+  _snackSessionPresenceListener: *;
+  _snackSessionStateListener: *;
 
-  _performAction = (type: string, data?: any, callback?: Function) =>
-    new Promise((resolve, reject) => {
-      const version = shortid.generate();
-      const listener = ({ data }: any) => {
-        const remove = () => this._snackSessionWorker.removeEventListener('message', listener);
+  _handleSnackDependencyError = error => Raven.captureMessage(error);
 
-        if (data.type === `${type}_SUCCESS` && data.payload.version === version) {
-          resolve(data.payload.result);
-          remove();
-        } else if (data.type === `${type}_ERROR` && data.payload.version === version) {
-          const { message, stack } = data.payload.error;
-          const error = new Error(message);
+  _handleSnackSessionLog = payload => {
+    const deviceLog = {
+      device: payload.device,
+      method: payload.method,
+      payload: payload.arguments,
+    };
 
-          error.stack = stack;
+    this.setState(state => ({
+      deviceLogs: [...state.deviceLogs.slice(-99), deviceLog],
+    }));
+  };
 
-          reject(error);
-          remove();
-        } else if (
-          data.type === `${type}_CALLBACK` &&
-          data.payload.version === version &&
-          callback
-        ) {
-          callback(...data.payload.args);
-        }
+  _handleSnackSessionError = errors => {
+    let deviceError: ?DeviceError = null;
+
+    if (errors.length) {
+      deviceError = {
+        message: errors[0].message,
       };
 
-      this._snackSessionWorker.addEventListener('message', listener);
-      this._sendAction({ type, payload: { version, data } });
+      if (errors[0].startColumn && errors[0].startLine) {
+        deviceError.loc = [errors[0].startLine, errors[0].startColumn];
+      }
+
+      if (errors[0].startLine) {
+        deviceError.line = errors[0].startLine;
+      }
+
+      if (errors[0].startColumn) {
+        deviceError.column = errors[0].startColumn;
+      }
+    }
+
+    this.setState({
+      deviceError,
+    });
+  };
+
+  _handleSnackSessionPresence = presence => {
+    if (presence.status === 'join') {
+      this.setState(state => ({
+        connectedDevices: [...state.connectedDevices, presence.device],
+      }));
+    } else if (presence.status === 'leave') {
+      this.setState(state => ({
+        connectedDevices: state.connectedDevices.filter(device => device.id !== presence.device.id),
+      }));
+    }
+  };
+
+  _handleSnackSessionState = (snackSessionState: SnackSessionState) =>
+    this.setState(state => {
+      let { fileEntries } = state;
+
+      const currentFile = this._findFocusedEntry(fileEntries);
+
+      if (
+        currentFile &&
+        snackSessionState.files.hasOwnProperty(currentFile.item.path) &&
+        snackSessionState.files[currentFile.item.path].contents !==
+          (currentFile.item.asset ? currentFile.item.uri : currentFile.item.content)
+      ) {
+        const contents = snackSessionState.files[currentFile.item.path].contents;
+
+        fileEntries = fileEntries.map(entry => {
+          if (entry.item.path === currentFile.item.path && entry.item.type === 'file') {
+            if (entry.item.asset) {
+              if (entry.item.uri !== contents) {
+                return updateEntry(entry, {
+                  item: { uri: contents },
+                });
+              }
+            } else {
+              if (entry.item.content !== contents) {
+                return updateEntry(entry, {
+                  item: { content: contents },
+                });
+              }
+            }
+          }
+
+          return entry;
+        });
+      }
+
+      if (state.snackSessionState.sdkVersion !== snackSessionState.sdkVersion) {
+        const packageJson = fileEntries.find(entry => isPackageJson(entry.item.path));
+
+        if (
+          FeatureFlags.isAvailable(
+            'PROJECT_DEPENDENCIES',
+            ((snackSessionState.sdkVersion: any): SDKVersion)
+          )
+        ) {
+          if (!packageJson) {
+            fileEntries = [...fileEntries, this._getPackageJson(snackSessionState)];
+          }
+        } else {
+          if (packageJson) {
+            fileEntries = fileEntries.filter(entry => !isPackageJson(entry.item.path));
+          }
+        }
+      }
+
+      if (
+        state.snackSessionState.dependencies !== snackSessionState.dependencies &&
+        FeatureFlags.isAvailable(
+          'PROJECT_DEPENDENCIES',
+          ((snackSessionState.sdkVersion: any): SDKVersion)
+        )
+      ) {
+        fileEntries = fileEntries.map(entry => {
+          if (isPackageJson(entry.item.path)) {
+            let previous = null;
+
+            try {
+              // Use JSON5 for a more forgiving approach, e.g. trailing commas
+              // $FlowFixMe
+              previous = JSON5.parse(entry.item.content);
+              const dependencies = mapValues(snackSessionState.dependencies, dep => dep.version);
+              // $FlowFixMe
+              return {
+                ...entry,
+                item: {
+                  ...entry.item,
+                  content: JSON.stringify(
+                    {
+                      ...previous,
+                      dependencies: {
+                        ...previous.dependencies,
+                        ...dependencies,
+                      },
+                    },
+                    null,
+                    2
+                  ),
+                },
+              };
+            } catch (e) {
+              // Do nothing
+            }
+          }
+
+          return entry;
+        });
+      }
+
+      return {
+        snackSessionState,
+        fileEntries,
+      };
     });
 
   _sendCodeNotDebounced = () =>
-    this._sendAction({
-      type: 'SEND_CODE',
+    this._snack.session.sendCodeAsync(
       // map state.fileEntries to the correct type before sending to snackSession
       /* $FlowFixMe */
-      payload: entryArrayToSnack(this.state.fileEntries.filter(e => !e.item.virtual)),
-    });
+      entryArrayToSnack(this.state.fileEntries.filter(e => !e.item.virtual))
+    );
 
   _sendCode = debounce(this._sendCodeNotDebounced, 1000);
 
@@ -681,10 +657,10 @@ class App extends React.Component<Props, State> {
     state: {},
   });
 
-  _handleChangeName = (name: string) => this._sendAction({ type: 'SET_NAME', payload: name });
+  _handleChangeName = (name: string) => this._snack.session.setName(name);
 
   _handleChangeDescription = (description: string) =>
-    this._sendAction({ type: 'SET_DESCRIPTION', payload: description });
+    this._snack.session.setDescription(description);
 
   _handleChangeCode = (content: string) =>
     this.setState((state: State) => ({
@@ -701,8 +677,7 @@ class App extends React.Component<Props, State> {
     new Promise(resolve => this.setState({ fileEntries }, resolve));
 
   _handleChangeSDKVersion = (sdkVersion: SDKVersion) =>
-    // TODO: if there are multiple files, check that the SDK version supports this
-    this._sendAction({ type: 'SET_SDK_VERSION', payload: sdkVersion });
+    this._snack.session.setSdkVersion(sdkVersion);
 
   _handleClearDeviceLogs = () =>
     this.setState({
@@ -758,15 +733,12 @@ class App extends React.Component<Props, State> {
     Segment.getInstance().startTimer('lastSave');
 
     if (options.allowedOnProfile) {
-      this._updateUser();
+      await this._updateUser();
     } else {
-      this._sendAction({
-        type: 'SET_USER',
-        payload: { sessionSecret: undefined },
-      });
+      await this._snack.session.setUser({ sessionSecret: undefined });
     }
 
-    const saveResult = await this._performAction('SAVE');
+    const saveResult = await this._snack.session.saveAsync();
 
     this.props.history.push({
       pathname: `/${saveResult.id}`,
@@ -781,13 +753,11 @@ class App extends React.Component<Props, State> {
     }));
   };
 
-  _updateUser = () => {
+  _updateUser = async () => {
     const sessionSecret = this.props.getSessionSecret();
+
     if (sessionSecret) {
-      this._sendAction({
-        type: 'SET_USER',
-        payload: { sessionSecret },
-      });
+      await this._snack.session.setUser({ sessionSecret });
     }
   };
 
@@ -800,10 +770,7 @@ class App extends React.Component<Props, State> {
       }
     }
 
-    this._sendAction({
-      type: 'SET_DEVICE_ID',
-      payload: deviceId,
-    });
+    this._snack.session.setDeviceId(deviceId);
   };
 
   _findFocusedEntry = (entries: FileSystemEntry[]): ?(TextFileEntry | AssetFileEntry) =>
@@ -815,10 +782,17 @@ class App extends React.Component<Props, State> {
 
   _handleOpenEditor = () => this.setState({ isPreview: false });
 
-  _uploadAssetAsync = asset => this._performAction('UPLOAD_ASSET', asset);
+  _uploadAssetAsync = asset => this._snack.session.uploadAssetAsync(asset);
 
-  _syncDependenciesAsync = (dependencies, callback) =>
-    this._performAction('SYNC_DEPENDENCIES', dependencies, callback);
+  _syncDependenciesAsync = async (dependencies, callback) => {
+    const errorListener = persist(callback);
+
+    try {
+      await this._snack.session.syncDependenciesAsync(dependencies, errorListener);
+    } finally {
+      errorListener.dispose();
+    }
+  };
 
   render() {
     if (this.state.isPreview) {
@@ -843,7 +817,7 @@ class App extends React.Component<Props, State> {
             }
           }}>
           {({ loaded, data: Comp }) =>
-            loaded ? (
+            loaded && this.state.snackSessionReady ? (
               <Comp
                 creatorUsername={this.state.params.username}
                 fileEntries={this.state.fileEntries}
@@ -882,8 +856,7 @@ class App extends React.Component<Props, State> {
               <EmbeddedShell />
             ) : (
               <AppShell />
-            )
-          }
+            )}
         </LazyLoad>
       );
     }

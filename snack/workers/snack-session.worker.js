@@ -1,6 +1,6 @@
 /* @flow */
 
-import nullthrows from 'nullthrows';
+import { proxy } from 'web-worker-proxy';
 import resources from '../../resources.json';
 
 self.importScripts(resources['babel-polyfill']);
@@ -10,157 +10,33 @@ self.window = self; // Needed for pubnub to work
 // Must load this with `require` to ensure proper order
 const { SnackSession } = require('snack-sdk');
 
-let snackSession;
+let session;
 
-self.addEventListener('message', event => {
-  const { type, payload } = event.data;
+proxy({
+  create(options) {
+    session = new SnackSession(options);
+  },
 
-  switch (type) {
-    case 'INIT': {
-      // Initialize the snack session
-      snackSession = new SnackSession(payload);
-      snackSession.expoApiUrl = nullthrows(process.env.API_SERVER_URL);
+  get session() {
+    return session;
+  },
 
-      snackSession.addStateListener(state => self.postMessage({ type: 'STATE', payload: state }));
-
-      snackSession.addPresenceListener(event =>
-        self.postMessage({ type: 'PRESENCE', payload: event })
-      );
-
-      snackSession.addErrorListener(errors => self.postMessage({ type: 'ERROR', payload: errors }));
-
-      snackSession.addLogListener(log => self.postMessage({ type: 'LOG', payload: log }));
-
-      snackSession.dependencyErrorListener = error =>
-        self.postMessage({ type: 'DEPENDENCY_ERROR', payload: error });
-
-      // Send the initial details
-      self.postMessage({ type: 'STATE', payload: snackSession.getState() });
-      self.postMessage({ type: 'CHANNEL', payload: snackSession.getChannel() });
-
-      break;
-    }
-
-    case 'START':
-      snackSession.startAsync();
-      break;
-
-    case 'SAVE': {
-      snackSession.saveAsync().then(
-        result => {
-          self.postMessage({
-            type: 'SAVE_SUCCESS',
-            payload: {
-              version: payload.version,
-              result,
-            },
-          });
-        },
-        error => {
-          self.postMessage({
-            type: 'SAVE_ERROR',
-            payload: {
-              version: payload.version,
-              error: { message: error.message, stack: error.stack },
-            },
-          });
-        }
-      );
-
-      break;
-    }
-
-    case 'UPLOAD_ASSET': {
-      snackSession.uploadAssetAsync(payload.data).then(
-        result => {
-          self.postMessage({
-            type: 'UPLOAD_ASSET_SUCCESS',
-            payload: {
-              version: payload.version,
-              result,
-            },
-          });
-        },
-        error => {
-          self.postMessage({
-            type: 'UPLOAD_ASSET_ERROR',
-            payload: {
-              version: payload.version,
-              error: { message: error.message, stack: error.stack },
-            },
-          });
-        }
-      );
-
-      break;
-    }
-
-    case 'SYNC_DEPENDENCIES': {
-      snackSession
-        .syncDependenciesAsync(payload.data, (...args) => {
-          self.postMessage({
-            type: 'SYNC_DEPENDENCIES_CALLBACK',
-            payload: {
-              version: payload.version,
-              args,
-            },
-          });
-        })
-        .then(
-          result => {
-            self.postMessage({
-              type: 'SYNC_DEPENDENCIES_SUCCESS',
-              payload: {
-                version: payload.version,
-                result,
-              },
-            });
-          },
-          error => {
-            self.postMessage({
-              type: 'SYNC_DEPENDENCIES_ERROR',
-              payload: {
-                version: payload.version,
-                error: { message: error.message, stack: error.stack },
-              },
-            });
-          }
-        );
-
-      break;
-    }
-
-    case 'SEND_CODE':
-      snackSession.sendCodeAsync(payload);
-      break;
-
-    case 'SET_PROPERTIES':
-      Object.keys(payload).forEach(key => {
-        /* $FlowFixMe */
-        snackSession[key] = payload[key];
-      });
-      break;
-
-    case 'SET_SDK_VERSION':
-      snackSession.setSdkVersion(payload);
-      break;
-
-    case 'SET_USER':
-      snackSession.setUser(payload);
-      break;
-
-    case 'SET_NAME':
-      snackSession.setName(payload);
-      break;
-
-    case 'SET_DESCRIPTION':
-      snackSession.setDescription(payload);
-      break;
-
-    case 'SET_DEVICE_ID':
-      snackSession.setDeviceId(payload);
-      break;
-  }
+  // By default, these methods will return a subscription object
+  // We can't serialize it, so we can't call these methods directly on snack session
+  // So we add separate methods for this which return undefined
+  addStateListener(listener: *) {
+    session.addStateListener(listener);
+  },
+  addPresenceListener(listener: *) {
+    session.addPresenceListener(listener);
+  },
+  addErrorListener(listener: *) {
+    session.addErrorListener(listener);
+  },
+  addLogListener(listener: *) {
+    session.addLogListener(listener);
+  },
+  setDependencyErrorListener(listener: *) {
+    session.dependencyErrorListener = listener;
+  },
 });
-
-self.postMessage({ type: 'READY' });
