@@ -1,7 +1,7 @@
 FROM mhart/alpine-node:8.11.1
 
 # alpine deps
-RUN apk --update add bash
+RUN apk --update add bash git
 
 RUN apk add --virtual build-deps --no-cache \
   python \
