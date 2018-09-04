@@ -18,7 +18,7 @@
   ],
   "env": {
     "test": {
-      "plugins": ["dynamic-import-node"]
+      "plugins": ["dynamic-import-node", "babel-plugin-transform-es2015-modules-commonjs"]
     }
   }
 }
