@@ -8,9 +8,20 @@ Before running the web app, make sure to have the following packages installed g
 
 - [nodejs](https://nodejs.org/)
 - [yarn](https://yarnpkg.com/lang/en/)
-- [direnv](https://direnv.net/)
 
-If you don't want to install `direnv`, check the [.envrc](.envrc) file and make sure you have the environment variables available.
+Make sure you have the environment variables available:
+
+```sh
+export SNACK_PORT=3011
+export SNACK_SEGMENT_KEY=""
+export SNACK_SENTRY_DSN=""
+export SNACK_SERVER_HOST=snack.expo.test
+export SNACK_SERVER_PROTOCOL=https
+export API_SERVER_URL=https://staging.expo.io
+export IMPORT_SERVER_URL=https://staging.snackager.expo.io
+```
+
+You can copy the above code to your `.bashrc` or `.zshrc`.
 
 ## Getting started
 
