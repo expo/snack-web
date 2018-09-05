@@ -2,3 +2,4 @@
 /static/
 /server/build/
 /web-snack-libraries.tar.gz
+node_modules/
