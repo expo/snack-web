@@ -26,6 +26,7 @@ Array [
     },
     Object {
       "item": Object {
+        "content": "",
         "path": "file.js",
         "type": "file",
       },
@@ -64,6 +65,7 @@ Array [
     },
     Object {
       "item": Object {
+        "content": "",
         "path": "file.js",
         "type": "file",
       },
@@ -101,6 +103,7 @@ Array [
     },
     Object {
       "item": Object {
+        "content": "",
         "path": "file.js",
         "type": "file",
       },
@@ -141,6 +144,7 @@ Array [
     },
     Object {
       "item": Object {
+        "content": "",
         "path": "file.js",
         "type": "file",
       },
@@ -179,6 +183,7 @@ Array [
     },
     Object {
       "item": Object {
+        "content": "",
         "path": "file.js",
         "type": "file",
       },

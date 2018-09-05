@@ -52,6 +52,7 @@ Array [
   },
   Object {
     "item": Object {
+      "content": "",
       "path": "static/file.png",
       "type": "file",
     },
@@ -111,6 +112,7 @@ Array [
   },
   Object {
     "item": Object {
+      "content": "",
       "path": "static/file.png",
       "type": "file",
     },
@@ -170,6 +172,7 @@ Array [
   },
   Object {
     "item": Object {
+      "content": "",
       "path": "static/file.png",
       "type": "file",
     },
