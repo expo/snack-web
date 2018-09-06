@@ -4,6 +4,7 @@ import React from 'react';
 import GoogleAnalytics from '../components/GoogleAnalytics';
 import Segment from '../components/SegmentDocumentComponent';
 import resources from '../../../resources.json';
+import jsesc from 'jsesc';
 
 type Props = {
   id: ?string,
@@ -120,10 +121,17 @@ export default class Document extends React.Component<Props> {
           />
           <script
             dangerouslySetInnerHTML={{
-              __html: `window.__INITIAL_DATA__ = ${JSON.stringify({
-                data,
-                splitTestSettings,
-              })}`,
+              __html: `
+               window.__INITIAL_DATA__ = ${jsesc(
+                 {
+                   data,
+                   splitTestSettings,
+                 },
+                 {
+                   quotes: 'double',
+                   isScriptContext: true,
+                 }
+               )} `,
             }}
           />
         </head>
