@@ -1,11 +1,14 @@
 /* @flow */
 
+import * as lightColors from './colors-light';
+import * as darkColors from './colors-dark';
+
 const css: any = String.raw;
 
-export default css`
+const theme = ({ syntax, ui }) => css`
   .prism-code {
-    background-color: #fafafa;
-    color: #6e7580;
+    background-color: ${ui.background};
+    color: ${ui.text};
   }
 
   .prism-code ::selection {
@@ -22,61 +25,67 @@ export default css`
 
   .prism-code .token.tag,
   .prism-code .token.property {
-    color: #55b4d4;
+    color: ${syntax.property};
   }
 
   .prism-code .token.function {
-    color: #f29718;
+    color: ${syntax.constant};
   }
 
   .prism-code .token.entity {
-    color: #399ee6;
+    color: ${syntax.property};
   }
 
   .prism-code .token.string,
   .prism-code .token.selector,
-  .prism-code .token.attr-name,
   .prism-code .token.char,
   .prism-code .token.builtin,
   .prism-code .token.inserted {
-    color: #86b300;
+    color: ${syntax.string};
   }
 
   .prism-code .token.regexp,
   .prism-code .token.important,
   .prism-code .token.variable {
-    color: #4cbf99;
-  }
-
-  .prism-code .token.markup {
-    color: #f07171;
+    color: ${syntax.regexp};
   }
 
   .prism-code .token.keyword,
   .prism-code .token.atrule,
-  .prism-code .token.attr-value,
   .prism-code .token.tag > .token.punctuation {
-    color: #fa6e32;
+    color: ${syntax.keyword};
   }
 
+  .prism-code .token.attr-name {
+    color: ${syntax.number};
+  }
+
+  .prism-code .token.attr-value {
+    color: ${syntax.string};
+  }
+
+  .prism-code .token.markup,
   .prism-code .token.special {
-    color: #e6b673;
+    color: ${syntax.predefined};
   }
 
   .prism-code .token.comment,
   .prism-code .token.prolog,
   .prism-code .token.doctype,
   .prism-code .token.cdata {
-    color: #abb0b6;
+    color: ${syntax.comment};
+  }
+
+  .prism-code .token.number {
+    color: ${syntax.number};
   }
 
   .prism-code .token.constant,
   .prism-code .token.boolean,
-  .prism-code .token.number,
   .prism-code .token.constant,
   .prism-code .token.symbol,
   .prism-code .token.deleted {
-    color: #a37acc;
+    color: ${syntax.constant};
   }
 
   .prism-code .token.operator,
@@ -84,10 +93,13 @@ export default css`
   .prism-code .token.url,
   .prism-code .language-css .token.string,
   .prism-code .style .token.string {
-    color: #ed9366;
+    color: ${syntax.operator};
   }
 
   .prism-code .token.punctuation {
-    color: #85888c;
+    color: ${syntax.comment};
   }
 `;
+
+export const light = theme(lightColors);
+export const dark = theme(darkColors);

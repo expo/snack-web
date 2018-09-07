@@ -1,8 +1,9 @@
 /* @flow */
 
-import light from './monaco-light';
-import dark from './monaco-dark';
+import { light, dark } from './monaco';
 import colors from '../../../configs/colors';
+import * as lightColors from './colors-light';
+import * as darkColors from './colors-dark';
 
 const css: any = String.raw;
 
@@ -95,19 +96,19 @@ export default css`
   .snack-monaco-editor.theme-light .tagName-of-JsxOpeningElement,
   .snack-monaco-editor.theme-light .tagName-of-JsxClosingElement,
   .snack-monaco-editor.theme-light .tagName-of-JsxSelfClosingElement {
-    color: #41a6d9;
+    color: ${lightColors.syntax.property};
   }
 
   .snack-monaco-editor.theme-light .name-of-JsxAttribute {
-    color: #f08c36;
+    color: ${lightColors.syntax.number};
   }
 
   .snack-monaco-editor.theme-light .name-of-PropertyAssignment {
-    color: #86b300;
+    color: ${lightColors.syntax.string};
   }
 
   .snack-monaco-editor.theme-light .name-of-PropertyAccessExpression {
-    color: #f08c36;
+    color: ${lightColors.syntax.constant};
   }
 
   /* Dark theme overrides */
@@ -121,18 +122,18 @@ export default css`
   .snack-monaco-editor.theme-dark .tagName-of-JsxOpeningElement,
   .snack-monaco-editor.theme-dark .tagName-of-JsxClosingElement,
   .snack-monaco-editor.theme-dark .tagName-of-JsxSelfClosingElement {
-    color: #5ccfe6;
+    color: ${darkColors.syntax.property};
   }
 
   .snack-monaco-editor.theme-dark .name-of-JsxAttribute {
-    color: #ffcf71;
+    color: ${darkColors.syntax.number};
   }
 
   .snack-monaco-editor.theme-dark .name-of-PropertyAssignment {
-    color: #bae67e;
+    color: ${darkColors.syntax.string};
   }
 
   .snack-monaco-editor.theme-dark .name-of-PropertyAccessExpression {
-    color: #ffcf71;
+    color: ${darkColors.syntax.constant};
   }
 `;

@@ -174,8 +174,7 @@ class AceEditor extends React.PureComponent<Props, State> {
     require('brace/ext/language_tools');
     require('brace/ext/searchbox');
     require('brace/keybinding/vim');
-    require('./themes/ace-light');
-    require('./themes/ace-dark');
+    require('./themes/ace');
 
     const { onValueChange, path, value, annotations, lineNumbers, theme } = this.props;
 
