@@ -18,9 +18,12 @@ const ASSETS = __WEBPACK_BUILD_STATS__.assets
   .concat(Object.keys(resources).map(key => resources[key]));
 
 self.addEventListener('install', event => {
-  // Pre-cache all JavaScript, JSON and CSS code
+  // Wait for the entry bundle to load
+  // We don't do for all resources because we don't want to wait too long before activating
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.add(__WEBPACK_BUILD_STATS__.entry)));
+
+  // Cache rest of the JavaScript, JSON and CSS code lazily
   // This will skip any other assets such as images, they'll be cached when first requested
-  // We don't have this in event.waitUntil because we don't want to wait too long before activating
   // On slower connections, it might take a long time to download all the assets during install
   // So we activate early and the assets can be downloaded when the page is loading
   caches

@@ -25,11 +25,6 @@ module.exports = {
 
     // Service worker
     sw: './snack/sw',
-
-    // Language web workers
-    'editor.worker': 'monaco-editor/esm/vs/editor/editor.worker',
-    'json.worker': 'monaco-editor/esm/vs/language/json/json.worker',
-    'ts.worker': 'monaco-editor/esm/vs/language/typescript/ts.worker',
   },
   output: {
     globalObject: 'self',
@@ -68,11 +63,12 @@ module.exports = {
     ),
     new StatsWriterPlugin({
       filename: 'build-stats.js',
-      fields: ['hash', 'assets'],
-      transform: ({ hash, assets }) => `
+      fields: ['hash', 'assets', 'assetsByChunkName'],
+      transform: ({ hash, assets, assetsByChunkName }) => `
         // This script is used in the service worker
         self.__WEBPACK_BUILD_STATS__ = ${JSON.stringify({
           hash,
+          entry: assetsByChunkName.app[0],
           assets: assets.map(a => `/dist/${a.name}`).filter(a => !a.endsWith('.map')),
         })}
       `,

@@ -7,11 +7,8 @@ import classnames from 'classnames';
 import debounce from 'lodash/debounce';
 import mapValues from 'lodash/mapValues';
 import { preloadedModules } from 'snack-sdk';
-import 'monaco-editor/esm/vs/language/typescript/monaco.contribution';
-import 'monaco-editor/esm/vs/language/json/monaco.contribution';
-import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.main';
 import { SimpleEditorModelResolverService } from 'monaco-editor/esm/vs/editor/standalone/browser/simpleServices';
-import JSXSyntaxWorker from '../../workers/jsx-syntax.worker';
 import TypingsWorker from '../../workers/typings.worker';
 import light from './themes/monaco-light';
 import dark from './themes/monaco-dark';
@@ -34,15 +31,25 @@ SimpleEditorModelResolverService.prototype.findModel = function(editor, resource
 };
 
 global.MonacoEnvironment = {
-  getWorkerUrl(moduleId, label) {
-    const workers = {
-      json: 'json',
-      typescript: 'ts',
-      javascript: 'ts',
-      default: 'editor',
-    };
+  getWorker(moduleId, label) {
+    let MonacoWorker;
 
-    return `/dist/${workers[label] || workers.default}.worker.bundle.js`;
+    switch (label) {
+      case 'json':
+        /* $FlowFixMe */
+        MonacoWorker = require('worker-loader!monaco-editor/esm/vs/language/json/json.worker');
+        break;
+      case 'typescript':
+      case 'javascript':
+        /* $FlowFixMe */
+        MonacoWorker = require('worker-loader!monaco-editor/esm/vs/language/typescript/ts.worker');
+        break;
+      default:
+        /* $FlowFixMe */
+        MonacoWorker = require('worker-loader!monaco-editor/esm/vs/editor/editor.worker');
+    }
+
+    return new MonacoWorker();
   },
 };
 
@@ -163,13 +170,6 @@ class MonacoEditor extends React.Component<Props> {
   }
 
   componentDidMount() {
-    // Spawn a worker to handle additional syntax highlight for JSX
-    /* $FlowFixMe */
-    this._syntaxWorker = new JSXSyntaxWorker();
-    this._syntaxWorker.addEventListener('message', ({ data }: any) =>
-      this._updateDecorations(data)
-    );
-
     // Spawn a worker to fetch type definitions for dependencies
     /* $FlowFixMe */
     this._typingsWorker = new TypingsWorker();
@@ -178,15 +178,29 @@ class MonacoEditor extends React.Component<Props> {
     const { path, value, annotations, autoFocus, ...rest } = this.props;
 
     this._editor = monaco.editor.create(this._node, rest, {
-      editorService: {
-        openEditor: async ({ resource, options }) => {
+      codeEditorService: {
+        addCodeEditor: () => {},
+        removeCodeEditor: () => {},
+        listCodeEditors: () => [this._editor],
+
+        getFocusedCodeEditor: () => this._editor,
+
+        registerDecorationType: () => {},
+        removeDecorationType: () => {},
+        resolveDecorationOptions: () => {},
+
+        setTransientModelProperty: () => {},
+        getTransientModelProperty: () => {},
+
+        getActiveCodeEditor: () => this._editor,
+        openCodeEditor: async ({ resource, options }, editor) => {
           await this.props.onOpenPath(resource.path);
 
-          this._editor.setSelection(options.selection);
-          this._editor.revealLine(options.selection.startLineNumber);
+          editor.setSelection(options.selection);
+          editor.revealLine(options.selection.startLineNumber);
 
           return {
-            getControl: () => this._editor,
+            getControl: () => editor,
           };
         },
       },
@@ -338,7 +352,6 @@ class MonacoEditor extends React.Component<Props> {
           text: value,
         },
       ]);
-      this._syntaxHighlight(path, value);
     }
 
     if (annotations !== prevProps.annotations) {
@@ -376,7 +389,6 @@ class MonacoEditor extends React.Component<Props> {
     this._editor && this._editor.dispose();
     this._hoverProvider && this._hoverProvider.dispose();
     this._completionProvider && this._completionProvider.dispose();
-    this._syntaxWorker && this._syntaxWorker.terminate();
     this._typingsWorker && this._typingsWorker.terminate();
   }
 
@@ -450,24 +462,7 @@ class MonacoEditor extends React.Component<Props> {
       const value = this._editor.getModel().getValue();
 
       this.props.onValueChange(value);
-      this._syntaxHighlight(path, value);
     });
-
-    this._syntaxHighlight(path, value);
-  };
-
-  _syntaxHighlight = (path: string, code: string) => {
-    const language = this._getLanguage(path);
-
-    if (language === 'typescript' || language === 'javascript') {
-      // The syntax highlighter only handles JSX
-      // So we don't need to run it for languages other that JavaScript or TypeScript
-      this._syntaxWorker.postMessage({
-        code,
-        title: path,
-        version: this._editor.getModel().getVersionId(),
-      });
-    }
   };
 
   _getAllDependencies = (dependencies, sdkVersion) => ({
@@ -511,34 +506,6 @@ class MonacoEditor extends React.Component<Props> {
     });
   };
 
-  _updateDecorations = ({ classifications, version }: any) => {
-    requestAnimationFrame(() => {
-      const model = this._editor.getModel();
-
-      // Update the syntax highlighting only if the update received matches the version we requested for
-      if (model && model.getVersionId() === version) {
-        const decorations = classifications.map(classification => ({
-          range: new monaco.Range(
-            classification.startLine,
-            classification.start,
-            classification.endLine,
-            classification.end
-          ),
-          options: {
-            // This class names allow us to style JSX tokens with custom CSS
-            inlineClassName: classification.type
-              ? `${classification.kind} ${classification.type}-of-${classification.parentKind}`
-              : classification.kind,
-          },
-        }));
-
-        const model = this._editor.getModel();
-
-        model.decorations = this._editor.deltaDecorations(model.decorations || [], decorations);
-      }
-    });
-  };
-
   _updateMarkers = (annotations: Annotation[]) =>
     monaco.editor.setModelMarkers(this._editor.getModel(), null, annotations);
 
@@ -547,7 +514,6 @@ class MonacoEditor extends React.Component<Props> {
     trailing: true,
   });
 
-  _syntaxWorker: Worker;
   _typingsWorker: Worker;
   _hoverProvider: any;
   _completionProvider: any;
