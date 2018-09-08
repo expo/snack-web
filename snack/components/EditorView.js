@@ -217,7 +217,7 @@ class EditorView extends React.Component<Props, State> {
   _isJSONFile = (entry: *) => entry && !entry.item.asset && entry.item.path.endsWith('.json');
 
   _lintNotDebounced = async (entry: *) => {
-    const lintErrors = await lintEntry(entry);
+    const lintErrors = await lintEntry(entry, this.props.sdkVersion);
 
     if (!lintErrors.length && !this.state.lintErrors.length) {
       // There are no lint errors and nothing to clear

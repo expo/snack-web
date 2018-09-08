@@ -110,7 +110,9 @@ export default class DependencyManager extends React.Component<Props, State> {
       return;
     }
 
-    this._syncDependencies(dependencies);
+    if (typeof dependencies === 'object' && dependencies != null) {
+      this._syncDependencies(dependencies);
+    }
   };
 
   _syncPackageJson = debounce(this._syncPackageJsonNotDebounced, 1000);
