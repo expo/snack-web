@@ -53,8 +53,6 @@ const DEFAULT_METADATA_NAME = 'Snack';
 const DEFAULT_METADATA_DESCRIPTION_EMPTY = `Write code in Expo's online editor and instantly use it on your phone.`;
 const DEFAULT_METADATA_DESCRIPTION_SAVED = `Try this project on your phone! Use Expo's online editor to make changes and save your own copy.`;
 
-const EDITOR_CONFIG_KEY = '__SNACK_EDITOR_CONFIG';
-
 type Device = {| name: string, id: string, platform: string |};
 
 type DeviceLog = {|
@@ -108,7 +106,6 @@ type Props = PreferencesContextType & {|
 |};
 
 type State = {|
-  isEditorLoading: boolean,
   currentModal: PublishModals | 'device-instructions' | 'embed' | 'edit-info' | 'shortcuts' | null,
   currentBanner:
     | 'connected'
@@ -117,6 +114,7 @@ type State = {|
     | 'embed-unavailable'
     | 'slow-connection'
     | null,
+  loadedEditor: 'full' | 'simple' | null,
   isDownloading: boolean,
   deviceLogsShown: boolean,
   lintErrors: Array<Annotation>,
@@ -130,7 +128,7 @@ const BANNER_TIMEOUT_LONG = 5000;
 
 class EditorView extends React.Component<Props, State> {
   state = {
-    isEditorLoading: true,
+    loadedEditor: null,
     currentModal: null,
     currentBanner: null,
     isDownloading: false,
@@ -461,7 +459,7 @@ class EditorView extends React.Component<Props, State> {
 
     return (
       <ContentShell>
-        {this.state.isEditorLoading ? <ProgressIndicator /> : null}
+        {this.state.loadedEditor ? null : <ProgressIndicator />}
         <PageMetadata name={metadataName} description={metadataDescription} params={params} />
         <PublishManager
           snackId={params.id}
@@ -561,15 +559,20 @@ class EditorView extends React.Component<Props, State> {
                             timeout = setTimeout(() => {
                               this.setState({ currentBanner: 'slow-connection' });
                               setTimeout(() => this.setState({ currentBanner: null }), 5000);
+
+                              /* $FlowFixMe */
                               import('./Editor/SimpleEditor').then(resolve, reject);
                             }, EDITOR_LOAD_FALLBACK_TIMEOUT);
                           });
 
                           return Promise.race([
-                            FullEditor.catch(() => SimpleEditor),
-                            SimpleEditor,
-                          ]).then(editor => {
-                            this.setState({ isEditorLoading: false });
+                            FullEditor.then(
+                              editor => ({ editor, type: 'full' }),
+                              () => SimpleEditor
+                            ),
+                            SimpleEditor.then(editor => ({ editor, type: 'simple' })),
+                          ]).then(({ editor, type }) => {
+                            this.setState({ loadedEditor: type });
                             clearTimeout(timeout);
                             return editor;
                           });
@@ -646,7 +649,9 @@ class EditorView extends React.Component<Props, State> {
                   onTogglePanels={this._togglePanels}
                   onToggleFileTree={this._toggleFileTree}
                   onToggleDevicePreview={this._toggleDevicePreview}
-                  onToggleVimMode={this._toggleEditorMode}
+                  onToggleVimMode={
+                    this.state.loadedEditor === 'full' ? this._toggleEditorMode : undefined
+                  }
                   onChangeDevicePreviewPlatform={this._changeDevicePreviewPlatform}
                   onChangeSDKVersion={this.props.onChangeSDKVersion}
                   onPrettifyCode={this._prettier}

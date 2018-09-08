@@ -27,7 +27,7 @@ type Props = {|
   onTogglePanels: Function,
   onToggleFileTree: Function,
   onToggleDevicePreview: Function,
-  onToggleVimMode: Function,
+  onToggleVimMode?: Function,
   onChangeDevicePreviewPlatform: Function,
   onChangeSDKVersion: Function,
   onPrettifyCode: Function,
@@ -143,14 +143,16 @@ class EditorFooter extends React.PureComponent<Props, State> {
               label="Dark theme"
             />
           </div>
-          <div className={css(styles.item)}>
-            <ToggleSwitch
-              light={isLight}
-              checked={editorMode === 'vim'}
-              onChange={onToggleVimMode}
-              label="Vim"
-            />
-          </div>
+          {onToggleVimMode ? (
+            <div className={css(styles.item)}>
+              <ToggleSwitch
+                light={isLight}
+                checked={editorMode === 'vim'}
+                onChange={onToggleVimMode}
+                label="Vim"
+              />
+            </div>
+          ) : null}
           <div className={css(styles.item)}>
             <ToggleSwitch
               light={isLight}
