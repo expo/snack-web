@@ -4,6 +4,7 @@ import { light, dark } from './monaco';
 import colors from '../../../configs/colors';
 import * as lightColors from './colors-light';
 import * as darkColors from './colors-dark';
+import constants from '../../../configs/constants';
 
 const css: any = String.raw;
 
@@ -135,5 +136,22 @@ export default css`
 
   .snack-monaco-editor.theme-dark .name-of-PropertyAccessExpression {
     color: ${darkColors.syntax.constant};
+  }
+
+  .snack-monaco-vim-statusbar {
+    font-family: ${constants.fonts.monospace};
+    font-size: 12px;
+    padding: 0 16px;
+    height: 24px;
+    line-height: 24px;
+    border-top: 1px solid ${colors.border};
+  }
+
+  .snack-monaco-vim-statusbar input {
+    font-family: ${constants.fonts.monospace};
+    height: 100%;
+    outline: 0;
+    border: 0;
+    background: transparent;
   }
 `;

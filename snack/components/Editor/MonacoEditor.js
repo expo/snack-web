@@ -7,6 +7,7 @@ import classnames from 'classnames';
 import debounce from 'lodash/debounce';
 import mapValues from 'lodash/mapValues';
 import { preloadedModules } from 'snack-sdk';
+import { initVimMode } from 'monaco-vim';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.main';
 import { SimpleEditorModelResolverService } from 'monaco-editor/esm/vs/editor/standalone/browser/simpleServices';
 import TypingsWorker from '../../workers/typings.worker';
@@ -111,6 +112,7 @@ type Props = {
   sdkVersion: SDKVersion,
   path: string,
   value: string,
+  mode: 'normal' | 'vim',
   onOpenPath: (path: string) => mixed,
   onValueChange: (value: string) => mixed,
   annotations: Array<Annotation>,
@@ -204,6 +206,8 @@ class MonacoEditor extends React.Component<Props> {
         },
       },
     });
+
+    this._toggleMode(this.props.mode);
 
     this._openFile(path, value, autoFocus);
     this._updateMarkers(annotations);
@@ -329,6 +333,7 @@ class MonacoEditor extends React.Component<Props> {
     const {
       path,
       value,
+      mode,
       annotations,
       dependencies,
       sdkVersion,
@@ -359,6 +364,10 @@ class MonacoEditor extends React.Component<Props> {
 
     if (dependencies !== prevProps.dependencies || sdkVersion !== prevProps.sdkVersion) {
       this._fetchTypings(dependencies, sdkVersion);
+    }
+
+    if (mode !== prevProps.mode) {
+      this._toggleMode(mode);
     }
 
     if (theme !== prevProps.theme) {
@@ -508,6 +517,14 @@ class MonacoEditor extends React.Component<Props> {
   _updateMarkers = (annotations: Annotation[]) =>
     monaco.editor.setModelMarkers(this._editor.getModel(), null, annotations);
 
+  _toggleMode = mode => {
+    if (mode === 'vim') {
+      this._vim = initVimMode(this._editor, this._statusbar);
+    } else {
+      this._vim && this._vim.dispose();
+    }
+  };
+
   _handleResize = debounce(() => this._editor.layout(), 50, {
     leading: true,
     trailing: true,
@@ -518,21 +535,28 @@ class MonacoEditor extends React.Component<Props> {
   _completionProvider: any;
   _subscription: any;
   _editor: any;
+  _vim: any;
   _node: any;
+  _statusbar: any;
 
   render() {
     return (
-      <ResizeDetector onResize={this._handleResize}>
+      <div className={css(styles.container)}>
         <Helmet style={[{ cssText: overrides }]} />
-        <div
-          ref={c => (this._node = c)}
-          className={classnames(
-            css(styles.editor),
-            'snack-monaco-editor',
-            `theme-${this.props.theme}`
-          )}
-        />
-      </ResizeDetector>
+        <ResizeDetector onResize={this._handleResize}>
+          <div
+            ref={c => (this._node = c)}
+            className={classnames(
+              css(styles.editor),
+              'snack-monaco-editor',
+              `theme-${this.props.theme}`
+            )}
+          />
+        </ResizeDetector>
+        {this.props.mode === 'vim' ? (
+          <div className="snack-monaco-vim-statusbar" ref={c => (this._statusbar = c)} />
+        ) : null}
+      </div>
     );
   }
 }
@@ -540,6 +564,13 @@ class MonacoEditor extends React.Component<Props> {
 export default withThemeName(MonacoEditor);
 
 const styles = StyleSheet.create({
+  container: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    minWidth: 0,
+    minHeight: 0,
+  },
   editor: {
     height: '100%',
     width: '100%',

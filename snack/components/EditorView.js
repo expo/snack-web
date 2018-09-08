@@ -114,7 +114,7 @@ type State = {|
     | 'embed-unavailable'
     | 'slow-connection'
     | null,
-  loadedEditor: 'full' | 'simple' | null,
+  loadedEditor: 'monaco' | 'simple' | null,
   isDownloading: boolean,
   deviceLogsShown: boolean,
   lintErrors: Array<Annotation>,
@@ -545,16 +545,12 @@ class EditorView extends React.Component<Props, State> {
                       />
                       {/* Don't load it conditionally since we need the _EditorComponent object to be available */}
                       <LazyLoad
-                        key={preferences.editorMode}
                         load={() => {
                           let timeout;
 
-                          const FullEditor =
-                            preferences.editorMode === 'vim'
-                              ? import('./Editor/AceEditor')
-                              : import('./Editor/MonacoEditor');
+                          const MonacoEditor = import('./Editor/MonacoEditor');
 
-                          // Fallback to simple editor if full editor takes too long to load
+                          // Fallback to simple editor if monaco editor takes too long to load
                           const SimpleEditor = new Promise((resolve, reject) => {
                             timeout = setTimeout(() => {
                               this.setState({ currentBanner: 'slow-connection' });
@@ -566,8 +562,8 @@ class EditorView extends React.Component<Props, State> {
                           });
 
                           return Promise.race([
-                            FullEditor.then(
-                              editor => ({ editor, type: 'full' }),
+                            MonacoEditor.then(
+                              editor => ({ editor, type: 'monaco' }),
                               () => SimpleEditor
                             ),
                             SimpleEditor.then(editor => ({ editor, type: 'simple' })),
@@ -596,9 +592,9 @@ class EditorView extends React.Component<Props, State> {
                                   annotations={annotations}
                                   path={entry.item.path}
                                   value={entry.item.content}
+                                  mode={preferences.editorMode}
                                   onValueChange={this.props.onChangeCode}
                                   onOpenPath={this._handleOpenPath}
-                                  editorMode={preferences.editorMode}
                                 />
                               );
                             }
@@ -650,7 +646,7 @@ class EditorView extends React.Component<Props, State> {
                   onToggleFileTree={this._toggleFileTree}
                   onToggleDevicePreview={this._toggleDevicePreview}
                   onToggleVimMode={
-                    this.state.loadedEditor === 'full' ? this._toggleEditorMode : undefined
+                    this.state.loadedEditor === 'monaco' ? this._toggleEditorMode : undefined
                   }
                   onChangeDevicePreviewPlatform={this._changeDevicePreviewPlatform}
                   onChangeSDKVersion={this.props.onChangeSDKVersion}
