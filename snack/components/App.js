@@ -564,6 +564,7 @@ class App extends React.Component<Props, State> {
         });
       }
 
+      // If we switched between versions with/without support for package.json, add/remove it accordingly
       if (state.snackSessionState.sdkVersion !== snackSessionState.sdkVersion) {
         const packageJson = fileEntries.find(entry => isPackageJson(entry.item.path));
 
@@ -581,49 +582,6 @@ class App extends React.Component<Props, State> {
             fileEntries = fileEntries.filter(entry => !isPackageJson(entry.item.path));
           }
         }
-      }
-
-      if (
-        state.snackSessionState.dependencies !== snackSessionState.dependencies &&
-        FeatureFlags.isAvailable(
-          'PROJECT_DEPENDENCIES',
-          ((snackSessionState.sdkVersion: any): SDKVersion)
-        )
-      ) {
-        fileEntries = fileEntries.map(entry => {
-          if (isPackageJson(entry.item.path)) {
-            let previous = null;
-
-            try {
-              // Use JSON5 for a more forgiving approach, e.g. trailing commas
-              // $FlowFixMe
-              previous = JSON5.parse(entry.item.content);
-              const dependencies = mapValues(snackSessionState.dependencies, dep => dep.version);
-              // $FlowFixMe
-              return {
-                ...entry,
-                item: {
-                  ...entry.item,
-                  content: JSON.stringify(
-                    {
-                      ...previous,
-                      dependencies: {
-                        ...previous.dependencies,
-                        ...dependencies,
-                      },
-                    },
-                    null,
-                    2
-                  ),
-                },
-              };
-            } catch (e) {
-              // Do nothing
-            }
-          }
-
-          return entry;
-        });
       }
 
       return {
@@ -673,8 +631,35 @@ class App extends React.Component<Props, State> {
       deviceError: null,
     }));
 
-  _handleFileEntriesChange = (fileEntries: FileSystemEntry[]): Promise<void> =>
-    new Promise(resolve => this.setState({ fileEntries }, resolve));
+  _handleFileEntriesChange = (nextFileEntries: FileSystemEntry[]): Promise<void> => {
+    return new Promise(resolve =>
+      this.setState(state => {
+        const previousFocusedEntry = this._findFocusedEntry(state.fileEntries);
+        const nextFocusedEntry = this._findFocusedEntry(nextFileEntries);
+
+        let fileEntries = nextFileEntries;
+
+        if (
+          // Don't update package.json if we're resolving
+          !state.snackSessionState.isResolving &&
+          // Update package.json when it's focused again instead of everytime deps change
+          // This avoids changing it while you're still editing the file
+          nextFocusedEntry &&
+          isPackageJson(nextFocusedEntry.item.path) &&
+          (previousFocusedEntry ? !isPackageJson(previousFocusedEntry.item.path) : true)
+        ) {
+          fileEntries = fileEntries.map(
+            entry =>
+              isPackageJson(entry.item.path)
+                ? updateEntry(this._getPackageJson(state.snackSessionState), { state: entry.state })
+                : entry
+          );
+        }
+
+        return { fileEntries };
+      }, resolve)
+    );
+  };
 
   _handleChangeSDKVersion = (sdkVersion: SDKVersion) =>
     this._snack.session.setSdkVersion(sdkVersion);
