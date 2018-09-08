@@ -166,27 +166,30 @@ export default class DependencyManager extends React.Component<Props, State> {
 
   _findNewDependencies = debounce(this._findNewDependenciesNotDebounced, 1000);
 
-  _syncDependencies = async (dependencies: { [name: string]: ?string }) => {
+  _syncDependencies = async (dependencies: { [name: string]: ?string }, only?: string[]) => {
     this.setState(state => ({
       dependencies: {
         ...state.dependencies,
         ...Object.keys(dependencies).reduce(
           (acc, name) => ({
             ...acc,
-            [name]: {
-              ...state.dependencies[name],
-              version: dependencies[name],
-              status: 'resolving',
-            },
+            [name]:
+              !only || only.includes(name) || !state.dependencies[name]
+                ? {
+                    ...state.dependencies[name],
+                    version: dependencies[name],
+                    status: 'resolving',
+                  }
+                : state.dependencies[name],
           }),
           {}
         ),
       },
     }));
 
-    try {
-      const failures = [];
+    const failures = [];
 
+    try {
       await this.props.syncDependenciesAsync(dependencies, (name, error) => {
         failures.push(name);
 
@@ -200,39 +203,42 @@ export default class DependencyManager extends React.Component<Props, State> {
           },
         }));
       });
-
+    } finally {
+      // Remove dependencies we were resolving that didn't fail
       this.setState(state => ({
         dependencies: {
           ...pickBy(
             state.dependencies,
-            (value, key: string) => failures.includes(key) || !dependencies.hasOwnProperty(key)
-          ),
-        },
-      }));
-    } catch (e) {
-      this.setState(state => ({
-        dependencies: {
-          ...state.dependencies,
-          ...Object.keys(dependencies).reduce(
-            (acc, name) => ({
-              ...acc,
-              [name]: {
-                ...state.dependencies[name],
-                status: 'error',
-              },
-            }),
-            {}
+            (value, key: string) => value.status !== 'resolving' || failures.includes(key)
           ),
         },
       }));
     }
   };
 
-  _handleAddDependency = async (name: string) =>
-    this._syncDependencies({
-      ...mapValues(this.props.dependencies, o => o.version),
-      [name]: undefined,
-    });
+  _handleAddDependency = (name: string) => {
+    this._syncDependencies(
+      {
+        ...mapValues(this.props.dependencies, o => o.version),
+        [name]: undefined,
+      },
+      [name]
+    );
+  };
+
+  _handleRetryDependency = (name: string) => {
+    // Get the existing version of the dep it's there
+    const existing = this.state.dependencies[name];
+    const version = existing ? existing.version : undefined;
+
+    this._syncDependencies(
+      {
+        ...mapValues(this.props.dependencies, o => o.version),
+        [name]: version,
+      },
+      [name]
+    );
+  };
 
   _handleDenyAdding = (name: string) =>
     this.setState(state => ({
@@ -255,8 +261,8 @@ export default class DependencyManager extends React.Component<Props, State> {
       ...mapValues(this.props.dependencies, o => o.version),
       ...Object.keys(this.state.dependencies)
         .filter(name => {
-          const status = this.state.dependencies[name].status;
-          return status === 'added' || status === 'error';
+          const dep = this.state.dependencies[name];
+          return dep ? dep.status === 'added' || dep.status === 'error' : false;
         })
         .reduce(
           (dependencies, name) => ({
@@ -285,8 +291,8 @@ export default class DependencyManager extends React.Component<Props, State> {
   render() {
     const { dependencies } = this.state;
     const names = Object.keys(dependencies).filter(name => {
-      const status = this.state.dependencies[name].status;
-      return status === 'added' || status === 'error';
+      const dep = this.state.dependencies[name];
+      return dep ? dep.status === 'added' || dep.status === 'error' : false;
     });
 
     return (
@@ -323,7 +329,7 @@ export default class DependencyManager extends React.Component<Props, State> {
                   actions={[
                     {
                       label: `Retry ${cmdEnter}`,
-                      action: () => this._handleAddDependency(name),
+                      action: () => this._handleRetryDependency(name),
                     },
                     { label: 'Dismiss' },
                   ]}
