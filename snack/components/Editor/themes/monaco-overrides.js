@@ -5,6 +5,7 @@ import colors from '../../../configs/colors';
 import * as lightColors from './colors-light';
 import * as darkColors from './colors-dark';
 import constants from '../../../configs/constants';
+import { c } from '../../ColorsProvider';
 
 const css: any = String.raw;
 
@@ -73,16 +74,17 @@ export default css`
     opacity: 0.1;
   }
 
+  .snack-monaco-editor .context-view.monaco-menu-container {
+    background-color: ${c('editor-background')};
+    color: ${c('editor-text')};
+    border-color: ${c('editor-border')};
+  }
+
   .snack-monaco-editor.theme-light .context-view.monaco-menu-container {
-    background-color: ${colors.content.light};
-    color: ${colors.text.light};
     border-width: 0;
   }
 
   .snack-monaco-editor.theme-dark .context-view.monaco-menu-container {
-    background-color: ${colors.ayu.mirage.background};
-    border-color: ${colors.ayu.mirage.border};
-    color: ${colors.ayu.mirage.text};
     border-width: 1px;
   }
 

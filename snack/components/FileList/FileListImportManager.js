@@ -7,6 +7,7 @@ import Modal from '../shared/Modal';
 import ModalDialog from '../shared/ModalDialog';
 import convertDataTransferItemsToFiles from '../../utils/convertDataTransferItemsToFiles';
 import colors from '../../configs/colors';
+import { c } from '../ColorsProvider';
 import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import { getUniquePath } from '../../utils/fileUtilities';
 import type {
@@ -409,14 +410,9 @@ const styles = StyleSheet.create({
     width: '24em',
     padding: '8px 16px',
     borderRadius: 3,
+    backgroundColor: c('editor-background'),
+    border: `1px solid ${c('editor-border')}`,
     boxShadow: '0 2px 8px rgba(36, 44, 58, 0.3)',
-  },
-  importProgressLight: {
-    backgroundColor: '#fff',
-  },
-  importProgressDark: {
-    backgroundColor: colors.ayu.mirage.background,
-    border: `1px solid ${colors.ayu.mirage.border}`,
   },
   importProgressHeader: {
     display: 'flex',

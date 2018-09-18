@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { StyleSheet, css } from 'aphrodite';
 import ShortcutLabel from './ShortcutLabel';
 import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
-import colors from '../../configs/colors';
+import { c } from '../ColorsProvider';
 
 export type Action = {|
   label: string,
@@ -100,17 +100,16 @@ const styles = StyleSheet.create({
     animationName: fadeIn,
     animationDuration: '0.083s',
     animationTimingfunction: 'linear',
+    backgroundColor: c('editor-background'),
+    borderColor: c('editor-border'),
+    color: c('editor-text'),
   },
 
   menuLight: {
-    backgroundColor: colors.content.light,
     borderWidth: 0,
   },
 
   menuDark: {
-    backgroundColor: colors.ayu.mirage.background,
-    color: colors.ayu.mirage.text,
-    borderColor: colors.ayu.mirage.border,
     borderWidth: 1,
     borderStyle: 'solid',
   },
@@ -130,7 +129,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
 
     ':hover': {
-      background: colors.primary,
+      background: c('primary'),
       color: 'white',
     },
   },
