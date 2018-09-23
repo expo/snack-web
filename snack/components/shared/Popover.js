@@ -15,25 +15,33 @@ type Props = {
 };
 
 type State = {
-  popoverVisible: boolean,
+  visible: boolean,
 };
 
 class Popover extends PureComponent<Props, State> {
   state = {
-    popoverVisible: false,
+    visible: false,
   };
 
   componentDidMount() {
     document.addEventListener('click', this._handleDocumentClick);
+    document.addEventListener('contextmenu', this._handleDocumentContextMenu);
   }
 
   componentWillUnmount() {
     document.removeEventListener('click', this._handleDocumentClick);
+    document.removeEventListener('contextmenu', this._handleDocumentContextMenu);
   }
+
+  _handleDocumentContextMenu = () => {
+    if (this.state.visible) {
+      this._hidePopover();
+    }
+  };
 
   _handleDocumentClick = (e: any) => {
     if (
-      this.state.popoverVisible &&
+      this.state.visible &&
       (e.target === this._anchor ||
         e.target === this._popover ||
         (this._popover && this._popover.contains(e.target)))
@@ -45,7 +53,7 @@ class Popover extends PureComponent<Props, State> {
   };
 
   _togglePopover = () => {
-    if (!this.state.popoverVisible) {
+    if (!this.state.visible) {
       const popover = (this._popover && this._popover.getBoundingClientRect()) || {};
       const anchor = (this._anchor && this._anchor.getBoundingClientRect()) || {};
       const diff = (popover.width - 10) / 2 - anchor.left;
@@ -61,10 +69,10 @@ class Popover extends PureComponent<Props, State> {
       }
     }
 
-    this.setState(state => ({ popoverVisible: !state.popoverVisible }));
+    this.setState(state => ({ visible: !state.visible }));
   };
 
-  _hidePopover = () => this.setState({ popoverVisible: false });
+  _hidePopover = () => this.setState({ visible: false });
 
   _setRef = (c: HTMLElement) => (this._anchor = c);
 
@@ -86,7 +94,7 @@ class Popover extends PureComponent<Props, State> {
           className={css(
             styles.popover,
             theme === 'dark' ? styles.popoverDark : styles.popoverLight,
-            this.state.popoverVisible ? styles.visible : styles.hidden
+            this.state.visible ? styles.visible : styles.hidden
           )}>
           <span
             ref={c => (this._arrow = c)}
