@@ -15,7 +15,8 @@ import UserMenu from './UserMenu';
 type Props = {|
   name: string,
   description: string,
-  createdAt: number,
+  createdAt: ?string,
+  saveHistory: ?Array<{ id: string, savedAt: string }>,
   isPublishing: boolean,
   isDownloading: boolean,
   isPublished: boolean,
@@ -40,6 +41,7 @@ export default class EditorToolbar extends React.PureComponent<Props, void> {
       name,
       description,
       createdAt,
+      saveHistory,
       isPublishing,
       isDownloading,
       isPublished,
@@ -66,6 +68,7 @@ export default class EditorToolbar extends React.PureComponent<Props, void> {
               name={name}
               description={description}
               createdAt={createdAt}
+              saveHistory={saveHistory}
               isEditModalVisible={isEditModalVisible}
               onShowEditModal={onShowEditModal}
               onSubmitEditModal={onSubmitEditModal}

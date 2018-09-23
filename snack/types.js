@@ -24,6 +24,7 @@ export type Snack = {
     sdkVersion?: SDKVersion,
   },
   dependencies?: { [key: string]: string },
+  history?: Array<{ id: string, savedAt: string }>,
 };
 
 export type FileSystemItem<E, S> = {| item: E, state: S |};

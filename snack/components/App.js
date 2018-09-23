@@ -804,6 +804,7 @@ class App extends React.Component<Props, State> {
             loaded && this.state.snackSessionReady ? (
               <Comp
                 createdAt={this.props.snack ? this.props.snack.created : undefined}
+                saveHistory={this.props.snack ? this.props.snack.history : undefined}
                 creatorUsername={this.state.params.username}
                 fileEntries={this.state.fileEntries}
                 entry={this._findFocusedEntry(this.state.fileEntries)}

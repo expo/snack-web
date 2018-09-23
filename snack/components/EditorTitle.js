@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
-import { format } from 'date-fns';
+import distanceInWords from 'date-fns/distance_in_words';
 
 import Popover from './shared/Popover';
 import EditableField from './shared/EditableField';
@@ -14,7 +14,8 @@ import * as defaults from '../configs/defaults';
 type Props = {
   name: string,
   description: ?string,
-  createdAt?: string,
+  createdAt: ?string,
+  saveHistory: ?Array<{ id: string, savedAt: string }>,
   isEditModalVisible: boolean,
   onShowEditModal: () => mixed,
   onDismissEditModal: () => mixed,
@@ -22,7 +23,25 @@ type Props = {
   theme: ThemeName,
 };
 
-class EditorTitle extends React.PureComponent<Props> {
+type State = {
+  date: Date,
+};
+
+class EditorTitle extends React.Component<Props, State> {
+  state = {
+    date: new Date(),
+  };
+
+  componentDidMount() {
+    this._timer = setInterval(() => this.setState({ date: new Date() }), 10000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._timer);
+  }
+
+  _timer: IntervalID;
+
   _handleSubmitTitle = name =>
     this.props.onSubmitEditModal({ name, description: this.props.description || '' });
 
@@ -31,12 +50,16 @@ class EditorTitle extends React.PureComponent<Props> {
       description,
       name,
       createdAt,
+      saveHistory,
       theme,
       isEditModalVisible,
       onShowEditModal,
       onSubmitEditModal,
       onDismissEditModal,
     } = this.props;
+
+    const lastSave = saveHistory ? saveHistory[saveHistory.length - 1] : null;
+    const savedAt = lastSave ? lastSave.savedAt : createdAt;
 
     return (
       <div className={css(styles.container)}>
@@ -62,9 +85,11 @@ class EditorTitle extends React.PureComponent<Props> {
             </Popover>
           </div>
           <p className={css(styles.timestamp)}>
-            {createdAt
-              ? format(new Date(createdAt), '[Created on] Do MMM, YYYY [at] h:mm a')
-              : 'Created just now'}
+            {savedAt
+              ? `Last saved ${distanceInWords(this.state.date, new Date(savedAt), {
+                  addSuffix: true,
+                })}`
+              : 'Not saved yet'}
           </p>
         </div>
         <ModalEditTitleAndDescription

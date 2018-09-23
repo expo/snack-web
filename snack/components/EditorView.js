@@ -63,7 +63,8 @@ type DeviceLog = {|
 
 type Props = PreferencesContextType & {|
   viewer?: Viewer,
-  createdAt?: string,
+  createdAt: ?string,
+  saveHistory: ?Array<{ id: string, savedAt: string }>,
   creatorUsername?: string,
   fileEntries: FileSystemEntry[],
   entry: TextFileEntry | AssetFileEntry,
@@ -434,6 +435,7 @@ class EditorView extends React.Component<Props, State> {
       entry,
       params,
       createdAt,
+      saveHistory,
       loadingMessage,
       sdkVersion,
       connectedDevices,
@@ -513,6 +515,7 @@ class EditorView extends React.Component<Props, State> {
                   name={name}
                   description={description}
                   createdAt={createdAt}
+                  saveHistory={saveHistory}
                   hasSnackId={hasSnackId}
                   isPublishing={isPublishing}
                   isDownloading={isDownloading}
