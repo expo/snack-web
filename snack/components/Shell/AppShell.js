@@ -34,7 +34,7 @@ export default function AppShell() {
 
 const styles = StyleSheet.create({
   saveButton: {
-    width: 120,
+    width: 100,
     pointerEvents: 'none',
   },
   avatar: {

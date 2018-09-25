@@ -29,7 +29,10 @@ type PublishOptions = {
 type Props = AuthProps & {
   name: string,
   description: string,
-  onSubmitMetadata: (details: { name: string, description: string }) => Promise<void>,
+  onSubmitMetadata: (
+    details: { name: string, description: string },
+    draft?: boolean
+  ) => Promise<void>,
   onPublishAsync: (options: PublishOptions) => Promise<void>,
   currentModal: ?string,
   onShowModal: (name: PublishModals) => mixed,
@@ -37,7 +40,6 @@ type Props = AuthProps & {
   creatorUsername: ?string,
   snackId: ?string,
   sdkVersion: SDKVersion,
-  nameHasChanged: boolean,
   children: ({
     onPublishAsync: () => Promise<void>,
     isPublishing: boolean,
@@ -90,7 +92,7 @@ class PublishManager extends React.Component<Props, State> {
 
   _handleSubmitMetadata = async (details: *) => {
     // Save the new name and description, then publish the snack
-    await this.props.onSubmitMetadata(details);
+    await this.props.onSubmitMetadata(details, false);
     await this._handlePublishAsync();
   };
 

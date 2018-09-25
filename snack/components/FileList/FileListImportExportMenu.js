@@ -4,13 +4,14 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 import FileListPaneButton from './FileListPaneButton';
 import ContextMenu from '../shared/ContextMenu';
+import type { SaveStatus } from '../../types';
 
 type Props = {
   onImportFilesClick: () => mixed,
   onImportRepoClick: () => mixed,
   onExportClick: () => mixed,
   hasSnackId: boolean,
-  isPublished: boolean,
+  saveStatus: SaveStatus,
 };
 
 type State = {
@@ -68,6 +69,9 @@ export default class FileListImportExportMenu extends React.PureComponent<Props,
   _button: any;
 
   render() {
+    const isSaved =
+      this.props.saveStatus === 'published' || this.props.saveStatus === 'saved-draft';
+
     return (
       <div>
         <FileListPaneButton
@@ -95,7 +99,7 @@ export default class FileListImportExportMenu extends React.PureComponent<Props,
             {
               label: 'Export project',
               handler: this.props.onExportClick,
-              disabled: !(this.props.isPublished && this.props.hasSnackId),
+              disabled: !(isSaved && this.props.hasSnackId),
             },
           ]}
           onHide={this._hideContextMenu}

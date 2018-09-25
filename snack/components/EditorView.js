@@ -46,7 +46,7 @@ import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 
 import type { Error as DeviceError, Annotation } from '../utils/convertErrorToAnnotation';
 import type { SDKVersion } from '../configs/sdk';
-import type { FileSystemEntry, TextFileEntry, AssetFileEntry, Viewer } from '../types';
+import type { FileSystemEntry, TextFileEntry, AssetFileEntry, Viewer, SaveStatus } from '../types';
 
 const EDITOR_LOAD_FALLBACK_TIMEOUT = 3000;
 const DEFAULT_METADATA_NAME = 'Snack';
@@ -65,6 +65,7 @@ type Props = PreferencesContextType & {|
   viewer?: Viewer,
   createdAt: ?string,
   saveHistory: ?Array<{ id: string, savedAt: string }>,
+  saveStatus: SaveStatus,
   creatorUsername?: string,
   fileEntries: FileSystemEntry[],
   entry: TextFileEntry | AssetFileEntry,
@@ -76,7 +77,6 @@ type Props = PreferencesContextType & {|
     platform?: 'android' | 'ios',
   },
   channel: string,
-  isPublished: boolean,
   isResolving: boolean,
   loadingMessage: ?string,
   sessionID: ?string,
@@ -87,8 +87,10 @@ type Props = PreferencesContextType & {|
   onClearDeviceLogs: () => void,
   onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<void>,
   onChangeCode: (code: string) => void,
-  onChangeName: (name: string) => void,
-  onChangeDescription: (description: string) => void,
+  onSubmitMetadata: (
+    details: { name: string, description: string },
+    draft?: boolean
+  ) => Promise<void>,
   onChangeSDKVersion: (sdkVersion: SDKVersion) => void,
   onPublishAsync: (options: { allowedOnProfile?: boolean }) => Promise<void>,
   onDownloadAsync: () => Promise<void>,
@@ -114,14 +116,13 @@ type State = {|
     | 'disconnected'
     | 'reconnect'
     | 'embed-unavailable'
+    | 'export-unavailable'
     | 'slow-connection'
     | null,
   loadedEditor: 'monaco' | 'simple' | null,
   isDownloading: boolean,
   deviceLogsShown: boolean,
   lintErrors: Array<Annotation>,
-  name: string,
-  description: string,
   shouldPreventRedirectWarning: boolean,
 |};
 
@@ -136,8 +137,6 @@ class EditorView extends React.Component<Props, State> {
     isDownloading: false,
     deviceLogsShown: false,
     lintErrors: [],
-    name: this.props.name,
-    description: this.props.description,
     shouldPreventRedirectWarning: false,
   };
 
@@ -199,12 +198,11 @@ class EditorView extends React.Component<Props, State> {
     window.removeEventListener('beforeunload', this._handleUnload);
   }
 
-  _isPublished = () => {
-    return this.props.isPublished && this.props.name === this.state.name;
-  };
-
   _handleUnload = (e: any) => {
-    if (this._isPublished() || this.state.shouldPreventRedirectWarning) {
+    const isSaved =
+      this.props.saveStatus === 'saved-draft' || this.props.saveStatus === 'published';
+
+    if (isSaved || this.state.shouldPreventRedirectWarning) {
       this._allowRedirectWarning();
       return;
     }
@@ -277,9 +275,6 @@ class EditorView extends React.Component<Props, State> {
     }
   };
 
-  _handleSubmitMetadata = (details: { name: string, description: string }) =>
-    new Promise(resolve => this.setState(details, resolve));
-
   _handleDismissEditModal = () => {
     Segment.getInstance().logEvent('DISMISSED_AUTH_MODAL', {
       currentModal: this.state.currentModal,
@@ -322,13 +317,6 @@ class EditorView extends React.Component<Props, State> {
     Segment.getInstance().logEvent('REQUESTED_EMBED');
 
     this.setState({ currentModal: 'embed' });
-  };
-
-  _handlePublishAsync = async (options: *) => {
-    this.props.onChangeName(this.state.name);
-    this.props.onChangeDescription(this.state.description);
-
-    await this.props.onPublishAsync(options);
   };
 
   _handleOpenPath = (path: string): Promise<void> =>
@@ -421,14 +409,7 @@ class EditorView extends React.Component<Props, State> {
     });
 
   render() {
-    const {
-      currentModal,
-      currentBanner,
-      isDownloading,
-      lintErrors,
-      name,
-      description,
-    } = this.state;
+    const { currentModal, currentBanner, isDownloading, lintErrors } = this.state;
 
     const {
       channel,
@@ -436,6 +417,8 @@ class EditorView extends React.Component<Props, State> {
       params,
       createdAt,
       saveHistory,
+      saveStatus,
+      viewer,
       loadingMessage,
       sdkVersion,
       connectedDevices,
@@ -444,6 +427,8 @@ class EditorView extends React.Component<Props, State> {
       onClearDeviceLogs,
       uploadFileAsync,
       preferences,
+      name,
+      description,
     } = this.props;
 
     const annotations = [];
@@ -471,20 +456,23 @@ class EditorView extends React.Component<Props, State> {
           creatorUsername={this.props.creatorUsername}
           name={name}
           description={description}
-          onSubmitMetadata={this._handleSubmitMetadata}
-          onPublishAsync={this._handlePublishAsync}
+          onSubmitMetadata={this.props.onSubmitMetadata}
+          onPublishAsync={this.props.onPublishAsync}
           onShowModal={this._handleShowModal}
           onHideModal={this._handleHideModal}
-          currentModal={currentModal}
-          nameHasChanged={this.props.name !== this.state.name}>
+          currentModal={currentModal}>
           {({ onPublishAsync, isPublishing }) => {
             const handleDownloadCode = async () => {
+              const isSaved = saveStatus === 'published' || saveStatus === 'saved-draft';
+
+              if (!isSaved) {
+                this.setState({ currentBanner: 'export-unavailable' });
+                setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_LONG);
+                return;
+              }
+
               // Make sure file is saved before downloading
               this.setState({ isDownloading: true });
-
-              if (!this._isPublished()) {
-                await onPublishAsync();
-              }
 
               Segment.getInstance().logEvent('DOWNLOADED_CODE');
 
@@ -499,9 +487,10 @@ class EditorView extends React.Component<Props, State> {
                   bindings={Shortcuts}
                   onTrigger={({ type }: *) => {
                     const commands = {
-                      save: this._isPublished()
-                        ? null
-                        : this.props.isResolving ? null : onPublishAsync,
+                      save:
+                        saveStatus === 'published'
+                          ? null
+                          : this.props.isResolving ? null : onPublishAsync,
                       tree: this._toggleFileTree,
                       panels: this._togglePanels,
                       format: this._prettier,
@@ -516,16 +505,15 @@ class EditorView extends React.Component<Props, State> {
                   description={description}
                   createdAt={createdAt}
                   saveHistory={saveHistory}
-                  hasSnackId={hasSnackId}
-                  isPublishing={isPublishing}
+                  saveStatus={saveStatus}
+                  viewer={viewer}
                   isDownloading={isDownloading}
-                  isPublished={this._isPublished()}
                   isResolving={this.props.isResolving}
                   isEditModalVisible={currentModal === 'edit-info'}
                   isAuthModalVisible={currentModal === 'auth'}
                   onShowEditModal={this._handleShowTitleDescriptionModal}
                   onDismissEditModal={this._handleDismissEditModal}
-                  onSubmitEditModal={this._handleSubmitMetadata}
+                  onSubmitMetadata={this.props.onSubmitMetadata}
                   onShowAuthModal={this._handleShowAuthModal}
                   onDismissAuthModal={this._handleHideModal}
                   onShowQRCode={this._handleShowDeviceInstructions}
@@ -547,7 +535,7 @@ class EditorView extends React.Component<Props, State> {
                         onDownloadCode={handleDownloadCode}
                         preventRedirectWarning={this._preventRedirectWarning}
                         hasSnackId={hasSnackId}
-                        isPublished={this._isPublished()}
+                        saveStatus={saveStatus}
                         sdkVersion={sdkVersion}
                       />
                       {/* Don't load it conditionally since we need the _EditorComponent object to be available */}
@@ -700,6 +688,9 @@ class EditorView extends React.Component<Props, State> {
                 </Banner>
                 <Banner type="info" visible={currentBanner === 'embed-unavailable'}>
                   You need to save the Snack first to get an Embed code!
+                </Banner>
+                <Banner type="info" visible={currentBanner === 'export-unavailable'}>
+                  You need to save the Snack first to get export the code!
                 </Banner>
                 {FeatureFlags.isAvailable('PROJECT_DEPENDENCIES', this.props.sdkVersion) ? (
                   <DependencyManager

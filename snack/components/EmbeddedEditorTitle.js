@@ -7,14 +7,10 @@ import Popover from './shared/Popover';
 import getSnackURLFromEmbed from '../utils/getSnackURLFromEmbed';
 import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 
-
-
 type Props = {|
   name: string,
   description: string,
   sessionID?: string,
-  onChangeName?: (name: string) => void,
-  onChangeDescription?: (description: string) => void,
   onOpenFullview?: () => void,
   theme: ThemeName,
 |};
@@ -71,7 +67,7 @@ class EmbeddedEditorTitle extends React.PureComponent<Props, State> {
   _popover: any;
 
   render() {
-    const { name, description, sessionID, onOpenFullview, theme } = this.props;
+    const { name, sessionID, onOpenFullview, theme } = this.props;
 
     return (
       <div className={css(styles.header)}>

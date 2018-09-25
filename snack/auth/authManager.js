@@ -116,7 +116,11 @@ export default class AuthenticationManager {
       this._saveTokenAndUserData(tokenData);
     }
     const profile = await _getUserProfile();
-    Segment.getInstance().identify({ username: profile.username });
+
+    if (profile) {
+      Segment.getInstance().identify({ username: profile.username });
+    }
+
     return profile;
   }
 

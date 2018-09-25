@@ -34,6 +34,7 @@ import type {
   ExpoSnackFiles,
   Snack,
   QueryParams,
+  SaveStatus,
 } from '../types';
 
 const Auth = new AuthManager();
@@ -188,6 +189,8 @@ type State = {|
   snackSessionReady: boolean,
   channel: string,
   deviceId: string,
+  saveHistory: Array<{ id: string, savedAt: string }>,
+  saveStatus: SaveStatus,
   params: Params,
   fileEntries: Array<FileSystemEntry>,
   connectedDevices: Array<Device>,
@@ -208,7 +211,7 @@ type SnackSessionProxy = {
 
     // Methods
     startAsync: () => Promise<void>,
-    saveAsync: () => Promise<{ id: string }>,
+    saveAsync: (options: { isDraft?: boolean }) => Promise<{ id: string }>,
     uploadAssetAsync: (asset: File) => Promise<string>,
     syncDependenciesAsync: (modules: { [name: string]: ?string }, callback: *) => Promise<void>,
     sendCodeAsync: (payload: ExpoSnackFiles) => Promise<void>,
@@ -309,7 +312,7 @@ class App extends React.Component<Props, State> {
       files: code,
       dependencies,
       sdkVersion,
-      isSaved: false,
+      isSaved: Boolean(params.id),
       isResolving: false,
       loadingMessage: undefined,
     };
@@ -317,6 +320,9 @@ class App extends React.Component<Props, State> {
     this.state = {
       snackSessionState,
       snackSessionReady: false,
+      saveHistory: props.snack && props.snack.history ? props.snack.history : [],
+      saveStatus:
+        props.snack && props.snack.isDraft ? 'saved-draft' : params.id ? 'published' : 'changed',
       fileEntries: FeatureFlags.isAvailable('PROJECT_DEPENDENCIES', sdkVersion)
         ? [...fileEntries, this._getPackageJson(snackSessionState)]
         : fileEntries,
@@ -351,23 +357,24 @@ class App extends React.Component<Props, State> {
       return;
     }
 
-    let shouldUpdateSnackSession = false;
+    let didFilesChange = false;
 
     if (this.state.fileEntries.length !== prevState.fileEntries.length) {
-      shouldUpdateSnackSession = true;
+      didFilesChange = true;
     } else {
       const items = prevState.fileEntries.reduce((acc, { item }) => {
         acc[item.path] = item;
         return acc;
       }, {});
 
-      shouldUpdateSnackSession = this.state.fileEntries.some(
+      didFilesChange = this.state.fileEntries.some(
         ({ item }) => !item.virtual && items[item.path] !== item
       );
     }
 
-    if (shouldUpdateSnackSession) {
+    if (didFilesChange) {
       this._sendCode();
+      this._handleSaveDraft();
     }
   }
 
@@ -614,13 +621,29 @@ class App extends React.Component<Props, State> {
     state: {},
   });
 
-  _handleChangeName = (name: string) => this._snack.session.setName(name);
+  _handleSubmitMetadata = async (
+    details: { name: string, description: string },
+    draft?: boolean = true
+  ) => {
+    const { name, description } = this.state.snackSessionState;
 
-  _handleChangeDescription = (description: string) =>
-    this._snack.session.setDescription(description);
+    if (name === details.name && description === details.description) {
+      return;
+    }
+
+    this.setState({ saveStatus: 'changed' });
+
+    await this._snack.session.setName(details.name);
+    await this._snack.session.setDescription(details.description);
+
+    if (draft) {
+      this._handleSaveDraftNotDebounced();
+    }
+  };
 
   _handleChangeCode = (content: string) =>
     this.setState((state: State) => ({
+      saveStatus: 'changed',
       fileEntries: state.fileEntries.map(entry => {
         if (entry.item.type === 'file' && entry.state.isFocused) {
           return updateEntry(entry, { item: { content } });
@@ -650,7 +673,9 @@ class App extends React.Component<Props, State> {
           fileEntries = fileEntries.map(
             entry =>
               isPackageJson(entry.item.path)
-                ? updateEntry(this._getPackageJson(state.snackSessionState), { state: entry.state })
+                ? updateEntry(this._getPackageJson(state.snackSessionState), {
+                    state: entry.state,
+                  })
                 : entry
           );
         }
@@ -695,7 +720,7 @@ class App extends React.Component<Props, State> {
   };
 
   // TODO: (tc) Remove flowFixMe once types.js has been fixed
-  _handlePublishAsync = async (options: { allowedOnProfile?: boolean }) => {
+  _handlePublishAsync = async options => {
     // Send updated code first
     this._sendCodeNotDebounced();
 
@@ -716,25 +741,49 @@ class App extends React.Component<Props, State> {
     );
     Segment.getInstance().startTimer('lastSave');
 
-    if (options.allowedOnProfile) {
-      await this._updateUser();
-    } else {
-      await this._snack.session.setUser({ sessionSecret: undefined });
+    this._saveSnack(options);
+  };
+
+  _handleSaveDraftNotDebounced = () => {
+    if (this.props.viewer) {
+      // We can save draft only if the user is logged in
+      this._saveSnack({ isDraft: true, allowedOnProfile: true });
     }
+  };
 
-    const saveResult = await this._snack.session.saveAsync();
+  _handleSaveDraft = debounce(this._handleSaveDraftNotDebounced, 3000);
 
-    this.props.history.push({
-      pathname: `/${saveResult.id}`,
-      search: this.props.location.search,
-    });
+  _saveSnack = async (options = {}) => {
+    this.setState({ saveStatus: options.isDraft ? 'saving-draft' : 'publishing' });
 
-    this.setState(state => ({
-      params: {
-        ...state.params,
-        id: saveResult.id,
-      },
-    }));
+    try {
+      if (options.allowedOnProfile) {
+        await this._updateUser();
+      } else {
+        await this._snack.session.setUser({ sessionSecret: undefined });
+      }
+
+      const saveResult = await this._snack.session.saveAsync(options);
+
+      this.props.history.push({
+        pathname: `/${saveResult.id}`,
+        search: this.props.location.search,
+      });
+
+      this.setState(state => ({
+        saveHistory: [
+          ...state.saveHistory,
+          { id: saveResult.id, savedAt: new Date().toISOString() },
+        ],
+        saveStatus: options.isDraft ? 'saved-draft' : 'published',
+        params: {
+          ...state.params,
+          id: saveResult.id,
+        },
+      }));
+    } catch (e) {
+      this.setState({ saveStatus: 'changed' });
+    }
   };
 
   _updateUser = async () => {
@@ -804,7 +853,8 @@ class App extends React.Component<Props, State> {
             loaded && this.state.snackSessionReady ? (
               <Comp
                 createdAt={this.props.snack ? this.props.snack.created : undefined}
-                saveHistory={this.props.snack ? this.props.snack.history : undefined}
+                saveHistory={this.state.saveHistory}
+                saveStatus={this.state.saveStatus}
                 creatorUsername={this.state.params.username}
                 fileEntries={this.state.fileEntries}
                 entry={this._findFocusedEntry(this.state.fileEntries)}
@@ -812,15 +862,13 @@ class App extends React.Component<Props, State> {
                 name={this.state.snackSessionState.name}
                 description={this.state.snackSessionState.description}
                 sdkVersion={this.state.snackSessionState.sdkVersion}
-                isPublished={this.state.snackSessionState.isSaved}
                 isResolving={this.state.snackSessionState.isResolving}
                 loadingMessage={this.state.snackSessionState.loadingMessage}
                 dependencies={this.state.snackSessionState.dependencies}
                 params={this.state.params}
                 onFileEntriesChange={this._handleFileEntriesChange}
                 onChangeCode={this._handleChangeCode}
-                onChangeName={this._handleChangeName}
-                onChangeDescription={this._handleChangeDescription}
+                onSubmitMetadata={this._handleSubmitMetadata}
                 onChangeSDKVersion={this._handleChangeSDKVersion}
                 onClearDeviceLogs={this._handleClearDeviceLogs}
                 onPublishAsync={this._handlePublishAsync}

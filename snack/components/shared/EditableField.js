@@ -8,13 +8,14 @@ import colors from '../../configs/colors';
 
 type Props = {
   value: string,
-  onSubmitText: (value: string) => mixed,
+  onSubmitText: (value: string) => Promise<void>,
   className?: string,
   theme: ThemeName,
 };
 
 type State = {
   value: string,
+  focused: boolean,
 };
 
 const RETURN_KEYCODE = 13;
@@ -23,13 +24,28 @@ const ESCAPE_KEYCODE = 27;
 class EditableField extends React.Component<Props, State> {
   state = {
     value: this.props.value || '',
+    focused: false,
   };
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.state.value !== nextProps.value && !this.state.focused) {
+      this.setState({
+        value: nextProps.value || '',
+      });
+    }
+  }
 
   _handleChangeText = (e: *) => this.setState({ value: e.target.value });
 
-  _handleFocus = (e: *) => e.target.select();
+  _handleFocus = (e: *) => {
+    e.target.select();
+    this.setState({ focused: true });
+  };
 
-  _handleBlur = () => this.props.onSubmitText(this.state.value);
+  _handleBlur = async () => {
+    await this.props.onSubmitText(this.state.value);
+    this.setState({ focused: false });
+  };
 
   _handleKeyDown = (e: *) => {
     if (e.keyCode === RETURN_KEYCODE || e.keyCode === ESCAPE_KEYCODE) {

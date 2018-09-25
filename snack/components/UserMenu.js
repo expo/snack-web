@@ -6,18 +6,14 @@ import { StyleSheet, css } from 'aphrodite';
 
 import Avatar from './shared/Avatar';
 import ContextMenu from './shared/ContextMenu';
-import ModalAuthentication from './Auth/ModalAuthentication';
 import withAuth, { type AuthProps } from '../auth/withAuth';
 
 type State = {
   visible: boolean,
-  isLoggingIn: boolean,
 };
 
 type Props = AuthProps & {|
-  isAuthModalVisible: boolean,
-  onShowAuthModal: () => mixed,
-  onDismissAuthModal: () => mixed,
+  onLogInClick: () => mixed,
 |};
 
 class UserMenu extends React.Component<Props, State> {
@@ -54,21 +50,11 @@ class UserMenu extends React.Component<Props, State> {
 
   _hideMenu = () => this.setState({ visible: false });
 
-  _handleShowAuthModal = () => {
-    this.setState({ isLoggingIn: true });
-    this.props.onShowAuthModal();
-  };
-
-  _handleDismissAuthModal = () => {
-    this.setState({ isLoggingIn: false });
-    this.props.onDismissAuthModal();
-  };
-
   _menu: any;
   _avatar: any;
 
   render() {
-    const { viewer, logout, isAuthModalVisible } = this.props;
+    const { viewer, logout } = this.props;
 
     return (
       <div className={css(styles.container)}>
@@ -101,17 +87,12 @@ class UserMenu extends React.Component<Props, State> {
               : [
                   {
                     label: 'Log in',
-                    handler: this._handleShowAuthModal,
+                    handler: this.props.onLogInClick,
                   },
                 ]
           }
           onHide={this._hideMenu}
           className={css(styles.menu)}
-        />
-        <ModalAuthentication
-          visible={this.state.isLoggingIn && isAuthModalVisible}
-          onDismiss={this._handleDismissAuthModal}
-          onComplete={this._handleDismissAuthModal}
         />
       </div>
     );

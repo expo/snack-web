@@ -38,6 +38,15 @@ export default class ModalEditTitleAndDescription extends React.Component<Props,
     description: this.props.description || '',
   };
 
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.props.visible !== nextProps.visible && nextProps.visible) {
+      this.setState({
+        name: nextProps.name || '',
+        description: nextProps.description || '',
+      });
+    }
+  }
+
   _handleSubmit = () => {
     this.props.onSubmit({
       name: this.state.name,

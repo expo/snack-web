@@ -11,20 +11,29 @@ import EditorTitle from './EditorTitle';
 import EditorImportTitle from './EditorImportTitle';
 import SearchButton from './Search/SearchButton';
 import UserMenu from './UserMenu';
+import ModalAuthentication from './Auth/ModalAuthentication';
+import type { SaveStatus, Viewer } from '../types';
+
+type State = {
+  isLoggingIn: boolean,
+};
 
 type Props = {|
   name: string,
   description: string,
   createdAt: ?string,
   saveHistory: ?Array<{ id: string, savedAt: string }>,
-  isPublishing: boolean,
+  saveStatus: SaveStatus,
+  viewer: ?Viewer,
   isDownloading: boolean,
-  isPublished: boolean,
   isResolving: boolean,
   isAuthModalVisible: boolean,
   isEditModalVisible: boolean,
+  onSubmitMetadata: (
+    details: { name: string, description: string },
+    draft?: boolean
+  ) => Promise<void>,
   onShowEditModal: () => mixed,
-  onSubmitEditModal: (details: { name: string, description: string }) => mixed,
   onDismissEditModal: () => mixed,
   onShowAuthModal: () => mixed,
   onDismissAuthModal: () => mixed,
@@ -35,30 +44,45 @@ type Props = {|
   creatorUsername?: string,
 |};
 
-export default class EditorToolbar extends React.PureComponent<Props, void> {
+export default class EditorToolbar extends React.PureComponent<Props, State> {
+  state = {
+    isLoggingIn: false,
+  };
+
+  _handleShowAuthModal = () => {
+    this.setState({ isLoggingIn: true });
+    this.props.onShowAuthModal();
+  };
+
+  _handleDismissAuthModal = () => {
+    this.setState({ isLoggingIn: false });
+    this.props.onDismissAuthModal();
+  };
+
   render() {
     const {
       name,
       description,
       createdAt,
       saveHistory,
-      isPublishing,
+      saveStatus,
+      viewer,
       isDownloading,
-      isPublished,
       isResolving,
       isEditModalVisible,
       isAuthModalVisible,
+      onSubmitMetadata,
       onShowEditModal,
-      onSubmitEditModal,
       onDismissEditModal,
-      onShowAuthModal,
-      onDismissAuthModal,
       onShowEmbedCode,
       onDownloadCode,
       onShowQRCode,
       onPublishAsync,
       creatorUsername,
     } = this.props;
+
+    const isPublishing = saveStatus === 'publishing';
+    const isPublished = saveStatus === 'published';
 
     return (
       <ToolbarShell>
@@ -69,9 +93,12 @@ export default class EditorToolbar extends React.PureComponent<Props, void> {
               description={description}
               createdAt={createdAt}
               saveHistory={saveHistory}
+              saveStatus={saveStatus}
+              viewer={viewer}
+              onLogInClick={this._handleShowAuthModal}
               isEditModalVisible={isEditModalVisible}
+              onSubmitMetadata={onSubmitMetadata}
               onShowEditModal={onShowEditModal}
-              onSubmitEditModal={onSubmitEditModal}
               onDismissEditModal={onDismissEditModal}
             />
           ) : (
@@ -113,12 +140,13 @@ export default class EditorToolbar extends React.PureComponent<Props, void> {
             disabled={isPublishing || isResolving || isPublished}
             loading={isPublishing}
             className={css(styles.saveButton)}>
-            {isPublishing ? 'Saving…' : isPublished ? 'Saved' : 'Save changes'}
+            {isPublishing ? 'Saving…' : isPublished ? 'Saved' : 'Save'}
           </Button>
-          <UserMenu
-            isAuthModalVisible={isAuthModalVisible}
-            onShowAuthModal={onShowAuthModal}
-            onDismissAuthModal={onDismissAuthModal}
+          <UserMenu onLogInClick={this._handleShowAuthModal} />
+          <ModalAuthentication
+            visible={this.state.isLoggingIn && isAuthModalVisible}
+            onDismiss={this._handleDismissAuthModal}
+            onComplete={this._handleDismissAuthModal}
           />
         </div>
       </ToolbarShell>
@@ -136,6 +164,6 @@ const styles = StyleSheet.create({
   },
 
   saveButton: {
-    minWidth: 120,
+    minWidth: 100,
   },
 });

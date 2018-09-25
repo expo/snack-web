@@ -10,18 +10,25 @@ import ModalEditTitleAndDescription from './ModalEditTitleAndDescription';
 import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 import colors from '../configs/colors';
 import * as defaults from '../configs/defaults';
+import type { SaveStatus, Viewer } from '../types';
 
-type Props = {
+type Props = {|
   name: string,
   description: ?string,
   createdAt: ?string,
   saveHistory: ?Array<{ id: string, savedAt: string }>,
+  saveStatus: SaveStatus,
+  viewer: ?Viewer,
   isEditModalVisible: boolean,
   onShowEditModal: () => mixed,
   onDismissEditModal: () => mixed,
-  onSubmitEditModal: (details: { name: string, description: string }) => mixed,
+  onSubmitMetadata: (
+    details: { name: string, description: string },
+    draft?: boolean
+  ) => Promise<void>,
+  onLogInClick: () => mixed,
   theme: ThemeName,
-};
+|};
 
 type State = {
   date: Date,
@@ -43,7 +50,7 @@ class EditorTitle extends React.Component<Props, State> {
   _timer: IntervalID;
 
   _handleSubmitTitle = name =>
-    this.props.onSubmitEditModal({ name, description: this.props.description || '' });
+    this.props.onSubmitMetadata({ name, description: this.props.description || '' });
 
   render() {
     const {
@@ -51,15 +58,54 @@ class EditorTitle extends React.Component<Props, State> {
       name,
       createdAt,
       saveHistory,
+      saveStatus,
+      viewer,
       theme,
       isEditModalVisible,
       onShowEditModal,
-      onSubmitEditModal,
+      onSubmitMetadata,
       onDismissEditModal,
+      onLogInClick,
     } = this.props;
 
     const lastSave = saveHistory ? saveHistory[saveHistory.length - 1] : null;
     const savedAt = lastSave ? lastSave.savedAt : createdAt;
+
+    let statusText;
+
+    if (viewer) {
+      // User is logged in
+      if (saveStatus === 'saving-draft') {
+        statusText = 'Saving changes…';
+      } else {
+        if (savedAt) {
+          const timestamp = `${distanceInWords(this.state.date, new Date(savedAt), {
+            includeSeconds: true,
+            addSuffix: true,
+          })}`;
+
+          if (saveStatus === 'changed') {
+            statusText = `Last saved ${timestamp}`;
+          } else {
+            statusText = `All changes saved ${timestamp}`;
+          }
+        } else {
+          statusText = 'Not saved yet';
+        }
+      }
+
+      statusText = <span className={css(styles.statusText)}>{statusText}</span>;
+    } else {
+      // User is a guest
+      statusText = (
+        <React.Fragment>
+          <button onClick={onLogInClick} className={css(styles.loginButton)}>
+            Log in
+          </button>{' '}
+          <span className={css(styles.statusText)}>to save your changes as you work</span>
+        </React.Fragment>
+      );
+    }
 
     return (
       <div className={css(styles.container)}>
@@ -84,13 +130,20 @@ class EditorTitle extends React.Component<Props, State> {
               />
             </Popover>
           </div>
-          <p className={css(styles.timestamp)}>
-            {savedAt
-              ? `Last saved ${distanceInWords(this.state.date, new Date(savedAt), {
-                  addSuffix: true,
-                })}`
-              : 'Not saved yet'}
-          </p>
+          <div className={css(styles.metadata)}>
+            <p className={css(styles.status)}>{statusText}</p>
+            {viewer && saveStatus === 'saving-draft' ? (
+              <div className={css(styles.spinner)} />
+            ) : null}
+            {(viewer && saveStatus === 'saved-draft') || saveStatus === 'published' ? (
+              <svg className={css(styles.check)} width="11px" height="8px" viewBox="0 0 11 8">
+                <polygon
+                  fill="#4CAF50"
+                  points="3.34328358 6.32835821 0.835820896 3.82089552 0 4.65671642 3.34328358 8 10.5074627 0.835820896 9.67164179 0"
+                />
+              </svg>
+            ) : null}
+          </div>
         </div>
         <ModalEditTitleAndDescription
           title="Edit Snack Details"
@@ -98,7 +151,7 @@ class EditorTitle extends React.Component<Props, State> {
           visible={isEditModalVisible}
           onDismiss={onDismissEditModal}
           onSubmit={details => {
-            onSubmitEditModal(details);
+            onSubmitMetadata(details);
             onDismissEditModal();
           }}
           description={description}
@@ -110,6 +163,11 @@ class EditorTitle extends React.Component<Props, State> {
 }
 
 export default withThemeName(EditorTitle);
+
+const spin = {
+  from: { transform: 'rotate(0deg)' },
+  to: { transform: 'rotate(360deg)' },
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -139,16 +197,55 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
 
-  timestamp: {
+  metadata: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  status: {
     fontSize: 12,
     margin: '0 6px',
-    opacity: 0.5,
     textOverflow: 'ellipsis',
     overflow: 'hidden',
 
     '@media (max-width: 480px)': {
       margin: '.5em 0 0',
     },
+  },
+
+  loginButton: {
+    appearance: 'none',
+    background: 'none',
+    border: 0,
+    margin: 0,
+    padding: 0,
+    textDecoration: 'underline',
+  },
+
+  statusText: {
+    opacity: 0.5,
+  },
+
+  spinner: {
+    borderStyle: 'solid',
+    borderTopColor: colors.primary,
+    borderLeftColor: colors.primary,
+    borderBottomColor: colors.primary,
+    borderRightColor: 'rgba(0, 0, 0, .16)',
+    borderWidth: 1,
+    height: 12,
+    width: 12,
+    borderRadius: '50%',
+    margin: '0 4px',
+    animationDuration: '1s',
+    animationName: [spin],
+    animationIterationCount: 'infinite',
+    animationTimingFunction: 'linear',
+  },
+
+  check: {
+    marginBottom: -4,
   },
 
   icon: {
@@ -162,9 +259,9 @@ const styles = StyleSheet.create({
     border: 0,
     outline: 0,
     margin: 0,
-    padding: 4,
+    padding: 0,
     height: 24,
-    width: 40,
+    width: 24,
     opacity: 0.3,
     transition: '.2s',
 

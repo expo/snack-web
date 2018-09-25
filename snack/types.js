@@ -25,6 +25,7 @@ export type Snack = {
   },
   dependencies?: { [key: string]: string },
   history?: Array<{ id: string, savedAt: string }>,
+  isDraft?: boolean,
 };
 
 export type FileSystemItem<E, S> = {| item: E, state: S |};
@@ -98,3 +99,5 @@ export type QueryParams = {|
   waitForData?: 'boolean',
   theme?: ThemeName,
 |};
+
+export type SaveStatus = 'changed' | 'saving-draft' | 'saved-draft' | 'publishing' | 'published';
