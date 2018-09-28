@@ -10,6 +10,7 @@ import { preloadedModules } from 'snack-sdk';
 import { initVimMode } from 'monaco-vim';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.main';
 import { SimpleEditorModelResolverService } from 'monaco-editor/esm/vs/editor/standalone/browser/simpleServices';
+import { StaticServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices';
 import TypingsWorker from '../../workers/typings.worker';
 import { light, dark } from './themes/monaco';
 import overrides from './themes/monaco-overrides';
@@ -139,6 +140,8 @@ const editorStates = new Map();
 const requestedTypings = new Map();
 const extraLibs = new Map();
 
+const codeEditorService = StaticServices.codeEditorService.get();
+
 class MonacoEditor extends React.Component<Props> {
   static defaultProps = {
     lineNumbers: 'on',
@@ -178,33 +181,27 @@ class MonacoEditor extends React.Component<Props> {
 
     const { path, value, annotations, autoFocus, ...rest } = this.props;
 
-    this._editor = monaco.editor.create(this._node, rest, {
-      codeEditorService: {
-        addCodeEditor: () => {},
-        removeCodeEditor: () => {},
-        listCodeEditors: () => [this._editor],
+    // The methods provided by the service are on it's prototype
+    // So spreading this object doesn't work, we must mutate it
+    codeEditorService.openCodeEditor = async ({ resource, options }, editor) => {
+      await this.props.onOpenPath(resource.path);
 
-        getFocusedCodeEditor: () => this._editor,
+      editor.setSelection(options.selection);
+      editor.revealLine(options.selection.startLineNumber);
 
-        registerDecorationType: () => {},
-        removeDecorationType: () => {},
-        resolveDecorationOptions: () => {},
+      return {
+        getControl: () => editor,
+      };
+    };
 
-        setTransientModelProperty: () => {},
-        getTransientModelProperty: () => {},
+    this._editor = monaco.editor.create(this._node, rest, codeEditorService);
 
-        getActiveCodeEditor: () => this._editor,
-        openCodeEditor: async ({ resource, options }, editor) => {
-          await this.props.onOpenPath(resource.path);
+    this._subscription = this._editor.onDidChangeModelContent(() => {
+      const value = this._editor.getModel().getValue();
 
-          editor.setSelection(options.selection);
-          editor.revealLine(options.selection.startLineNumber);
-
-          return {
-            getControl: () => editor,
-          };
-        },
-      },
+      if (value !== this.props.value) {
+        this.props.onValueChange(value);
+      }
     });
 
     this._toggleMode(this.props.mode);
@@ -463,14 +460,6 @@ class MonacoEditor extends React.Component<Props> {
     if (focus) {
       this._editor.focus();
     }
-
-    // Subscribe to change in value so we can notify the parent
-    this._subscription && this._subscription.dispose();
-    this._subscription = this._editor.getModel().onDidChangeContent(() => {
-      const value = this._editor.getModel().getValue();
-
-      this.props.onValueChange(value);
-    });
   };
 
   _getAllDependencies = (dependencies, sdkVersion) => ({
