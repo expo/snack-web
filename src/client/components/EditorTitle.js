@@ -79,10 +79,14 @@ class EditorTitle extends React.Component<Props, State> {
         statusText = 'Saving changes…';
       } else {
         if (savedAt) {
-          const timestamp = `${distanceInWords(this.state.date, new Date(savedAt), {
-            includeSeconds: true,
-            addSuffix: true,
-          })}`;
+          const dtSavedAt = new Date(savedAt);
+          const timestamp =
+            this.state.date > dtSavedAt
+              ? `${distanceInWords(this.state.date, dtSavedAt, {
+                  includeSeconds: true,
+                  addSuffix: true,
+                })}`
+              : '';
 
           if (saveStatus === 'changed') {
             statusText = `Last saved ${timestamp}`;
