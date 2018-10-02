@@ -5,6 +5,7 @@ const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { StatsWriterPlugin } = require('webpack-stats-plugin');
+const babelrc = require('./babel.config');
 
 function env(key, def) {
   let value = process.env[key];
@@ -96,6 +97,15 @@ module.exports = {
         exclude: /(node_modules|snack-sdk|(vendor\/.+.bundle\.js))/,
         use: {
           loader: 'babel-loader',
+          options: Object.assign({}, babelrc, {
+            presets: babelrc.presets.map(
+              p =>
+                p[0] === '@babel/preset-env'
+                  ? [p[0], Object.assign({}, p[1], { modules: false })]
+                  : p
+            ),
+            babelrc: false,
+          }),
         },
       },
       {
