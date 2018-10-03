@@ -80,7 +80,7 @@ export default class EditorToolbar extends React.PureComponent<Props, void> {
             </svg>
           </IconButton>
           <IconButton
-            title="Export to XDE"
+            title="Export to expo-cli"
             label="Export"
             onClick={onDownloadCode}
             disabled={isDownloading || isPublishing}>
