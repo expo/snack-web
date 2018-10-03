@@ -1,6 +1,6 @@
 /* @flow  */
 
-import resources from '../resources.json';
+import resources from '../../resources.json';
 
 declare var __WEBPACK_BUILD_STATS__;
 

@@ -22,10 +22,10 @@ module.exports = {
   devtool: 'source-map',
   entry: {
     // Main bundle
-    app: './snack/index',
+    app: './src/client/index',
 
     // Service worker
-    sw: './snack/sw',
+    sw: './src/client/sw',
   },
   output: {
     globalObject: 'self',

@@ -18,7 +18,7 @@ module.exports = {
   ],
   overrides: [
     {
-      test: 'server',
+      test: './src/server',
       presets: [
         [
           '@babel/preset-env',

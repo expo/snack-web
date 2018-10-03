@@ -1,7 +1,7 @@
 /* @flow */
 
 import { proxy } from 'web-worker-proxy';
-import resources from '../../resources.json';
+import resources from '../../../resources.json';
 
 self.importScripts(resources['babel-polyfill']);
 
