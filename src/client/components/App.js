@@ -8,7 +8,6 @@ import mapValues from 'lodash/mapValues';
 import Raven from 'raven-js';
 import debounce from 'lodash/debounce';
 
-import SnackSessionWorker from '../workers/snack-session.worker';
 import Segment from '../utils/Segment';
 import withAuth, { type AuthProps } from '../auth/withAuth';
 import AuthManager from '../auth/authManager';
@@ -344,6 +343,8 @@ class App extends React.Component<Props, State> {
       Raven.setTagsContext({ build_date });
       Segment.getInstance().identify({ build_date });
     }
+
+    const SnackSessionWorker = require('../workers/snack-session.worker');
 
     /* $FlowFixMe */
     this._snackSessionWorker = new SnackSessionWorker();

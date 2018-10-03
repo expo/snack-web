@@ -11,7 +11,6 @@ import { initVimMode } from 'monaco-vim';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.main';
 import { SimpleEditorModelResolverService } from 'monaco-editor/esm/vs/editor/standalone/browser/simpleServices';
 import { StaticServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices';
-import TypingsWorker from '../../workers/typings.worker';
 import { light, dark } from './themes/monaco';
 import overrides from './themes/monaco-overrides';
 import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
@@ -175,6 +174,8 @@ class MonacoEditor extends React.Component<Props> {
 
   componentDidMount() {
     // Spawn a worker to fetch type definitions for dependencies
+    const TypingsWorker = require('../../workers/typings.worker');
+
     /* $FlowFixMe */
     this._typingsWorker = new TypingsWorker();
     this._typingsWorker.addEventListener('message', ({ data }: any) => this._addTypings(data));
