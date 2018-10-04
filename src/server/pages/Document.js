@@ -1,10 +1,10 @@
 /* @flow */
 
 import React from 'react';
+import jsesc from 'jsesc';
 import GoogleAnalytics from '../components/GoogleAnalytics';
 import Segment from '../components/SegmentDocumentComponent';
 import resources from '../../../resources.json';
-import jsesc from 'jsesc';
 
 type Props = {
   id: ?string,
@@ -18,6 +18,7 @@ type Props = {
         type: 'error',
         error: { message: string },
       },
+  content: { html: string, css: { content: string, renderedClassNames: string[] } },
 };
 
 const css: any = String.raw;
@@ -29,7 +30,7 @@ const DEFAULT_METADATA_DESCRIPTION_SAVED = `Try this project on your phone! Use 
 
 export default class Document extends React.Component<Props> {
   render() {
-    const { id, data, splitTestSettings } = this.props;
+    const { id, data, content, splitTestSettings } = this.props;
     const title =
       data.type === 'success' && data.snack && data.snack.manifest.name
         ? data.snack.manifest.name
@@ -72,6 +73,12 @@ export default class Document extends React.Component<Props> {
             href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,500,600"
           />
           <link rel="stylesheet" href={resources.normalize} />
+
+          <style
+            type="text/css"
+            data-aphrodite
+            dangerouslySetInnerHTML={{ __html: content.css.content }}
+          />
 
           <style
             type="text/css"
@@ -141,7 +148,7 @@ export default class Document extends React.Component<Props> {
         </head>
 
         <body>
-          <div id="root" />
+          <div id="root" dangerouslySetInnerHTML={{ __html: content.html }} />
           <Segment splitTestSettings={splitTestSettings} />
           <GoogleAnalytics propertyId="UA-53647600-5" />
           <script src={resources['babel-polyfill']} />

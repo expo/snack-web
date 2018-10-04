@@ -19,9 +19,18 @@ type Props = {|
   channel: string,
   sdkVersion: SDKVersion,
   onOpenEditor: Function,
+  userAgent: string,
 |};
 
-const AppDetails = ({ name, description, snackId, channel, sdkVersion, onOpenEditor }: Props) => {
+const AppDetails = ({
+  name,
+  description,
+  snackId,
+  channel,
+  sdkVersion,
+  onOpenEditor,
+  userAgent,
+}: Props) => {
   return (
     <div className={css(styles.container)}>
       <div className={css(styles.card)}>
@@ -45,7 +54,7 @@ const AppDetails = ({ name, description, snackId, channel, sdkVersion, onOpenEdi
             <p>{`Don't have the Expo app? Download the app to try this snack.`}</p>
           </div>
           <div className={css(styles.downloadButtons)}>
-            {isAndroid() ? (
+            {isAndroid(userAgent) ? (
               <a
                 target="_blank"
                 rel="noopener noreferrer"
@@ -57,7 +66,7 @@ const AppDetails = ({ name, description, snackId, channel, sdkVersion, onOpenEdi
                 />
               </a>
             ) : null}
-            {isIOS() ? (
+            {isIOS(userAgent) ? (
               <a
                 target="_blank"
                 rel="noopener noreferrer"

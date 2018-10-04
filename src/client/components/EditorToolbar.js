@@ -12,6 +12,7 @@ import EditorImportTitle from './EditorImportTitle';
 import SearchButton from './Search/SearchButton';
 import UserMenu from './UserMenu';
 import ModalAuthentication from './Auth/ModalAuthentication';
+import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 import type { SaveStatus, Viewer } from '../types';
 
 type State = {
@@ -42,9 +43,10 @@ type Props = {|
   onShowQRCode: () => void,
   onPublishAsync: () => Promise<void>,
   creatorUsername?: string,
+  theme: ThemeName,
 |};
 
-export default class EditorToolbar extends React.PureComponent<Props, State> {
+class EditorToolbar extends React.PureComponent<Props, State> {
   state = {
     isLoggingIn: false,
   };
@@ -79,6 +81,7 @@ export default class EditorToolbar extends React.PureComponent<Props, State> {
       onShowQRCode,
       onPublishAsync,
       creatorUsername,
+      theme,
     } = this.props;
 
     const isPublishing = saveStatus === 'publishing';
@@ -87,6 +90,15 @@ export default class EditorToolbar extends React.PureComponent<Props, State> {
     return (
       <ToolbarShell>
         <ToolbarTitleShell>
+          <img
+            src={
+              theme === 'dark'
+                ? require('../assets/snack-icon-dark.svg')
+                : require('../assets/snack-icon.svg')
+            }
+            alt="Snack"
+            className={css(styles.logo)}
+          />
           {creatorUsername !== 'git' || !name || !description ? (
             <EditorTitle
               name={name}
@@ -154,7 +166,15 @@ export default class EditorToolbar extends React.PureComponent<Props, State> {
   }
 }
 
+export default withThemeName(EditorToolbar);
+
 const styles = StyleSheet.create({
+  logo: {
+    width: 36,
+    height: 'auto',
+    margin: '0 .5em 0 .75em',
+  },
+
   buttons: {
     display: 'flex',
     flexDirection: 'row',

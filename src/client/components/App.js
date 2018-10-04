@@ -19,9 +19,9 @@ import AppDetails from './AppDetails';
 import constants from '../configs/constants';
 import { versions, DEFAULT_SDK_VERSION, FALLBACK_SDK_VERSION } from '../configs/sdk';
 import { snackToEntryArray, entryArrayToSnack } from '../utils/convertFileStructure';
-import { isNotMobile } from '../utils/detectPlatform';
 import { isPackageJson } from '../utils/fileUtilities';
 import { getSnackName } from '../utils/projectNames';
+import { isMobile } from '../utils/detectPlatform';
 import updateEntry from '../actions/updateEntry';
 import FeatureFlags from '../utils/FeatureFlags';
 
@@ -169,6 +169,7 @@ type Props = AuthProps & {|
   },
   location: Object,
   query: QueryParams,
+  userAgent: string,
   isEmbedded?: boolean,
 |};
 
@@ -286,9 +287,8 @@ class App extends React.Component<Props, State> {
       };
     }
 
-    const isMobile = !isNotMobile();
     const isPreview = !!(
-      isMobile &&
+      isMobile(this.props.userAgent) &&
       (props.match.params.id || props.match.params.projectName) &&
       !props.isEmbedded
     );
@@ -829,6 +829,9 @@ class App extends React.Component<Props, State> {
   };
 
   render() {
+    const title =
+      this.props.snack && this.props.snack.manifest ? this.props.snack.manifest.name : null;
+
     if (this.state.isPreview) {
       return (
         <AppDetails
@@ -838,6 +841,7 @@ class App extends React.Component<Props, State> {
           snackId={this.state.params.id}
           sdkVersion={this.state.snackSessionState.sdkVersion}
           onOpenEditor={this._handleOpenEditor}
+          userAgent={this.props.userAgent}
         />
       );
     } else {
@@ -890,7 +894,7 @@ class App extends React.Component<Props, State> {
             ) : this.props.isEmbedded ? (
               <EmbeddedShell />
             ) : (
-              <AppShell />
+              <AppShell title={title} />
             )}
         </LazyLoad>
       );

@@ -1,7 +1,10 @@
 /* @flow */
 
-import React from 'react';
+import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
+import { Provider } from 'react-redux';
+import { StaticRouter } from 'react-router-dom';
+import { StyleSheetServer } from 'aphrodite';
 import path from 'path';
 import compose from 'koa-compose';
 import Router from 'koa-router';
@@ -12,6 +15,11 @@ import nullthrows from 'nullthrows';
 import Document from './pages/Document';
 import * as EmbeddedSnackScript from './EmbeddedSnackScript';
 import getSplitTests from './utils/getSplitTests';
+import createStore from '../client/redux/createStore';
+import ClientRouter from '../client/components/Router';
+import PreferencesProvider from '../client/components/Preferences/PreferencesProvider';
+import ColorsProvider from '../client/components/ColorsProvider';
+import ServiceWorkerManager from '../client/components/ServiceWorkerManager';
 
 const render = async ctx => {
   const id = ctx.params
@@ -59,14 +67,41 @@ const render = async ctx => {
     };
   }
 
+  const store = createStore({ splitTestSettings });
+  const context = {};
+
   const index =
     '<!DOCTYPE html>' +
     ReactDOMServer.renderToStaticMarkup(
-      <Document id={id} splitTestSettings={splitTestSettings} data={data} />
+      <Document
+        id={id}
+        splitTestSettings={splitTestSettings}
+        data={data}
+        content={StyleSheetServer.renderStatic(() => {
+          return ReactDOMServer.renderToString(
+            <React.Fragment>
+              <ServiceWorkerManager />
+              <Provider store={store}>
+                <PreferencesProvider>
+                  <ColorsProvider>
+                    <StaticRouter location={ctx.request.url} context={context}>
+                      <ClientRouter data={data} userAgent={ctx.userAgent} />
+                    </StaticRouter>
+                  </ColorsProvider>
+                </PreferencesProvider>
+              </Provider>
+            </React.Fragment>
+          );
+        })}
+      />
     );
 
-  ctx.body = index;
-  ctx.type = 'html';
+  if (context.url) {
+    ctx.redirect(context.url);
+  } else {
+    ctx.body = index;
+    ctx.type = 'html';
+  }
 };
 
 export default function routes() {

@@ -104,6 +104,7 @@ module.exports = {
                   ? [p[0], Object.assign({}, p[1], { modules: false })]
                   : p
             ),
+            plugins: babelrc.plugins.filter(p => p !== 'dynamic-import-node'),
             babelrc: false,
           }),
         },

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import debounce from 'lodash/debounce';
 import { parse } from 'query-string';
-import { isNotMobile } from '../../utils/detectPlatform';
+import { isMobile } from '../../utils/detectPlatform';
 import { type ConnectionMethod } from '../DeviceInstructions/DeviceInstructionsModal';
 import { type PreferencesContextType } from './withPreferences';
 import { type ThemeName } from './withThemeName';
@@ -34,7 +34,7 @@ const defaults: PreferencesType = {
   devicePreviewPlatform: 'android',
   devicePreviewShown: true,
   editorMode: 'normal',
-  fileTreeShown: isNotMobile(),
+  fileTreeShown: isMobile(),
   panelsShown: false,
   panelType: 'errors',
   theme: 'light',

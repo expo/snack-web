@@ -208,10 +208,6 @@ const styles = StyleSheet.create({
     margin: '0 6px',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
-
-    '@media (max-width: 480px)': {
-      margin: '.5em 0 0',
-    },
   },
 
   loginButton: {

@@ -1,7 +1,7 @@
 /* @flow */
 
 import * as React from 'react';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import { parse } from 'query-string';
 import App from './App';
 import EmbeddedApp from './EmbeddedApp';
@@ -18,6 +18,7 @@ type Props = {
         error: { message: string },
       }
     | null,
+  userAgent: string,
 };
 
 export default class Router extends React.Component<Props> {
@@ -38,17 +39,15 @@ export default class Router extends React.Component<Props> {
 
   render() {
     return (
-      <BrowserRouter>
-        <Switch>
-          <Route exact path="/embedded/@:username/:projectName+" render={this._renderRoute} />
-          <Route exact path="/embedded/:id" render={this._renderRoute} />
-          <Route exact path="/embedded" render={this._renderRoute} />
-          <Route exact path="/@:username/:projectName+" render={this._renderRoute} />
-          <Route exact path="/:id" render={this._renderRoute} />
-          <Route exact path="/" render={this._renderRoute} />
-          <Route component={NonExistent} />
-        </Switch>
-      </BrowserRouter>
+      <Switch>
+        <Route exact path="/embedded/@:username/:projectName+" render={this._renderRoute} />
+        <Route exact path="/embedded/:id" render={this._renderRoute} />
+        <Route exact path="/embedded" render={this._renderRoute} />
+        <Route exact path="/@:username/:projectName+" render={this._renderRoute} />
+        <Route exact path="/:id" render={this._renderRoute} />
+        <Route exact path="/" render={this._renderRoute} />
+        <Route component={NonExistent} />
+      </Switch>
     );
   }
 }

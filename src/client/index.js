@@ -3,6 +3,7 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import PreferencesProvider from './components/Preferences/PreferencesProvider';
 import ColorsProvider from './components/ColorsProvider';
 import ServiceWorkerManager from './components/ServiceWorkerManager';
@@ -19,7 +20,9 @@ class SnackEntry extends React.Component<{}> {
         <Provider store={store}>
           <PreferencesProvider>
             <ColorsProvider>
-              <Router data={window.__INITIAL_DATA__.data} />
+              <BrowserRouter>
+                <Router data={window.__INITIAL_DATA__.data} userAgent={navigator.userAgent} />
+              </BrowserRouter>
             </ColorsProvider>
           </PreferencesProvider>
         </Provider>
@@ -29,4 +32,4 @@ class SnackEntry extends React.Component<{}> {
 }
 
 /* $FlowFixMe */
-ReactDOM.render(<SnackEntry />, document.getElementById('root'));
+ReactDOM.hydrate(<SnackEntry />, document.getElementById('root'));

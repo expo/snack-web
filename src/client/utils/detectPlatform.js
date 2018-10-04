@@ -2,26 +2,16 @@
  * @flow
  */
 
-export function isAndroid() {
-  if (typeof navigator !== 'undefined') {
-    return /Android/i.test(navigator.userAgent);
-  } else {
-    return false;
-  }
+export function isAndroid(userAgent: string) {
+  return /Android/i.test(userAgent);
 }
 
-export function isIOS() {
-  if (typeof navigator !== 'undefined') {
-    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  } else {
-    return false;
-  }
+export function isIOS(userAgent: string) {
+  return /iPhone|iPad|iPod/i.test(userAgent);
 }
 
-export function isNotMobile() {
-  if (typeof navigator === 'undefined') {
-    return false;
-  }
-
-  return !isAndroid() && !isIOS();
+export function isMobile(
+  userAgent: string = typeof navigator !== 'undefined' ? navigator.userAgent : ''
+) {
+  return isAndroid(userAgent) || isIOS(userAgent);
 }

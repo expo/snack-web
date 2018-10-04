@@ -15,7 +15,7 @@ export default function constructExperienceURL({
   snackId,
   channel,
   // For testing
-  host = window.location.host,
+  host = typeof window !== 'undefined' ? window.location.host : '',
 }: Props) {
   let hostWithoutSubdomain;
 

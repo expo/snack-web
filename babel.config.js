@@ -15,6 +15,7 @@ module.exports = {
     '@babel/plugin-proposal-object-rest-spread',
     'lodash',
     'webpack-chunkname',
+    'dynamic-import-node',
   ],
   overrides: [
     {
@@ -29,6 +30,10 @@ module.exports = {
           },
         ],
       ],
+    },
+    {
+      test: './src/client/vendor',
+      compact: true,
     },
   ],
 };

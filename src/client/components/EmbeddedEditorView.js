@@ -22,7 +22,7 @@ import SimpleEditor from './Editor/SimpleEditor';
 import colors from '../configs/colors';
 
 import FeatureFlags from '../utils/FeatureFlags';
-import { isNotMobile } from '../utils/detectPlatform';
+import { isMobile } from '../utils/detectPlatform';
 import type { TextFileEntry, FileSystemEntry, QueryParams } from '../types';
 import type { SDKVersion } from '../configs/sdk';
 
@@ -53,6 +53,7 @@ type Props = {|
   deviceId: ?string,
   wasUpgraded: boolean,
   testConnectionMethod?: ConnectionMethod,
+  userAgent: string,
   theme: ThemeName,
 |};
 
@@ -217,7 +218,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
             onChangeDevicePreviewPlatform={this._changeDevicePreviewPlatform}
           />
         </div>
-        {isNotMobile ? null : (
+        {isMobile(this.props.userAgent) ? (
           <div className={css(styles.button)}>
             <OpenWithExpoButton
               sdkVersion={this.props.sdkVersion}
@@ -225,7 +226,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
               snackId={this.props.params.id}
             />
           </div>
-        )}
+        ) : null}
         {FeatureFlags.isAvailable('PROJECT_DEPENDENCIES', this.props.sdkVersion) ? (
           <DependencyManager
             fileEntries={this.props.fileEntries}
