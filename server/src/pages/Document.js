@@ -60,6 +60,10 @@ export default class Document extends React.Component<Props> {
           />
           <meta property="og:image:width" content="200" />
           <meta property="og:image:height" content="200" />
+          <meta
+            name="google-site-verification"
+            content="Fh25fNM-buRYptb-TO6MVgOjXGzdhmAnRgIC7sdrmbw"
+          />
 
           <link rel="shortcut icon" href="/favicon.ico" />
 
