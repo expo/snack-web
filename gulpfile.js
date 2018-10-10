@@ -10,7 +10,7 @@ const spawnAsync = require('@expo/spawn-async');
 
 gulp.task('clean', async () => {
   console.log(`Removing build directories...`);
-  await Promise.all([del('dist'), del('build')]);
+  await Promise.all([del('dist'), del('server/build')]);
 });
 
 gulp.task('build:client', done => {
@@ -21,17 +21,17 @@ gulp.task('build:client', done => {
 gulp.task('build:server', () => {
   console.log(`Compiling the Node.js server JavaScript...`);
   return gulp
-    .src('src/**/*.js')
-    .pipe(changed('build'))
+    .src('server/src/**/*.js')
+    .pipe(changed('server/build'))
     .pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(
       sourcemaps.write('.', {
         includeContent: false,
-        sourceRoot: '.',
+        sourceRoot: '../src',
       })
     )
-    .pipe(gulp.dest('build'));
+    .pipe(gulp.dest('server/build'));
 });
 
 gulp.task('build', gulp.parallel('build:client', 'build:server'));
@@ -48,7 +48,7 @@ gulp.task('domain', async () => {
 
 gulp.task('watch:source', async () => {
   console.log(`Watching for changes to the Node.js server JavaScript...`);
-  gulp.watch('src/server/**/*.js', gulp.series('build:server'));
+  gulp.watch('server/src/**/*.js', gulp.series('build:server'));
 });
 
 gulp.task('watch:server', async () => {
@@ -56,7 +56,7 @@ gulp.task('watch:server', async () => {
   // Run nodemon in a separate process to isolate its side effects on stdio streams
   child_process.fork(
     'node_modules/.bin/nodemon',
-    ['--watch', 'build/server', '--inspect=:9311', 'build/server/index'],
+    ['--watch', 'server/build', '--inspect=:9311', '.'],
     { stdio: 'inherit' }
   );
 });

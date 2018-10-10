@@ -1,0 +1,24 @@
+{
+  "presets": [
+    [
+      "env",
+      {
+        "modules": false,
+        "useBuiltIns": true
+      }
+    ],
+    "react"
+  ],
+  "plugins": [
+    "syntax-dynamic-import",
+    "transform-class-properties",
+    "transform-object-rest-spread",
+    "lodash",
+    "webpack-chunkname"
+  ],
+  "env": {
+    "test": {
+        "plugins": ["babel-plugin-transform-es2015-modules-commonjs"]
+    }
+  }
+}

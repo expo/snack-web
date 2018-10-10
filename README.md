@@ -100,9 +100,9 @@ Now you should be able to access the snack server at [https://snack.expo.test](h
 
 ## File organization
 
-The web server is under `src/server/`. The build scripts also generate a `build` subdirectory with the compiled JS; this is the JS that actually runs.
+The web server is under `server`, which has a `src/` subdirectory where the source code resides. The build scripts also generate a `build` subdirectory with the compiled JS; this is the JS that actually runs.
 
-The code for the client is located under `src/client/`. The webpack build creates a `dist/` folder which is ignored from version control.
+The code for the client is located under `snack/`. The webpack build creates a `dist/` folder which is ignored from version control.
 
 Scripts related to deployment, like the Dockerfile, are under `deploy`. Note: even though the scripts are under `deploy`, you must run them from this directory; they are sensitive to `cwd`.
 
@@ -120,7 +120,7 @@ To start the server, run `yarn start`. If you have access to the monorepo, to te
 
 Nodemon is also configured with the `--inspect` flag, which lets you debug Node from Chrome. We use a non-default port for the inspector (9311 instead of 9229) since www's inspector uses the default port.
 
-The client uses a service worker, which means you need some extra steps to get it setup for development.
+The page is rendered fully on the client. The server serves a HTML page for all the routes and the client handles the routing. During development, webpack will watch and rebuild client side files. The client uses a service worker, which means you need some extra steps to get it setup for development.
 
 ### Disabling cache with Service Worker
 
