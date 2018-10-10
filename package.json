@@ -66,7 +66,7 @@
     "react-virtualized": "^9.18.5",
     "redux": "^3.7.2",
     "shortid": "^2.2.8",
-    "snack-sdk": "1.0.13-rc.1",
+    "snack-sdk": "1.0.14",
     "stoppable": "^1.0.5",
     "validate-npm-package-name": "^3.0.0",
     "web-worker-proxy": "^0.4.0"
