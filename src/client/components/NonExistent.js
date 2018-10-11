@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom';
 export default function NonExistent() {
   return (
     <div className={css(styles.container)}>
-      <img src={require('../assets/snack-icon.svg')} className={css(styles.logo)} />
       <div className={css(styles.content)}>
         <h1 className={css(styles.heading)}>Oops!</h1>
         <p className={css(styles.message)}>
