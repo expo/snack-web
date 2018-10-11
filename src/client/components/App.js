@@ -270,10 +270,7 @@ class App extends React.Component<Props, State> {
     let wasUpgraded = false;
 
     if (!versions.hasOwnProperty(sdkVersion)) {
-      Segment.getInstance().logEvent('LOADED_UNSUPPORTED_VERSION', {
-        requestedVersion: sdkVersion,
-        snackId: this.props.match.params.id,
-      });
+      this.initialSdkVersion = sdkVersion;
       sdkVersion = FALLBACK_SDK_VERSION;
       wasUpgraded = true;
     }
@@ -345,6 +342,12 @@ class App extends React.Component<Props, State> {
     }
 
     const SnackSessionWorker = require('../workers/snack-session.worker');
+    if (this.state.wasUpgraded) {
+      Segment.getInstance().logEvent('LOADED_UNSUPPORTED_VERSION', {
+        requestedVersion: this.initialSdkVersion,
+        snackId: this.props.match.params.id,
+      });
+    }
 
     /* $FlowFixMe */
     this._snackSessionWorker = new SnackSessionWorker();
@@ -895,7 +898,8 @@ class App extends React.Component<Props, State> {
               <EmbeddedShell />
             ) : (
               <AppShell title={title} />
-            )}
+            )
+          }
         </LazyLoad>
       );
     }
