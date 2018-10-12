@@ -539,66 +539,9 @@ class App extends React.Component<Props, State> {
     }
   };
 
-  _handleSnackSessionState = (snackSessionState: SnackSessionState) =>
-    this.setState(state => {
-      let { fileEntries } = state;
-
-      const currentFile = this._findFocusedEntry(fileEntries);
-
-      if (
-        currentFile &&
-        snackSessionState.files.hasOwnProperty(currentFile.item.path) &&
-        snackSessionState.files[currentFile.item.path].contents !==
-          (currentFile.item.asset ? currentFile.item.uri : currentFile.item.content)
-      ) {
-        const contents = snackSessionState.files[currentFile.item.path].contents;
-
-        fileEntries = fileEntries.map(entry => {
-          if (entry.item.path === currentFile.item.path && entry.item.type === 'file') {
-            if (entry.item.asset) {
-              if (entry.item.uri !== contents) {
-                return updateEntry(entry, {
-                  item: { uri: contents },
-                });
-              }
-            } else {
-              if (entry.item.content !== contents) {
-                return updateEntry(entry, {
-                  item: { content: contents },
-                });
-              }
-            }
-          }
-
-          return entry;
-        });
-      }
-
-      // If we switched between versions with/without support for package.json, add/remove it accordingly
-      if (state.snackSessionState.sdkVersion !== snackSessionState.sdkVersion) {
-        const packageJson = fileEntries.find(entry => isPackageJson(entry.item.path));
-
-        if (
-          FeatureFlags.isAvailable(
-            'PROJECT_DEPENDENCIES',
-            ((snackSessionState.sdkVersion: any): SDKVersion)
-          )
-        ) {
-          if (!packageJson) {
-            fileEntries = [...fileEntries, this._getPackageJson(snackSessionState)];
-          }
-        } else {
-          if (packageJson) {
-            fileEntries = fileEntries.filter(entry => !isPackageJson(entry.item.path));
-          }
-        }
-      }
-
-      return {
-        snackSessionState,
-        fileEntries,
-      };
-    });
+  _handleSnackSessionState = (snackSessionState: SnackSessionState) => {
+    this.setState({ snackSessionState });
+  };
 
   _sendCodeNotDebounced = () =>
     this._snack.session.sendCodeAsync(
