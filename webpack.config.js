@@ -5,6 +5,7 @@ const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { StatsWriterPlugin } = require('webpack-stats-plugin');
+const WorkerPlugin = require('worker-plugin');
 const babelrc = require('./babel.config');
 
 function env(key, def) {
@@ -54,7 +55,6 @@ module.exports = {
         BUILD_TIMESTAMP: JSON.stringify(Date.now()),
       },
     }),
-    new MiniCssExtractPlugin(),
     new webpack.IgnorePlugin(
       /^((fs)|(path)|(os)|(crypto)|(source-map-support))$/,
       /vs(\/|\\)language(\/|\\)typescript(\/|\\)lib/
@@ -62,6 +62,8 @@ module.exports = {
     new webpack.ContextReplacementPlugin(
       /monaco-editor(\\|\/)esm(\\|\/)vs(\\|\/)editor(\\|\/)common(\\|\/)services/
     ),
+    new WorkerPlugin(),
+    new MiniCssExtractPlugin(),
     new StatsWriterPlugin({
       filename: 'build-stats.js',
       fields: ['hash', 'assets', 'assetsByChunkName'],
@@ -81,16 +83,6 @@ module.exports = {
         // graphql-request includes this polyfill
         test: path.resolve(__dirname, 'node_modules/cross-fetch/dist/browser-polyfill.js'),
         use: 'null-loader',
-      },
-      {
-        test: /\.worker\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'worker-loader',
-          options: {
-            name: '[name].[hash].js',
-          },
-        },
       },
       {
         test: /\.js$/,

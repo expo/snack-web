@@ -341,7 +341,6 @@ class App extends React.Component<Props, State> {
       Segment.getInstance().identify({ build_date });
     }
 
-    const SnackSessionWorker = require('../workers/snack-session.worker');
     if (this.state.wasUpgraded) {
       Segment.getInstance().logEvent('LOADED_UNSUPPORTED_VERSION', {
         requestedVersion: this.initialSdkVersion,
@@ -350,7 +349,7 @@ class App extends React.Component<Props, State> {
     }
 
     /* $FlowFixMe */
-    this._snackSessionWorker = new SnackSessionWorker();
+    this._snackSessionWorker = new Worker('../workers/snack-session.worker', { type: 'module' });
     this._snack = create(this._snackSessionWorker);
 
     this._initializeSnackSession();
@@ -841,8 +840,7 @@ class App extends React.Component<Props, State> {
               <EmbeddedShell />
             ) : (
               <AppShell title={title} />
-            )
-          }
+            )}
         </LazyLoad>
       );
     }

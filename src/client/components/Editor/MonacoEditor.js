@@ -32,24 +32,22 @@ SimpleEditorModelResolverService.prototype.findModel = function(editor, resource
 
 global.MonacoEnvironment = {
   getWorker(moduleId, label) {
-    let MonacoWorker;
-
     switch (label) {
       case 'json':
         /* $FlowFixMe */
-        MonacoWorker = require('worker-loader!monaco-editor/esm/vs/language/json/json.worker');
-        break;
+        return new Worker('monaco-editor/esm/vs/language/json/json.worker', {
+          type: 'module',
+        });
       case 'typescript':
       case 'javascript':
         /* $FlowFixMe */
-        MonacoWorker = require('worker-loader!monaco-editor/esm/vs/language/typescript/ts.worker');
-        break;
+        return new Worker('monaco-editor/esm/vs/language/typescript/ts.worker', {
+          type: 'module',
+        });
       default:
         /* $FlowFixMe */
-        MonacoWorker = require('worker-loader!monaco-editor/esm/vs/editor/editor.worker');
+        return new Worker('monaco-editor/esm/vs/editor/editor.worker', { type: 'module' });
     }
-
-    return new MonacoWorker();
   },
 };
 
@@ -174,10 +172,8 @@ class MonacoEditor extends React.Component<Props> {
 
   componentDidMount() {
     // Spawn a worker to fetch type definitions for dependencies
-    const TypingsWorker = require('../../workers/typings.worker');
-
     /* $FlowFixMe */
-    this._typingsWorker = new TypingsWorker();
+    this._typingsWorker = new Worker('../../workers/typings.worker', { type: 'module' });
     this._typingsWorker.addEventListener('message', ({ data }: any) => this._addTypings(data));
 
     const { path, value, annotations, autoFocus, ...rest } = this.props;
