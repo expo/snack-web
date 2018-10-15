@@ -112,19 +112,10 @@ const render = async ctx => {
 };
 
 export default function routes() {
-  let router = new Router();
+  const router = new Router();
 
   router.get('/favicon.ico', async ctx => {
     await send(ctx, 'favicon.ico');
-  });
-
-  router.use('/static/:path+', cors());
-  router.get('/static/:path+', async ctx => {
-    await send(ctx, path.join('static', ctx.params.path));
-  });
-
-  router.get('/dist/:path+', async ctx => {
-    await send(ctx, path.join('dist', ctx.params.path));
   });
 
   router.get('/embed.js', async ctx => {
