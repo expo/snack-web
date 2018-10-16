@@ -1,6 +1,6 @@
 /* @flow */
 
-import Qs from 'qs';
+import querystring from 'query-string';
 import constructExperienceURL from './constructExperienceURL';
 import constants from '../configs/constants';
 import type { SDKVersion } from '../configs/sdk';
@@ -60,7 +60,7 @@ export default function appetizeUrlFor({
     EXKernelDisableNuxDefaultsKey: true,
   };
 
-  return `${constants.appetize.url}/embed/${appetizeKey}?${Qs.stringify(
+  return `${constants.appetize.url}/embed/${appetizeKey}?${querystring.stringify(
     appetizeOptions
   )}&params=${encodeURIComponent(JSON.stringify(appParams))}`;
 }

@@ -2,7 +2,6 @@
  * @flow
  */
 
-import 'isomorphic-fetch';
 import cookieParser from 'cookie';
 import ExtendableError from 'es6-error';
 import jwtDecode from 'jwt-decode';

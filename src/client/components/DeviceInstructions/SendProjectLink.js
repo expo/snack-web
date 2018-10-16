@@ -1,7 +1,5 @@
 /* @flow */
 
-import 'isomorphic-fetch';
-
 import { StyleSheet, css } from 'aphrodite';
 
 import * as React from 'react';
