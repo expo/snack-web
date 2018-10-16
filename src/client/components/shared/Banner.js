@@ -33,7 +33,7 @@ export default class Banner extends React.PureComponent<Props, State> {
       if (nextProps.visible) {
         this.setState({ rendered: true });
       } else {
-        this._timer = setTimeout(() => this.setState({ rendered: false }), 200);
+        this._timer = setTimeout(() => this.setState({ rendered: false }), 300);
       }
     }
   }
@@ -41,6 +41,10 @@ export default class Banner extends React.PureComponent<Props, State> {
   _timer: any;
 
   render() {
+    if (!this.state.rendered) {
+      return null;
+    }
+
     return (
       <div className={css(styles.container)}>
         <div
