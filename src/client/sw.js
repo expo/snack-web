@@ -5,6 +5,7 @@ import resources from '../../resources.json';
 declare var __WEBPACK_BUILD_STATS__;
 
 // We write the build statistics to get the hash and list of files to cache
+// If you change the filename, also change the caching policy for this file on server
 self.importScripts(['/dist/build-stats.js']);
 
 // The cache name includes hash of the buildso we can maintain separate cache for separate builds
