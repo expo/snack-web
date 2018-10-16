@@ -107,7 +107,7 @@
     "enzyme-adapter-react-16": "^1.6.0",
     "enzyme-to-json": "^3.3.4",
     "file-loader": "^2.0.0",
-    "flow-bin": "^0.70.0",
+    "flow-bin": "^0.83.0",
     "hotel": "^0.8.7",
     "idb-keyval": "^3.1.0",
     "if-env": "^1.0.4",

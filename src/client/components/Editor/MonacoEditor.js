@@ -473,6 +473,11 @@ class MonacoEditor extends React.Component<Props> {
       // Parse the qualifier to get the package name
       // This will handle qualifiers with deep imports
       const match = /^(?:@([^/?]+)\/)?([^@/?]+)(?:\/([^@]+))?/.exec(qualifier);
+
+      if (!match) {
+        return;
+      }
+
       const name = (match[1] ? `@${match[1]}/` : '') + match[2];
 
       if (requestedTypings.get(name) === version) {

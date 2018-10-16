@@ -270,7 +270,7 @@ class App extends React.Component<Props, State> {
     let wasUpgraded = false;
 
     if (!versions.hasOwnProperty(sdkVersion)) {
-      this.initialSdkVersion = sdkVersion;
+      this._initialSdkVersion = sdkVersion;
       sdkVersion = FALLBACK_SDK_VERSION;
       wasUpgraded = true;
     }
@@ -343,7 +343,7 @@ class App extends React.Component<Props, State> {
 
     if (this.state.wasUpgraded) {
       Segment.getInstance().logEvent('LOADED_UNSUPPORTED_VERSION', {
-        requestedVersion: this.initialSdkVersion,
+        requestedVersion: this._initialSdkVersion,
         snackId: this.props.match.params.id,
       });
     }
@@ -390,6 +390,8 @@ class App extends React.Component<Props, State> {
     this._snackSessionPresenceListener && this._snackSessionPresenceListener.dispose();
     this._snackSessionStateListener && this._snackSessionStateListener.dispose();
   }
+
+  _initialSdkVersion: SDKVersion;
 
   _initializeSnackSession = async () => {
     const { snackSessionState, params, wasUpgraded } = this.state;
