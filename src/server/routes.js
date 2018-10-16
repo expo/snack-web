@@ -35,9 +35,16 @@ const render = async ctx => {
 
   if (id) {
     try {
+      let expoSession = ctx.cookies.get('io.expo.auth.sessionSecret');
+
       const response = await fetch(
         `${nullthrows(process.env.API_SERVER_URL)}/--/api/v2/snack/${id}`,
-        { headers: { 'Snack-Api-Version': '3.0.0' } }
+        {
+          headers: {
+            'Snack-Api-Version': '3.0.0',
+            ...(expoSession ? { 'expo-session': decodeURIComponent(expoSession) } : {}),
+          },
+        }
       );
 
       const text = await response.text();
