@@ -543,28 +543,29 @@ class EditorView extends React.Component<Props, State> {
                         load={() => {
                           let timeout;
 
-                          const MonacoEditor = import('./Editor/MonacoEditor');
+                          const MonacoEditorPromise = import(/* webpackPreload: true */ './Editor/MonacoEditor').then(
+                            editor => ({ editor, type: 'monaco' })
+                          );
 
                           // Fallback to simple editor if monaco editor takes too long to load
-                          const SimpleEditor = new Promise((resolve, reject) => {
+                          const SimpleEditorPromise = new Promise((resolve, reject) => {
                             timeout = setTimeout(() => {
                               this.setState({ currentBanner: 'slow-connection' });
+
                               setTimeout(() => this.setState({ currentBanner: null }), 5000);
 
-                              /* $FlowFixMe */
                               import('./Editor/SimpleEditor').then(resolve, reject);
                             }, EDITOR_LOAD_FALLBACK_TIMEOUT);
-                          });
+                          }).then(editor => ({ editor, type: 'simple' }));
 
                           return Promise.race([
-                            MonacoEditor.then(
-                              editor => ({ editor, type: 'monaco' }),
-                              () => SimpleEditor
-                            ),
-                            SimpleEditor.then(editor => ({ editor, type: 'simple' })),
+                            MonacoEditorPromise.catch(() => SimpleEditorPromise),
+                            SimpleEditorPromise,
                           ]).then(({ editor, type }) => {
                             this.setState({ loadedEditor: type });
+
                             clearTimeout(timeout);
+
                             return editor;
                           });
                         }}>

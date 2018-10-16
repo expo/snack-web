@@ -170,7 +170,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
             lineNumbers="off"
           />
           {devicePreviewShown ? (
-            <LazyLoad load={() => import(/* webpackPrefetch: true */ './DevicePreview')}>
+            <LazyLoad load={() => import(/* webpackPreload: true */ './DevicePreview')}>
               {({ loaded, data: Comp }) => {
                 if (!loaded) {
                   return null;
