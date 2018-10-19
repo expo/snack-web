@@ -50,7 +50,7 @@ import { Constants } from 'expo';
 import AssetExample from './components/AssetExample';
 
 // or any pure javascript modules available in npm
-import { Card } from 'react-native-elements'; // 0.19.1
+import { Card } from 'react-native-paper';
 
 export default class App extends React.Component {
   render() {
@@ -59,7 +59,7 @@ export default class App extends React.Component {
         <Text style={styles.paragraph}>
           Change code in the editor and watch it change on your phone! Save to get a shareable url.
         </Text>
-        <Card title="Local Modules">
+        <Card>
           <AssetExample />
         </Card>
       </View>
@@ -70,25 +70,24 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
     paddingTop: Constants.statusBarHeight,
     backgroundColor: '#ecf0f1',
+    padding: 8,
   },
   paragraph: {
     margin: 24,
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#34495e',
   },
 });
 `,
     type: 'CODE',
   },
-  'assets/expo.symbol.white.png': {
+  'assets/snack-icon.png': {
     contents:
-      'https://snack-code-uploads.s3-us-west-1.amazonaws.com/~asset/bf93196f5649c822ee2eb830cfdfb636',
+      'https://snack-code-uploads.s3.us-west-1.amazonaws.com/~asset/2f7d32b1787708aba49b3586082d327b',
     type: 'ASSET',
   },
   'components/AssetExample.js': {
@@ -102,7 +101,7 @@ export default class AssetExample extends React.Component {
         <Text style={styles.paragraph}>
           Local files and assets can be imported by dragging and dropping them into the editor
         </Text>
-        <Image style={styles.logo} source={require("../assets/expo.symbol.white.png")}/>
+        <Image style={styles.logo} source={require('../assets/snack-icon.png')} />
       </View>
     );
   }
@@ -112,6 +111,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 24,
   },
   paragraph: {
     margin: 24,
@@ -119,10 +119,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#34495e',
   },
   logo: {
-    backgroundColor: "#056ecf",
     height: 128,
     width: 128,
   }
@@ -150,7 +148,7 @@ Snack is Open Source. You can find the code on the [GitHub repo](https://github.
 };
 
 const INITIAL_DEPENDENCIES = {
-  'react-native-elements': { version: '0.19.1', isUserSpecified: true },
+  'react-native-paper': { version: '2.1.3', isUserSpecified: true },
 };
 
 type Device = { name: string, id: string, platform: string };
@@ -861,8 +859,7 @@ class App extends React.Component<Props, State> {
               <EmbeddedShell />
             ) : (
               <AppShell title={title} />
-            )
-          }
+            )}
         </LazyLoad>
       );
     }
