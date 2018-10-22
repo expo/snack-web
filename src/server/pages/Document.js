@@ -73,13 +73,6 @@ export default class Document extends React.Component<Props> {
             href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,500,600"
           />
           <link rel="stylesheet" href={resources.normalize} />
-          <link rel="stylesheet" href="/dist/app.css" />
-
-          <style
-            type="text/css"
-            data-aphrodite
-            dangerouslySetInnerHTML={{ __html: content.css.content }}
-          />
 
           <style
             type="text/css"
@@ -131,6 +124,13 @@ export default class Document extends React.Component<Props> {
               `,
             }}
           />
+
+          <style
+            type="text/css"
+            data-aphrodite
+            dangerouslySetInnerHTML={{ __html: content.css.content }}
+          />
+
           <script
             dangerouslySetInnerHTML={{
               __html: `

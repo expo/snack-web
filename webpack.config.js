@@ -89,16 +89,6 @@ module.exports = {
         exclude: /(node_modules|snack-sdk|(vendor\/.+.bundle\.js))/,
         use: {
           loader: 'babel-loader',
-          options: Object.assign({}, babelrc, {
-            presets: babelrc.presets.map(
-              p =>
-                p[0] === '@babel/preset-env'
-                  ? [p[0], Object.assign({}, p[1], { modules: false })]
-                  : p
-            ),
-            plugins: babelrc.plugins.filter(p => p !== 'dynamic-import-node'),
-            babelrc: false,
-          }),
         },
       },
       {
