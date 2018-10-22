@@ -2,7 +2,7 @@
 
 const webpack = require('webpack');
 const path = require('path');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { StatsWriterPlugin } = require('webpack-stats-plugin');
 const WorkerPlugin = require('worker-plugin');
@@ -39,7 +39,7 @@ module.exports = {
     noEmitOnErrors: true,
     minimize: process.env.NODE_ENV === 'production',
     minimizer: [
-      new UglifyJsPlugin({
+      new TerserPlugin({
         exclude: /eslint_bundle/,
         parallel: true,
       }),

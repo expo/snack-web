@@ -118,7 +118,7 @@
     "null-loader": "^0.1.1",
     "puppeteer": "^1.9.0",
     "source-map-support": "^0.5.9",
-    "uglifyjs-webpack-plugin": "^2.0.1",
+    "terser-webpack-plugin": "^1.1.0",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.2",
     "webpack-dev-middleware": "^3.4.0",
