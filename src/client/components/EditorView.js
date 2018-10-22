@@ -43,6 +43,7 @@ import prettierCode from '../utils/prettierCode';
 import { isIntentionallyNamed } from '../utils/projectNames';
 import withPreferences, { type PreferencesContextType } from './Preferences/withPreferences';
 import withThemeName, { type ThemeName } from './Preferences/withThemeName';
+import { c } from './ColorsProvider';
 
 import type { Error as DeviceError, Annotation } from '../utils/convertErrorToAnnotation';
 import type { SDKVersion } from '../configs/sdk';
@@ -123,6 +124,7 @@ type State = {|
     | null,
   loadedEditor: 'monaco' | 'simple' | null,
   isDownloading: boolean,
+  isMarkdownPreview: boolean,
   deviceLogsShown: boolean,
   lintErrors: Array<Annotation>,
   shouldPreventRedirectWarning: boolean,
@@ -137,6 +139,7 @@ class EditorView extends React.Component<Props, State> {
     currentModal: null,
     currentBanner: null,
     isDownloading: false,
+    isMarkdownPreview: true,
     deviceLogsShown: false,
     lintErrors: [],
     shouldPreventRedirectWarning: false,
@@ -407,6 +410,9 @@ class EditorView extends React.Component<Props, State> {
       theme: this.props.preferences.theme === 'light' ? 'dark' : 'light',
     });
 
+  _toggleMarkdownPreview = () =>
+    this.setState(state => ({ isMarkdownPreview: !state.isMarkdownPreview }));
+
   _preventRedirectWarning = () =>
     this.setState({
       shouldPreventRedirectWarning: true,
@@ -586,21 +592,79 @@ class EditorView extends React.Component<Props, State> {
                               return <AssetViewer entry={((entry: any): AssetFileEntry)} />;
                             }
 
+                            const isMarkdown = entry.item.path.endsWith('.md');
+
+                            if (isMarkdown && this.state.isMarkdownPreview) {
+                              return (
+                                <React.Fragment>
+                                  <LazyLoad load={() => import('react-remarkable')}>
+                                    {({ loaded: mdLoaded, data: Remarkable }) => {
+                                      if (mdLoaded) {
+                                        return (
+                                          <div className={css(styles.markdownPreview)}>
+                                            <Remarkable source={entry.item.content} />
+                                          </div>
+                                        );
+                                      }
+
+                                      return <EditorShell />;
+                                    }}
+                                  </LazyLoad>
+                                  <button
+                                    className={css(styles.previewToggle)}
+                                    onClick={this._toggleMarkdownPreview}>
+                                    <svg
+                                      width="12px"
+                                      height="12px"
+                                      viewBox="0 0 18 18"
+                                      className={css(styles.previewToggleIcon)}>
+                                      <g transform="translate(-147.000000, -99.000000)">
+                                        <g transform="translate(144.000000, 96.000000)">
+                                          <path d="M3,17.25 L3,21 L6.75,21 L17.81,9.94 L14.06,6.19 L3,17.25 L3,17.25 Z M20.71,7.04 C21.1,6.65 21.1,6.02 20.71,5.63 L18.37,3.29 C17.98,2.9 17.35,2.9 16.96,3.29 L15.13,5.12 L18.88,8.87 L20.71,7.04 L20.71,7.04 Z" />
+                                        </g>
+                                      </g>
+                                    </svg>
+                                    Edit markdown
+                                  </button>
+                                </React.Fragment>
+                              );
+                            }
+
                             if (loaded) {
                               return (
-                                <Comp
-                                  ref={c => (this._editor = c)}
-                                  dependencies={this.props.dependencies}
-                                  sdkVersion={sdkVersion}
-                                  entries={this.props.fileEntries}
-                                  autoFocus={!entry.state.isCreating}
-                                  annotations={annotations}
-                                  path={entry.item.path}
-                                  value={entry.item.content}
-                                  mode={preferences.editorMode}
-                                  onValueChange={this.props.onChangeCode}
-                                  onOpenPath={this._handleOpenPath}
-                                />
+                                <React.Fragment>
+                                  <Comp
+                                    ref={c => (this._editor = c)}
+                                    dependencies={this.props.dependencies}
+                                    sdkVersion={sdkVersion}
+                                    entries={this.props.fileEntries}
+                                    autoFocus={!entry.state.isCreating}
+                                    annotations={annotations}
+                                    path={entry.item.path}
+                                    value={entry.item.content}
+                                    mode={preferences.editorMode}
+                                    onValueChange={this.props.onChangeCode}
+                                    onOpenPath={this._handleOpenPath}
+                                  />
+                                  {isMarkdown ? (
+                                    <button
+                                      className={css(styles.previewToggle)}
+                                      onClick={this._toggleMarkdownPreview}>
+                                      <svg
+                                        width="16px"
+                                        height="12px"
+                                        viewBox="0 0 22 16"
+                                        className={css(styles.previewToggleIcon)}>
+                                        <g transform="translate(-145.000000, -1156.000000)">
+                                          <g transform="translate(144.000000, 1152.000000)">
+                                            <path d="M12,4.5 C7,4.5 2.73,7.61 1,12 C2.73,16.39 7,19.5 12,19.5 C17,19.5 21.27,16.39 23,12 C21.27,7.61 17,4.5 12,4.5 L12,4.5 Z M12,17 C9.24,17 7,14.76 7,12 C7,9.24 9.24,7 12,7 C14.76,7 17,9.24 17,12 C17,14.76 14.76,17 12,17 L12,17 Z M12,9 C10.34,9 9,10.34 9,12 C9,13.66 10.34,15 12,15 C13.66,15 15,13.66 15,12 C15,10.34 13.66,9 12,9 L12,9 Z" />
+                                          </g>
+                                        </g>
+                                      </svg>
+                                      Preview markdown
+                                    </button>
+                                  ) : null}
+                                </React.Fragment>
                               );
                             }
                           } else {
@@ -758,5 +822,39 @@ const styles = StyleSheet.create({
     minHeight: 0,
     maxWidth: 'calc(100% - 48px)',
     maxHeight: 'calc(100% - 48px)',
+  },
+
+  previewToggle: {
+    appearance: 'none',
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    margin: '16px 32px',
+    padding: '6px 12px',
+    borderRadius: 3,
+    borderStyle: 'solid',
+    borderColor: c('editor-border'),
+    backgroundColor: c('content'),
+    color: c('text'),
+    boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.16)',
+    outline: 0,
+
+    ':focus-visible': {
+      outline: 'auto',
+    },
+  },
+
+  previewToggleIcon: {
+    fill: 'currentColor',
+    marginRight: 8,
+    verticalAlign: -1,
+  },
+
+  markdownPreview: {
+    flex: 1,
+    overflow: 'auto',
+    backgroundColor: c('content'),
+    color: c('text'),
+    padding: 24,
   },
 });
