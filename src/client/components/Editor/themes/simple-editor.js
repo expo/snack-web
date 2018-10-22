@@ -45,14 +45,14 @@ const theme = ({ syntax, ui }) => css`
   }
 
   .prism-code .token.regexp,
-  .prism-code .token.important,
   .prism-code .token.variable {
     color: ${syntax.regexp};
   }
 
   .prism-code .token.keyword,
   .prism-code .token.atrule,
-  .prism-code .token.tag > .token.punctuation {
+  .prism-code .token.tag > .token.punctuation,
+  .prism-code .token.important {
     color: ${syntax.keyword};
   }
 

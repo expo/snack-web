@@ -141,7 +141,7 @@ class FileListImportManager extends React.PureComponent<Props, State> {
     await Promise.all(
       files.map(async ({ file, path }) => {
         try {
-          const entry = /\.(js|json)$/.test(path)
+          const entry = /\.(js|json|md)$/.test(path)
             ? await new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = (e: *) =>

@@ -407,6 +407,8 @@ class MonacoEditor extends React.Component<Props> {
           return 'css';
         case 'html':
           return 'html';
+        case 'md':
+          return 'markdown';
         default:
           return undefined;
       }

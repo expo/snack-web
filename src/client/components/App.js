@@ -130,6 +130,17 @@ const styles = StyleSheet.create({
 `,
     type: 'CODE',
   },
+  'README.md': {
+    contents: `# Sample Snack app
+
+Open the \`App.js\` file to start writing some code. You preview the changes directly on your device or simulator by clicking the **Run** button. When you're done, click **Save** and share the link!
+
+If you're having problems, you can tweet to us [@expo](https://twitter.com/expo).
+
+Snack is Open Source. You can find the code on the [GitHub repo](https://github.com/expo/snack-web).
+`,
+    type: 'CODE',
+  },
 };
 
 const INITIAL_DEPENDENCIES = {
