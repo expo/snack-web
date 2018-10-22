@@ -100,9 +100,9 @@ const styles = StyleSheet.create({
     animationName: fadeIn,
     animationDuration: '0.083s',
     animationTimingfunction: 'linear',
-    backgroundColor: c('editor-background'),
+    backgroundColor: c('content'),
     borderColor: c('editor-border'),
-    color: c('editor-text'),
+    color: c('text'),
   },
 
   menuLight: {

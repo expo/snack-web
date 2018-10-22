@@ -75,8 +75,8 @@ export default css`
   }
 
   .snack-monaco-editor .context-view.monaco-menu-container {
-    background-color: ${c('editor-background')};
-    color: ${c('editor-text')};
+    background-color: ${c('content')};
+    color: ${c('text')};
     border-color: ${c('editor-border')};
   }
 
