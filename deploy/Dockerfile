@@ -36,10 +36,7 @@ ENV SNACK_SEGMENT_KEY ${SNACK_SEGMENT_KEY}
 WORKDIR /snack/app
 # build the js
 RUN yarn --frozen-lockfile --production=false && \
-  yarn run build && \
-  yarn --frozen-lockfile && \
-  rm -rf `yarn cache dir`
-
+  yarn run build
 
 EXPOSE 3011
 CMD ["node", "."]
