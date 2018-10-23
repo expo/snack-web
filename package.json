@@ -70,7 +70,6 @@
     "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.5.2",
     "react-helmet": "^5.2.0",
-    "react-loading-indicator": "^1.0.2",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.3.1",
     "react-simple-code-editor": "^0.6.1",

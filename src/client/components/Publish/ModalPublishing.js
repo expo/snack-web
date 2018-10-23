@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
-import LoadingIndicator from 'react-loading-indicator';
+import Spinner from '../shared/Spinner';
 import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 
 import ModalDialog from '../shared/ModalDialog';
@@ -21,7 +21,7 @@ class ModalPublishing extends React.Component<Props> {
         onDismiss={this.props.onDismiss}
         title="Saving Snack…">
         <div className={css(styles.content)}>
-          <LoadingIndicator
+          <Spinner
             segmentLength={6}
             spacing={4}
             color={

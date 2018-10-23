@@ -4,8 +4,8 @@ import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import classnames from 'classnames';
 import isEqual from 'lodash/isEqual';
-import LoadingIndicator from 'react-loading-indicator';
 
+import Spinner from './shared/Spinner';
 import ButtonLink from './shared/ButtonLink';
 import Button from './shared/Button';
 import ModalAuthentication from './Auth/ModalAuthentication';
@@ -374,7 +374,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
         </div>
         {this.state.appetizeStatus.type === 'unknown' ? (
           <div className={css(styles.centered, styles.loading)}>
-            <LoadingIndicator
+            <Spinner
               segmentLength={6}
               spacing={4}
               color={{ red: 255, green: 255, blue: 255, alpha: 0.5 }}
