@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     paddingLeft: 64,
   },
   editor: {
-    fontFamily: constants.fonts.monospace,
+    fontFamily: 'var(--font-monospace)',
     fontSize: 12,
     minHeight: '100%',
     counterReset: 'line',

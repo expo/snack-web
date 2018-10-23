@@ -640,7 +640,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   payerCodeInput: {
-    fontFamily: constants.fonts.monospace,
+    fontFamily: 'var(--font-monospace)',
     padding: '.5em',
     marginRight: -1,
     borderTopLeftRadius: 3,

@@ -592,19 +592,16 @@ class EditorView extends React.Component<Props, State> {
                               return <AssetViewer entry={((entry: any): AssetFileEntry)} />;
                             }
 
+                            const { content } = entry.item;
                             const isMarkdown = entry.item.path.endsWith('.md');
 
                             if (isMarkdown && this.state.isMarkdownPreview) {
                               return (
                                 <React.Fragment>
-                                  <LazyLoad load={() => import('react-remarkable')}>
-                                    {({ loaded: mdLoaded, data: Remarkable }) => {
+                                  <LazyLoad load={() => import('./Markdown/MarkdownPreview')}>
+                                    {({ loaded: mdLoaded, data: MarkdownPreview }) => {
                                       if (mdLoaded) {
-                                        return (
-                                          <div className={css(styles.markdownPreview)}>
-                                            <Remarkable source={entry.item.content} />
-                                          </div>
-                                        );
+                                        return <MarkdownPreview source={content} />;
                                       }
 
                                       return <EditorShell />;
@@ -624,7 +621,6 @@ class EditorView extends React.Component<Props, State> {
                                         </g>
                                       </g>
                                     </svg>
-                                    Edit markdown
                                   </button>
                                 </React.Fragment>
                               );
@@ -641,7 +637,7 @@ class EditorView extends React.Component<Props, State> {
                                     autoFocus={!entry.state.isCreating}
                                     annotations={annotations}
                                     path={entry.item.path}
-                                    value={entry.item.content}
+                                    value={content}
                                     mode={preferences.editorMode}
                                     onValueChange={this.props.onChangeCode}
                                     onOpenPath={this._handleOpenPath}
@@ -661,7 +657,6 @@ class EditorView extends React.Component<Props, State> {
                                           </g>
                                         </g>
                                       </svg>
-                                      Preview markdown
                                     </button>
                                   ) : null}
                                 </React.Fragment>
@@ -829,14 +824,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     bottom: 0,
-    margin: '16px 32px',
-    padding: '6px 12px',
-    borderRadius: 3,
-    borderStyle: 'solid',
-    borderColor: c('editor-border'),
-    backgroundColor: c('content'),
-    color: c('text'),
-    boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.16)',
+    margin: 32,
+    padding: 12,
+    height: 48,
+    width: 48,
+    border: 0,
+    borderRadius: '50%',
+    backgroundColor: c('accent'),
+    color: c('accent-text'),
     outline: 0,
 
     ':focus-visible': {
@@ -846,15 +841,6 @@ const styles = StyleSheet.create({
 
   previewToggleIcon: {
     fill: 'currentColor',
-    marginRight: 8,
     verticalAlign: -1,
-  },
-
-  markdownPreview: {
-    flex: 1,
-    overflow: 'auto',
-    backgroundColor: c('content'),
-    color: c('text'),
-    padding: 24,
   },
 });

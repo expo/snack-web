@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   },
   ext: {
     fill: 'currentColor',
-    fontFamily: constants.fonts.monospace,
+    fontFamily: 'var(--font-monospace)',
     textAnchor: 'middle',
     fontSize: 20,
     opacity: 0.8,

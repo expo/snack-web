@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     },
   },
   code: {
-    fontFamily: constants.fonts.monospace,
+    fontFamily: 'var(--font-monospace)',
     padding: '1em',
     width: '100%',
     outline: 0,

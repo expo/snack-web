@@ -22,6 +22,8 @@ export const light = {
   ...common,
 
   accent: '#000',
+  'accent-text': '#fff',
+
   text: '#111',
   background: '#fafafa',
   content: '#fff',
@@ -36,6 +38,8 @@ export const dark: Colors = {
   ...common,
 
   accent: '#fff',
+  'accent-text': '#000',
+
   text: '#D3D7CE',
   background: '#212733',
   content: '#242B38',

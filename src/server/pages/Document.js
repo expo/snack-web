@@ -78,6 +78,12 @@ export default class Document extends React.Component<Props> {
             type="text/css"
             dangerouslySetInnerHTML={{
               __html: css`
+                :root {
+                  --font-normal: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                  --font-monospace: 'Fira Code', 'Fira Mono', Monaco, Menlo, 'Ubuntu Mono', Consolas,
+                    source-code-pro, monospace;
+                }
+
                 html {
                   box-sizing: border-box;
                 }
@@ -95,7 +101,7 @@ export default class Document extends React.Component<Props> {
                 }
 
                 body {
-                  font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                  font-family: var(--font-normal);
                   font-size: 14px;
                   line-height: 1.42857143;
                   overscroll-behavior: none;
@@ -120,6 +126,15 @@ export default class Document extends React.Component<Props> {
 
                 #root {
                   height: 100vh;
+                }
+
+                a {
+                  color: #0366d6;
+                  text-decoration: none;
+                }
+
+                a:hover {
+                  text-decoration: underline;
                 }
               `,
             }}

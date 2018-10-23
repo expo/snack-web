@@ -147,7 +147,7 @@ class MonacoEditor extends React.Component<Props> {
     minimap: {
       enabled: false,
     },
-    fontFamily: constants.fonts.monospace,
+    fontFamily: 'var(--font-monospace)',
     fontLigatures: true,
   };
 

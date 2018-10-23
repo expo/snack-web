@@ -141,7 +141,7 @@ export default css`
   }
 
   .snack-monaco-vim-statusbar {
-    font-family: ${constants.fonts.monospace};
+    font-family: ${'var(--font-monospace)'};
     font-size: 12px;
     padding: 0 16px;
     height: 24px;
@@ -150,7 +150,7 @@ export default css`
   }
 
   .snack-monaco-vim-statusbar input {
-    font-family: ${constants.fonts.monospace};
+    font-family: ${'var(--font-monospace)'};
     height: 100%;
     outline: 0;
     border: 0;

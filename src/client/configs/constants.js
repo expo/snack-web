@@ -1,10 +1,6 @@
 /* @flow */
 
 export default {
-  fonts: {
-    monospace:
-      '"Fira Code", "Fira Mono", Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace',
-  },
   links: {
     itunes: 'https://itunes.apple.com/app/apple-store/id982107779?pt=17102800&amp;ct=www&amp;mt=8',
     playstore: 'https://play.google.com/store/apps/details?id=host.exp.exponent',

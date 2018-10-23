@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'nowrap',
-    fontFamily: constants.fonts.monospace,
+    fontFamily: 'var(--font-monospace)',
     fontSize: 13,
     minHeight: 16,
     margin: '4px 0',

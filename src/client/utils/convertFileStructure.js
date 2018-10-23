@@ -53,7 +53,7 @@ export const snackToEntryArray = (snackFormat: ExpoSnackFiles): FileSystemEntry[
           }
         : {
             item: {
-              path: isEntry ? 'App.js' : filename,
+              path: filename,
               type: 'file',
               content: snackFormat[filename].contents,
             },

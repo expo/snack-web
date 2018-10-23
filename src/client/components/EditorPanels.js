@@ -8,7 +8,6 @@ import EditorPanelLogs from './EditorPanelLogs';
 import colors from '../configs/colors';
 import constants from '../configs/constants';
 
-
 import type { Annotation } from '../utils/convertErrorToAnnotation';
 
 type Device = {| name: string, id: string, platform: string |};
@@ -199,7 +198,7 @@ const styles = StyleSheet.create({
     margin: 0,
     padding: '4px 0',
     backgroundColor: 'transparent',
-    fontFamily: constants.fonts.monospace,
+    fontFamily: 'var(--font-monospace)',
     color: 'inherit',
   },
 });
