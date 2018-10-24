@@ -34,7 +34,7 @@ const defaults: PreferencesType = {
   devicePreviewPlatform: 'android',
   devicePreviewShown: true,
   editorMode: 'normal',
-  fileTreeShown: isMobile(),
+  fileTreeShown: !isMobile(),
   panelsShown: false,
   panelType: 'errors',
   theme: 'light',
