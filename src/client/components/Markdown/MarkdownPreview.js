@@ -1,11 +1,12 @@
 /* @flow */
 
 import * as React from 'react';
-import MarkdownIt from 'markdown-it';
-import sanitizer from 'markdown-it-sanitizer';
 import { StyleSheet, css } from 'aphrodite';
 import classnames from 'classnames';
 import Helmet from 'react-helmet';
+import marked from 'marked';
+import SanitizeState from 'marked-sanitizer-github';
+import escape from 'escape-html';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
@@ -24,22 +25,22 @@ type Props = {|
 
 class MarkdownPreview extends React.Component<Props> {
   render() {
-    const md = new MarkdownIt({
-      linkify: true,
-      html: true,
+    const html = marked(this.props.source, {
+      gfm: true,
+      silent: true,
+      sanitize: true,
+      sanitizer: new SanitizeState().getSanitizer(),
       highlight: (code, lang) => {
         const language = lang === 'js' ? languages.jsx : languages[lang];
-        return language ? highlight(code, language) : null;
+        return language ? highlight(code, language) : escape(code);
       },
-    }).use(sanitizer);
+    });
 
     return (
       <React.Fragment>
         <div
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{
-            __html: md.render(this.props.source),
-          }}
+          dangerouslySetInnerHTML={{ __html: html }}
           className={classnames(css(styles.content), 'markdown-body', 'prism-code')}
         />
         <Helmet style={[{ cssText: this.props.theme === 'dark' ? dark : light }]} />
