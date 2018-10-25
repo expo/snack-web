@@ -12,6 +12,11 @@ import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-markup';
 import 'prismjs/components/prism-jsx';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-bash';
+import 'prismjs/components/prism-swift';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-diff';
 import './markdown.css';
 
 import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
@@ -25,6 +30,8 @@ type Props = {|
 
 class MarkdownPreview extends React.Component<Props> {
   render() {
+    const { source, theme } = this.props;
+
     const html = marked(this.props.source, {
       gfm: true,
       silent: true,
@@ -41,9 +48,14 @@ class MarkdownPreview extends React.Component<Props> {
         <div
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: html }}
-          className={classnames(css(styles.content), 'markdown-body', 'prism-code')}
+          className={classnames(
+            css(styles.content),
+            theme === 'dark' ? 'theme-dark' : 'theme-light',
+            'markdown-body',
+            'prism-code'
+          )}
         />
-        <Helmet style={[{ cssText: this.props.theme === 'dark' ? dark : light }]} />
+        <Helmet style={[{ cssText: theme === 'dark' ? dark : light }]} />
       </React.Fragment>
     );
   }
