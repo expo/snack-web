@@ -129,12 +129,7 @@ export default class Document extends React.Component<Props> {
                 }
 
                 a {
-                  color: #0366d6;
-                  text-decoration: none;
-                }
-
-                a:hover {
-                  text-decoration: underline;
+                  color: #4099ff;
                 }
               `,
             }}
