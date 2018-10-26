@@ -116,6 +116,7 @@ type State = {|
     | 'connected'
     | 'disconnected'
     | 'reconnect'
+    | 'sdk-upgraded'
     | 'embed-unavailable'
     | 'export-unavailable'
     | 'slow-connection'
@@ -157,6 +158,13 @@ class EditorView extends React.Component<Props, State> {
 
     // Load prettier early so that clicking on the prettier button doesn't take too long
     setTimeout(() => prettierCode(''), 5000);
+
+    if (this.props.wasUpgraded) {
+      // eslint-disable-next-line react/no-did-mount-set-state
+      this.setState({ currentBanner: 'sdk-upgraded' });
+
+      setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_LONG);
+    }
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -681,8 +689,13 @@ class EditorView extends React.Component<Props, State> {
                 <Banner type="error" visible={currentBanner === 'disconnected'}>
                   Device disconnected!
                 </Banner>
+                <Banner type="info" visible={currentBanner === 'sdk-upgraded'}>
+                  This Snack was written in an older Expo version that is not longer supported. We
+                  have upgraded the Expo version to {this.props.sdkVersion}.<br />
+                  You might need to do some manual changes to make the Snack work correctly.
+                </Banner>
                 <Banner type="info" visible={currentBanner === 'reconnect'}>
-                  Please close and reopen on your phone to see SDK version change.
+                  Please close and reopen the Expo app on your phone to see the Expo version change.
                 </Banner>
                 <Banner type="info" visible={currentBanner === 'slow-connection'}>
                   Slow network detected. Trying to load a basic version of the editor. Some features

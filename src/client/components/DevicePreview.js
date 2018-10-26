@@ -469,12 +469,6 @@ class DevicePreview extends React.PureComponent<Props, State> {
         className={
           this.props.screenOnly ? css(styles.buttonContainerEmbedded) : css(styles.buttonContainer)
         }>
-        {this.props.wasUpgraded ? (
-          <div style={{ top: 90 }} className={css(styles.warningText)}>
-            This Snack was written in an SDK version that is not longer supported and has been
-            automatically upgraded.
-          </div>
-        ) : null}
         <a className={css(styles.buttonLink)} style={{ top: 160 }} onClick={this._onTapToPlay}>
           <div className={css(styles.buttonFrame)}>
             <span className={css(styles.buttonText)}>Tap to play</span>

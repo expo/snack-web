@@ -16,7 +16,7 @@ type Props = {|
 export default function SDKVersionSwitcher({ sdkVersion, onChange, light }: Props) {
   return (
     <div className={css(styles.container)}>
-      <span className={css(styles.label)}>SDK</span>
+      <span className={css(styles.label)}>Expo</span>
       <span className={css(styles.switcher)}>
         <select
           value={sdkVersion}
