@@ -50,6 +50,10 @@ export default css`
     color: white;
   }
 
+  .snack-monaco-editor .monaco-menu .monaco-action-bar.vertical .action-menu-item {
+    color: inherit;
+  }
+
   .snack-monaco-editor
     .monaco-menu
     .monaco-action-bar.vertical
