@@ -83,6 +83,7 @@ type Props = PreferencesContextType & {|
   connectedDevices: Array<Device>,
   deviceError: ?DeviceError,
   deviceLogs: Array<DeviceLog>,
+  initialSdkVersion: SDKVersion,
   sdkVersion: SDKVersion,
   onClearDeviceLogs: () => void,
   onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<void>,
@@ -696,6 +697,8 @@ class EditorView extends React.Component<Props, State> {
                 {FeatureFlags.isAvailable('PROJECT_DEPENDENCIES', this.props.sdkVersion) ? (
                   <DependencyManager
                     fileEntries={this.props.fileEntries}
+                    onEntriesChange={this.props.onFileEntriesChange}
+                    initialSdkVersion={this.props.initialSdkVersion}
                     sdkVersion={this.props.sdkVersion}
                     dependencies={this.props.dependencies}
                     syncDependenciesAsync={this.props.syncDependenciesAsync}

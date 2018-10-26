@@ -198,6 +198,7 @@ type State = {|
   deviceLogs: Array<DeviceLog>,
   isPreview: boolean,
   wasUpgraded: boolean,
+  initialSdkVersion: SDKVersion,
 |};
 
 type SnackSessionProxy = {
@@ -267,10 +268,11 @@ class App extends React.Component<Props, State> {
       code = props.query.code || code;
     }
 
+    const initialSdkVersion = sdkVersion;
+
     let wasUpgraded = false;
 
     if (!versions.hasOwnProperty(sdkVersion)) {
-      this._initialSdkVersion = sdkVersion;
       sdkVersion = FALLBACK_SDK_VERSION;
       wasUpgraded = true;
     }
@@ -330,6 +332,7 @@ class App extends React.Component<Props, State> {
       isPreview,
       params,
       wasUpgraded,
+      initialSdkVersion,
     };
   }
 
@@ -343,7 +346,7 @@ class App extends React.Component<Props, State> {
 
     if (this.state.wasUpgraded) {
       Segment.getInstance().logEvent('LOADED_UNSUPPORTED_VERSION', {
-        requestedVersion: this._initialSdkVersion,
+        requestedVersion: this.state.initialSdkVersion,
         snackId: this.props.match.params.id,
       });
     }
@@ -390,8 +393,6 @@ class App extends React.Component<Props, State> {
     this._snackSessionPresenceListener && this._snackSessionPresenceListener.dispose();
     this._snackSessionStateListener && this._snackSessionStateListener.dispose();
   }
-
-  _initialSdkVersion: SDKVersion;
 
   _initializeSnackSession = async () => {
     const { snackSessionState, params, wasUpgraded } = this.state;
@@ -813,6 +814,7 @@ class App extends React.Component<Props, State> {
                 channel={this.state.channel}
                 name={this.state.snackSessionState.name}
                 description={this.state.snackSessionState.description}
+                initialSdkVersion={this.state.initialSdkVersion}
                 sdkVersion={this.state.snackSessionState.sdkVersion}
                 isResolving={this.state.snackSessionState.isResolving}
                 loadingMessage={this.state.snackSessionState.loadingMessage}

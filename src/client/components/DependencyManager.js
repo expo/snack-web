@@ -11,14 +11,18 @@ import Toast from './shared/Toast';
 import KeybindingsManager, { KeyMap } from './shared/KeybindingsManager';
 import ShortcutLabel from './shared/ShortcutLabel';
 
+import updateEntry from '../actions/updateEntry';
 import getSnackURLFromEmbed from '../utils/getSnackURLFromEmbed';
 import { isPackageJson } from '../utils/fileUtilities';
+import FeatureFlags from '../utils/FeatureFlags';
 import type { SDKVersion } from '../configs/sdk';
 import type { FileSystemEntry, TextFileEntry } from '../types';
 
 type Props = {|
+  initialSdkVersion: SDKVersion,
   sdkVersion: SDKVersion,
   fileEntries: FileSystemEntry[],
+  onEntriesChange: (Array<FileSystemEntry>) => Promise<void>,
   dependencies: { [name: string]: { version: string } },
   syncDependenciesAsync: (
     modules: { [name: string]: ?string },
@@ -54,8 +58,12 @@ export default class DependencyManager extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    this._syncPackageJson(this.props.fileEntries.find(e => isPackageJson(e.item.path)));
-    this._findNewDependencies(this.props.fileEntries.filter(entry => this._isJSFile(entry)));
+    if (FeatureFlags.isAvailable('PROJECT_DEPENDENCIES', this.props.initialSdkVersion)) {
+      this._syncPackageJson(this.props.fileEntries.find(e => isPackageJson(e.item.path)));
+      this._findNewDependencies(this.props.fileEntries.filter(entry => this._isJSFile(entry)));
+    } else {
+      this._handleVersionComments();
+    }
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -117,6 +125,35 @@ export default class DependencyManager extends React.Component<Props, State> {
 
   _syncPackageJson = debounce(this._syncPackageJsonNotDebounced, 1000);
 
+  _handleVersionComments = async () => {
+    const { default: findDependencies } = await import('../utils/findDependencies');
+
+    const deps = {};
+    const newEntries = this.props.fileEntries.map(entry => {
+      if (this._isJSFile(entry)) {
+        /* $FlowFixMe */
+        const { code, dependencies } = findDependencies(entry.item.content, true);
+
+        if (code !== entry.item.content) {
+          return updateEntry(entry, {
+            item: {
+              content: code,
+            },
+          });
+        }
+
+        Object.assign(deps, dependencies);
+      }
+
+      return entry;
+    });
+
+    this.props.onEntriesChange(newEntries);
+    this._syncDependencies(
+      pickBy(deps, (version, name) => !isModulePreloaded(name, this.props.sdkVersion))
+    );
+  };
+
   _findNewDependenciesNotDebounced = async (fileEntries: FileSystemEntry[]) => {
     const { default: findDependencies } = await import('../utils/findDependencies');
 
@@ -125,7 +162,7 @@ export default class DependencyManager extends React.Component<Props, State> {
 
       // Filter out dependencies from current file
       // This makes sure that we don't show dependencies that are no longer mentioned
-      const dependencies = pickBy(state.dependencies, value => !origins.includes(value.origin));
+      const { dependencies } = pickBy(state.dependencies, value => !origins.includes(value.origin));
 
       try {
         return {
@@ -137,7 +174,7 @@ export default class DependencyManager extends React.Component<Props, State> {
             }> => {
               if (typeof entry.item.content === 'string') {
                 // Get the list of dependencies the file
-                const deps = findDependencies(entry.item.content);
+                const { dependencies: deps } = findDependencies(entry.item.content);
 
                 return Object.keys(deps).map(name => ({
                   name,

@@ -41,7 +41,9 @@ type Props = {|
   isResolving: boolean,
   loadingMessage?: string,
   fileEntries: FileSystemEntry[],
+  initialSdkVersion: SDKVersion,
   sdkVersion: SDKVersion,
+  onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<void>,
   onChangeCode: (code: string) => void,
   query: QueryParams,
   dependencies: { [name: string]: { version: string } },
@@ -230,6 +232,8 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
         {FeatureFlags.isAvailable('PROJECT_DEPENDENCIES', this.props.sdkVersion) ? (
           <DependencyManager
             fileEntries={this.props.fileEntries}
+            onEntriesChange={this.props.onFileEntriesChange}
+            initialSdkVersion={this.props.initialSdkVersion}
             sdkVersion={this.props.sdkVersion}
             dependencies={this.props.dependencies}
             syncDependenciesAsync={this.props.syncDependenciesAsync}
