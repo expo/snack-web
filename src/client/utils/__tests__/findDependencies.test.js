@@ -11,7 +11,7 @@ it('finds all imported modules', () => {
 
   const dependencies = findDependencies(code);
 
-  expect(dependencies).toEqual(['base64', 'lodash/debounce', 'react-redux']);
+  expect(dependencies).toEqual({ base64: null, 'lodash/debounce': null, 'react-redux': null });
 });
 
 it('finds all required modules', () => {
@@ -23,7 +23,7 @@ it('finds all required modules', () => {
 
   const dependencies = findDependencies(code);
 
-  expect(dependencies).toEqual(['base64', 'lodash/debounce', 'react-redux']);
+  expect(dependencies).toEqual({ base64: null, 'lodash/debounce': null, 'react-redux': null });
 });
 
 it('finds all required modules with backticks', () => {
@@ -35,7 +35,7 @@ it('finds all required modules with backticks', () => {
 
   const dependencies = findDependencies(code);
 
-  expect(dependencies).toEqual(['base64', 'lodash/debounce', 'react-redux']);
+  expect(dependencies).toEqual({ base64: null, 'lodash/debounce': null, 'react-redux': null });
 });
 
 it('finds dependencies using all import styles', () => {
@@ -57,18 +57,47 @@ it('finds dependencies using all import styles', () => {
   `;
 
   const dependencies = findDependencies(code);
-  expect(dependencies).toEqual(['mod1', 'mod2', 'mod3', 'mod4', 'mod5', 'mod6', 'mod7', 'mod8']);
+  expect(dependencies).toEqual({
+    mod1: null,
+    mod2: null,
+    mod3: null,
+    mod4: null,
+    mod5: null,
+    mod6: null,
+    mod7: null,
+    mod8: null,
+  });
 });
 
-it('de-duplicates dependency list', () => {
+it('finds dependencies with version comments', () => {
   const code = `
-    import 'base64';
-    import 'base64';
-    import 'lodash';
+    import v from "mod1" // 2.4.1
+    import * as ns from "mod2"; // 3.5.2
+    import {x} from "mod3"; // 4.6.3
+    import {x as v} from "mod4"; // 5.7.4
+    import "mod5"; // 6.8.5
+
+    export {x} from "mod6"; // 7.9.6
+    export {x as v} from "mod7"; // 8.0.7
+    export * from "mod8"; // 9.1.8
+
+    export default 7;  // 0.2.9
+    export const value = 6; // 1.3.0
+    const otherValue = 5; // 2.5.3
+    export { otherValue } // 3.7.5
   `;
 
   const dependencies = findDependencies(code);
-  expect(dependencies).toEqual(['base64', 'lodash']);
+  expect(dependencies).toEqual({
+    mod1: '2.4.1',
+    mod2: '3.5.2',
+    mod3: '4.6.3',
+    mod4: '5.7.4',
+    mod5: '6.8.5',
+    mod6: '7.9.6',
+    mod7: '8.0.7',
+    mod8: '9.1.8',
+  });
 });
 
 it("doesn't parse non-static and invalid requires", () => {
@@ -88,5 +117,5 @@ it("doesn't parse non-static and invalid requires", () => {
 
   const dependencies = findDependencies(code);
 
-  expect(dependencies).toEqual([]);
+  expect(dependencies).toEqual({});
 });

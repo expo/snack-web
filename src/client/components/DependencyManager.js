@@ -131,17 +131,23 @@ export default class DependencyManager extends React.Component<Props, State> {
         return {
           dependencies: {
             ...dependencies,
-            ...flatMap(
-              fileEntries,
-              (entry: FileSystemEntry): Array<{ name: string, origin: string }> =>
+            ...flatMap(fileEntries, (entry: FileSystemEntry): Array<{
+              name: string,
+              origin: string,
+            }> => {
+              if (typeof entry.item.content === 'string') {
                 // Get the list of dependencies the file
-                typeof entry.item.content === 'string'
-                  ? findDependencies(entry.item.content).map(name => ({
-                      name,
-                      origin: entry.item.path,
-                    }))
-                  : []
-            )
+                const deps = findDependencies(entry.item.content);
+
+                return Object.keys(deps).map(name => ({
+                  name,
+                  origin: entry.item.path,
+                  version: deps[name],
+                }));
+              }
+
+              return [];
+            })
               .filter(
                 ({ name }) =>
                   // If the dependency is already in props, or is in progress, don't add them

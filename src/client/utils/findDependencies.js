@@ -1,15 +1,25 @@
 /* @flow */
+
 import * as babylon from 'babylon';
 import { parse, types } from 'recast';
 import validate from 'validate-npm-package-name';
+import pickBy from 'lodash/pickBy';
 import config from '../configs/babylon';
 
 const parser = {
   parse: (code: string) => babylon.parse(code, config),
 };
 
-const getModuleNameFromRequire = (node: *) => {
-  const { callee, arguments: args } = node;
+const getVersionFromComments = (comments: Array<{ value: string }>) => {
+  return comments &&
+    comments[0] &&
+    /^\s*((\d+\.)?(\d+\.)?(\*|\d+))|(LATEST)\s*$/.test(comments[0].value)
+    ? comments[0].value.trim()
+    : null;
+};
+
+const getModuleFromRequire = (path: *) => {
+  const { callee, arguments: args } = path.node;
 
   let name;
 
@@ -21,7 +31,11 @@ const getModuleNameFromRequire = (node: *) => {
     }
   }
 
-  return name;
+  const version = getVersionFromComments(
+    (args[0] && args[0].trailingComments) || path.parentPath.parentPath.node.trailingComments
+  );
+
+  return [name, version];
 };
 
 const isValidBundle = (name: any) => {
@@ -35,13 +49,13 @@ const isValidBundle = (name: any) => {
   return validate(fullName).validForOldPackages;
 };
 
-const findDependencies = (code: string): string[] => {
-  const dependencies = [];
+const findDependencies = (code: string): { [key: string]: string } => {
+  const dependencies = {};
   const ast = parse(code, { parser });
 
   types.visit(ast, {
     visitImportDeclaration(path) {
-      dependencies.push(path.node.source.value);
+      dependencies[path.node.source.value] = getVersionFromComments(path.node.trailingComments);
 
       this.traverse(path);
     },
@@ -50,32 +64,30 @@ const findDependencies = (code: string): string[] => {
       const name = path.node.source && path.node.source.value;
 
       if (name) {
-        dependencies.push(name);
+        dependencies[name] = getVersionFromComments(path.node.trailingComments);
       }
 
       this.traverse(path);
     },
 
     visitExportAllDeclaration(path) {
-      dependencies.push(path.node.source.value);
+      dependencies[path.node.source.value] = getVersionFromComments(path.node.trailingComments);
 
       this.traverse(path);
     },
 
     visitCallExpression(path) {
-      const name = getModuleNameFromRequire(path.node);
+      const [name, version] = getModuleFromRequire(path);
 
       if (name) {
-        dependencies.push(name);
+        dependencies[name] = version;
       }
 
       this.traverse(path);
     },
   });
 
-  return dependencies.filter(
-    (name, index, array) => isValidBundle(name) && array.indexOf(name) === index
-  );
+  return pickBy(dependencies, (value, key) => isValidBundle(key));
 };
 
 export default findDependencies;
