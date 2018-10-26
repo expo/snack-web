@@ -28,11 +28,19 @@ type Props = {|
   theme: ThemeName,
 |};
 
+// use a custom renderer to customize the `a` tag and add `target='_blank'`
+const renderer = new marked.Renderer();
+
+renderer.link = function(...args) {
+  return marked.Renderer.prototype.link.apply(this, args).replace(/^<a/, '<a target="_blank"');
+};
+
 class MarkdownPreview extends React.Component<Props> {
   render() {
     const { source, theme } = this.props;
 
     let html = marked(source, {
+      renderer,
       gfm: true,
       silent: true,
       highlight: (code, lang) => {

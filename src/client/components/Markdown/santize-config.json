@@ -53,7 +53,7 @@
     "span"
   ],
   "allowedAttributes": {
-    "a": ["href"],
+    "a": ["href", "target"],
     "img": ["src", "longDesc"],
     "div": ["itemScope", "itemType"],
     "blockquote": ["cite"],
