@@ -162,7 +162,7 @@ export default class DependencyManager extends React.Component<Props, State> {
 
       // Filter out dependencies from current file
       // This makes sure that we don't show dependencies that are no longer mentioned
-      const { dependencies } = pickBy(state.dependencies, value => !origins.includes(value.origin));
+      const dependencies = pickBy(state.dependencies, value => !origins.includes(value.origin));
 
       try {
         return {
