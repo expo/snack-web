@@ -42,12 +42,16 @@ export default class Document extends React.Component<Props> {
           : DEFAULT_METADATA_DESCRIPTION_EMPTY
         : DEFAULT_METADATA_DESCRIPTION_SAVED;
     const url = id ? `https://snack.expo.io/${id}` : `https://snack.expo.io`;
+    const image = 'https://s3.amazonaws.com/exp-brand-assets/ExpoIcon_200.png';
 
     return (
       <html>
         <head>
           <meta charSet="utf-8" />
+          <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+
           <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1" />
+          <meta name="description" content={description} />
 
           <title>{title}</title>
 
@@ -55,12 +59,17 @@ export default class Document extends React.Component<Props> {
           <meta property="og:title" content={title} />
           <meta property="og:description" content={description} />
           <meta property="og:type" content="website" />
-          <meta
-            property="og:image"
-            content="https://s3.amazonaws.com/exp-brand-assets/ExpoIcon_200.png"
-          />
+
+          <meta property="og:image" content={image} />
           <meta property="og:image:width" content="200" />
           <meta property="og:image:height" content="200" />
+
+          <meta name="twitter:card" content="summary" />
+          <meta name="twitter:site" content="@expo" />
+          <meta name="twitter:title" content={title} />
+          <meta name="twitter:description" content={description} />
+          <meta name="twitter:image" content={image} />
+
           <meta
             name="google-site-verification"
             content="Fh25fNM-buRYptb-TO6MVgOjXGzdhmAnRgIC7sdrmbw"
