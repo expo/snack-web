@@ -1,6 +1,7 @@
 /* @flow */
 
 import * as React from 'react';
+import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
 import { parse } from 'query-string';
 import { isMobile } from '../../utils/detectPlatform';
@@ -20,6 +21,8 @@ export type PreferencesType = {
 };
 
 type Props = {
+  testConnectionMethod?: ConnectionMethod,
+  testPreviewPlatform?: 'android' | 'ios',
   children: React.Node,
 };
 
@@ -60,7 +63,7 @@ try {
   }
 
   if (platform === 'android' || platform === 'ios') {
-    overrides.platform = platform;
+    overrides.devicePreviewPlatform = platform;
   }
 } catch (e) {
   // Ignore error
@@ -68,13 +71,27 @@ try {
 
 export const PreferencesContext = React.createContext(((null: any): PreferencesContextType));
 
-export default class PreferencesProvider extends React.Component<Props, State> {
-  state = {
-    preferences: {
-      ...defaults,
-      ...overrides,
-    },
-  };
+class PreferencesProvider extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      preferences: {
+        ...defaults,
+        ...overrides,
+
+        // Set the values according to the priority: saved preference, test value, default value
+        deviceConnectionMethod:
+          overrides.deviceConnectionMethod ||
+          this.props.testConnectionMethod ||
+          defaults.deviceConnectionMethod,
+        devicePreviewPlatform:
+          overrides.devicePreviewPlatform ||
+          this.props.testPreviewPlatform ||
+          defaults.devicePreviewPlatform,
+      },
+    };
+  }
 
   _persistPreferences = debounce(() => {
     try {
@@ -108,3 +125,8 @@ export default class PreferencesProvider extends React.Component<Props, State> {
     );
   }
 }
+
+export default connect(state => ({
+  testPreviewPlatform: state.splitTestSettings.defaultPreviewPlatform,
+  testConnectionMethod: state.splitTestSettings.defaultConnectionMethod,
+}))(PreferencesProvider);

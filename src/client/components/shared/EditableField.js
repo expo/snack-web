@@ -22,18 +22,20 @@ const RETURN_KEYCODE = 13;
 const ESCAPE_KEYCODE = 27;
 
 class EditableField extends React.Component<Props, State> {
+  static getDerivedStateFromProps(props: Props, state: State) {
+    if (state.value !== props.value && !state.focused) {
+      return {
+        value: props.value || '',
+      };
+    }
+
+    return null;
+  }
+
   state = {
     value: this.props.value || '',
     focused: false,
   };
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (this.state.value !== nextProps.value && !this.state.focused) {
-      this.setState({
-        value: nextProps.value || '',
-      });
-    }
-  }
 
   _handleChangeText = (e: *) => this.setState({ value: e.target.value });
 

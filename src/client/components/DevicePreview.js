@@ -16,10 +16,7 @@ import colors from '../configs/colors';
 import constants from '../configs/constants';
 import withAuth, { type AuthProps } from '../auth/withAuth';
 import withThemeName, { type ThemeName } from './Preferences/withThemeName';
-
-type UserMetadata = {
-  appetize_code?: string,
-};
+import type { Viewer } from '../types';
 
 type Props = AuthProps & {|
   detachable?: boolean,
@@ -33,9 +30,6 @@ type Props = AuthProps & {|
   className?: string,
   screenOnly?: boolean,
   payerCode?: string,
-  viewer: ?{
-    user_metadata: UserMetadata,
-  },
   onClickRunOnPhone: () => mixed,
   theme: ThemeName,
 |};
@@ -61,55 +55,50 @@ type State = {|
   appetizeStatus: AppetizeStatus,
   autoplay: boolean,
   isPopupOpen: boolean,
+  viewer: ?Viewer,
+  platform: 'ios' | 'android',
+  sdkVersion: SDKVersion,
 |};
 
 class DevicePreview extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  static getDerivedStateFromProps(props: Props, state: State) {
+    // Reset appetize status when we change platform or sdk version or user logs in
+    if (
+      props.platform !== state.platform ||
+      props.sdkVersion !== state.sdkVersion ||
+      (props.viewer !== state.viewer &&
+        props.viewer &&
+        props.viewer.user_metadata &&
+        props.viewer.user_metadata.appetize_code)
+    ) {
+      return {
+        appetizeStatus: { type: 'unknown' },
+        payerCodeFormStatus: { type: 'closed' },
+        autoplay: state.payerCodeFormStatus.type === 'submitted',
+      };
+    }
 
-    this.state = {
-      initialId: props.wasUpgraded ? null : props.snackId,
-      isRendered: false,
-      isLoggingIn: false,
-      payerCodeFormStatus: { type: 'closed' },
-      appetizeStatus: { type: 'unknown' },
-      autoplay: false,
-      isPopupOpen: false,
-    };
+    return null;
   }
 
-  state: State;
+  state = {
+    initialId: this.props.wasUpgraded ? null : this.props.snackId,
+    isRendered: false,
+    isLoggingIn: false,
+    payerCodeFormStatus: { type: 'closed' },
+    appetizeStatus: { type: 'unknown' },
+    autoplay: false,
+    isPopupOpen: false,
+    viewer: this.props.viewer,
+    platform: this.props.platform,
+    sdkVersion: this.props.sdkVersion,
+  };
 
   componentDidMount() {
     this._mql = window.matchMedia('(min-width: 480px)');
     this._mql.addListener(this._handleMediaQuery);
     this._handleMediaQuery(this._mql);
     window.addEventListener('message', this._handlePostMessage);
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (
-      this.props.viewer !== nextProps.viewer &&
-      nextProps.viewer &&
-      nextProps.viewer.user_metadata &&
-      nextProps.viewer.user_metadata.appetize_code
-    ) {
-      this.setState(state => ({
-        appetizeStatus: { type: 'unknown' },
-        payerCodeFormStatus: { type: 'closed' },
-        autoplay: state.payerCodeFormStatus.type === 'submitted',
-      }));
-    }
-
-    // Reset appetize status when we change platform or sdk version!
-    if (
-      nextProps.platform !== this.props.platform ||
-      nextProps.sdkVersion !== this.props.sdkVersion
-    ) {
-      this.setState(state => ({
-        appetizeStatus: { type: 'unknown' },
-      }));
-    }
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {

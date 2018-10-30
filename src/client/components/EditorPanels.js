@@ -29,8 +29,8 @@ type Props = {|
 |};
 
 export default class EditorPanels extends React.Component<Props> {
-  componentWillReceiveProps(nextProps: Props) {
-    if (this.props.deviceLogs !== nextProps.deviceLogs && this._panel) {
+  getSnapshotBeforeUpdate(prevProps: Props) {
+    if (this.props.deviceLogs !== prevProps.deviceLogs && this._panel) {
       this._isScrolled =
         this._panel.scrollHeight - this._panel.clientHeight !== this._panel.scrollTop;
     }

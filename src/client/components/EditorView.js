@@ -105,23 +105,24 @@ type Props = PreferencesContextType & {|
   setDeviceId: (deviceId: string) => Promise<void>,
   deviceId: ?string,
   theme: ThemeName,
-  testPreviewPlatform?: 'android' | 'ios',
-  testConnectionMethod?: ConnectionMethod,
   previewQueue: 'standard' | 'test',
   wasUpgraded: boolean,
 |};
 
+type ModalName = PublishModals | 'device-instructions' | 'embed' | 'edit-info' | 'shortcuts';
+
+type BannerName =
+  | 'connected'
+  | 'disconnected'
+  | 'reconnect'
+  | 'sdk-upgraded'
+  | 'embed-unavailable'
+  | 'export-unavailable'
+  | 'slow-connection';
+
 type State = {|
-  currentModal: PublishModals | 'device-instructions' | 'embed' | 'edit-info' | 'shortcuts' | null,
-  currentBanner:
-    | 'connected'
-    | 'disconnected'
-    | 'reconnect'
-    | 'sdk-upgraded'
-    | 'embed-unavailable'
-    | 'export-unavailable'
-    | 'slow-connection'
-    | null,
+  currentModal: ?ModalName,
+  currentBanner: ?BannerName,
   loadedEditor: 'monaco' | 'simple' | null,
   isDownloading: boolean,
   isMarkdownPreview: boolean,
@@ -145,17 +146,6 @@ class EditorView extends React.Component<Props, State> {
     shouldPreventRedirectWarning: false,
   };
 
-  componentWillMount() {
-    const { testPreviewPlatform, testConnectionMethod, preferences } = this.props;
-
-    if (testPreviewPlatform || testConnectionMethod) {
-      this.props.setPreferences({
-        deviceConnectionMethod: testConnectionMethod || preferences.deviceConnectionMethod,
-        devicePreviewPlatform: testPreviewPlatform || preferences.devicePreviewPlatform,
-      });
-    }
-  }
-
   componentDidMount() {
     window.addEventListener('beforeunload', this._handleUnload);
 
@@ -164,45 +154,39 @@ class EditorView extends React.Component<Props, State> {
 
     if (this.props.wasUpgraded) {
       // eslint-disable-next-line react/no-did-mount-set-state
-      this.setState({ currentBanner: 'sdk-upgraded' });
-
-      setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_LONG);
+      this._showBanner('sdk-upgraded', BANNER_TIMEOUT_LONG);
     }
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (this.props.entry !== nextProps.entry) {
-      this._lint(nextProps.entry);
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.entry !== prevProps.entry) {
+      this._lint(this.props.entry);
     }
 
-    if (this.props.connectedDevices !== nextProps.connectedDevices) {
-      if (this.props.connectedDevices.length < nextProps.connectedDevices.length) {
+    if (prevProps.connectedDevices !== this.props.connectedDevices) {
+      if (prevProps.connectedDevices.length < this.props.connectedDevices.length) {
         Segment.getInstance().logEvent('CONNECTED_DEVICE');
-        if (this.props.connectedDevices.length === 0) {
+
+        if (prevProps.connectedDevices.length === 0) {
           Segment.getInstance().startTimer('deviceConnected');
         }
-        this.setState({
-          currentBanner: 'connected',
-        });
-        setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_SHORT);
+
+        this._showBanner('connected', BANNER_TIMEOUT_SHORT);
       }
-      if (this.props.connectedDevices.length > nextProps.connectedDevices.length) {
-        if (nextProps.connectedDevices.length === 0) {
+
+      if (prevProps.connectedDevices.length > this.props.connectedDevices.length) {
+        if (this.props.connectedDevices.length === 0) {
           Segment.getInstance().logEvent('DISCONNECTED_DEVICE', {}, 'deviceConnected');
         } else {
           Segment.getInstance().logEvent('DISCONNECTED_DEVICE');
         }
-        this.setState({ currentBanner: 'disconnected' });
-        setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_SHORT);
+
+        this._showBanner('disconnected', BANNER_TIMEOUT_SHORT);
       }
     }
 
-    if (this.props.sdkVersion !== nextProps.sdkVersion && nextProps.connectedDevices.length) {
-      this.setState({
-        currentBanner: 'reconnect',
-        // currentModal: 'device-instructions',
-      });
-      setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_LONG);
+    if (prevProps.sdkVersion !== this.props.sdkVersion && this.props.connectedDevices.length) {
+      this._showBanner('reconnect', BANNER_TIMEOUT_LONG);
     }
   }
 
@@ -255,6 +239,14 @@ class EditorView extends React.Component<Props, State> {
     if (code !== this.props.entry.item.content) {
       this.props.onChangeCode(code);
     }
+  };
+
+  _showBanner = (name: BannerName, duration: number) => {
+    this.setState({ currentBanner: name });
+
+    setTimeout(() => {
+      this.setState(state => (state.currentBanner === name ? { currentBanner: null } : state));
+    }, duration);
   };
 
   _restoreEmbedSession = () => {
@@ -321,8 +313,7 @@ class EditorView extends React.Component<Props, State> {
 
   _handleShowEmbedCode = () => {
     if (!this.props.params.id) {
-      this.setState({ currentBanner: 'embed-unavailable' });
-      setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_LONG);
+      this._showBanner('embed-unavailable', BANNER_TIMEOUT_LONG);
       return;
     }
 
@@ -481,8 +472,7 @@ class EditorView extends React.Component<Props, State> {
               const isSaved = saveStatus === 'published' || saveStatus === 'saved-draft';
 
               if (!isSaved) {
-                this.setState({ currentBanner: 'export-unavailable' });
-                setTimeout(() => this.setState({ currentBanner: null }), BANNER_TIMEOUT_LONG);
+                this._showBanner('export-unavailable', BANNER_TIMEOUT_LONG);
                 return;
               }
 
@@ -565,9 +555,7 @@ class EditorView extends React.Component<Props, State> {
                           // Fallback to simple editor if monaco editor takes too long to load
                           const SimpleEditorPromise = new Promise((resolve, reject) => {
                             timeout = setTimeout(() => {
-                              this.setState({ currentBanner: 'slow-connection' });
-
-                              setTimeout(() => this.setState({ currentBanner: null }), 5000);
+                              this._showBanner('slow-connection', BANNER_TIMEOUT_LONG);
 
                               import('./Editor/SimpleEditor').then(resolve, reject);
                             }, EDITOR_LOAD_FALLBACK_TIMEOUT);
@@ -789,8 +777,6 @@ export default withThemeName(
   withPreferences(
     connect((state, props) => ({
       viewer: state.viewer,
-      testPreviewPlatform: state.splitTestSettings.defaultPreviewPlatform,
-      testConnectionMethod: state.splitTestSettings.defaultConnectionMethod,
     }))(EditorView)
   )
 );

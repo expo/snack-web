@@ -15,6 +15,16 @@ type State = {
 };
 
 export default class Modal extends React.PureComponent<Props, State> {
+  static getDerivedStateFromProps(props: Props) {
+    if (props.visible) {
+      return {
+        rendered: true,
+      };
+    }
+
+    return null;
+  }
+
   state = {
     rendered: this.props.visible,
   };
@@ -25,13 +35,12 @@ export default class Modal extends React.PureComponent<Props, State> {
     document.addEventListener('keydown', this._handleKeyDown);
   }
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.visible !== this.props.visible) {
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.visible !== prevProps.visible) {
       clearTimeout(this._timer);
-      if (nextProps.visible) {
-        this.setState({ rendered: true });
-      } else {
-        this._timer = setTimeout(() => this.setState({ rendered: false }), 200);
+
+      if (!this.props.visible) {
+        this._timer = setTimeout(() => this.setState({ rendered: false }), 300);
       }
     }
   }

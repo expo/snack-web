@@ -19,8 +19,8 @@ type State = {
 };
 
 class ModalAuthentication extends React.Component<Props, State> {
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.visible && this.props.viewer !== nextProps.viewer) {
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.visible && this.props.viewer !== prevProps.viewer) {
       this.props.onComplete();
     }
   }

@@ -17,22 +17,25 @@ type State = {
 };
 
 export default class Banner extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  static getDerivedStateFromProps(props: Props) {
+    if (props.visible) {
+      return {
+        rendered: true,
+      };
+    }
 
-    this.state = {
-      rendered: props.visible,
-    };
+    return null;
   }
 
-  state: State;
+  state = {
+    rendered: this.props.visible,
+  };
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.visible !== this.props.visible) {
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.visible !== prevProps.visible) {
       clearTimeout(this._timer);
-      if (nextProps.visible) {
-        this.setState({ rendered: true });
-      } else {
+
+      if (!this.props.visible) {
         this._timer = setTimeout(() => this.setState({ rendered: false }), 300);
       }
     }

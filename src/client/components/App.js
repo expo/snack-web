@@ -589,7 +589,7 @@ class App extends React.Component<Props, State> {
     details: { name: string, description: string },
     draft?: boolean = true
   ) => {
-    const { name, description } = this.state.snackSessionState;
+    const { name, description = '' } = this.state.snackSessionState;
 
     if (name === details.name && description === details.description) {
       return;

@@ -27,25 +27,34 @@ type Props = {|
 type State = {
   name: string,
   description: string,
+  visible: boolean,
 };
 
 const FormButton = withStatus(Button);
 const ValidatedInput = withValidation(LargeInput);
 
 export default class ModalEditTitleAndDescription extends React.Component<Props, State> {
+  static getDerivedStateFromProps(props: Props, state: State) {
+    if (state.visible !== props.visible) {
+      if (props.visible) {
+        return {
+          name: props.name || '',
+          description: props.description || '',
+          visible: props.visible,
+        };
+      } else {
+        return { visible: props.visible };
+      }
+    }
+
+    return null;
+  }
+
   state = {
     name: this.props.name || '',
     description: this.props.description || '',
+    visible: this.props.visible,
   };
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (this.props.visible !== nextProps.visible && nextProps.visible) {
-      this.setState({
-        name: nextProps.name || '',
-        description: nextProps.description || '',
-      });
-    }
-  }
 
   _handleSubmit = () => {
     this.props.onSubmit({
