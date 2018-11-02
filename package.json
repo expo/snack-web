@@ -79,7 +79,7 @@
     "redux": "^4.0.1",
     "sanitize-html": "^1.19.1",
     "shortid": "^2.2.13",
-    "snack-sdk": "1.0.14",
+    "snack-sdk": "1.0.15",
     "stoppable": "^1.0.6",
     "validate-npm-package-name": "^3.0.0",
     "web-worker-proxy": "^0.4.0"
