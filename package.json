@@ -6,7 +6,7 @@
   "main": "build/server",
   "scripts": {
     "start": "if-env NODE_ENV=production && yarn start:prod || yarn start:dev",
-    "start:dev": "nodemon --ignore src/client src/server/index.js --exec babel-node",
+    "start:dev": "nodemon --watch src/server src/server/index.js --exec babel-node",
     "start:prod": "nodemon build/server/index.js",
     "domain": "hotel start && hotel add http://localhost:3011 --name snack.expo",
     "build": "cross-env NODE_ENV=production yarn build:server && yarn build:client",
