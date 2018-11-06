@@ -6,6 +6,7 @@ import type { SDKVersion } from '../configs/sdk';
 type Flag = $Keys<typeof FLAGS>;
 
 const FLAGS = {
+  // This is necessary to upgrade snacks with older versions
   PROJECT_DEPENDENCIES: {
     sdk: '25.0.0',
     enabled: true,

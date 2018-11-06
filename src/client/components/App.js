@@ -336,9 +336,7 @@ class App extends React.Component<Props, State> {
       saveHistory: props.snack && props.snack.history ? props.snack.history : [],
       saveStatus:
         props.snack && props.snack.isDraft ? 'saved-draft' : params.id ? 'published' : 'changed',
-      fileEntries: FeatureFlags.isAvailable('PROJECT_DEPENDENCIES', sdkVersion)
-        ? [...fileEntries, this._getPackageJson(snackSessionState)]
-        : fileEntries,
+      fileEntries: [...fileEntries, this._getPackageJson(snackSessionState)],
       connectedDevices: [],
       deviceLogs: [],
       deviceError: null,

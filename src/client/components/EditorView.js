@@ -754,16 +754,14 @@ class EditorView extends React.Component<Props, State> {
                 <Banner type="info" visible={currentBanner === 'export-unavailable'}>
                   You need to save the Snack first to get export the code!
                 </Banner>
-                {FeatureFlags.isAvailable('PROJECT_DEPENDENCIES', this.props.sdkVersion) ? (
-                  <DependencyManager
-                    fileEntries={this.props.fileEntries}
-                    onEntriesChange={this.props.onFileEntriesChange}
-                    initialSdkVersion={this.props.initialSdkVersion}
-                    sdkVersion={this.props.sdkVersion}
-                    dependencies={this.props.dependencies}
-                    syncDependenciesAsync={this.props.syncDependenciesAsync}
-                  />
-                ) : null}
+                <DependencyManager
+                  fileEntries={this.props.fileEntries}
+                  onEntriesChange={this.props.onFileEntriesChange}
+                  initialSdkVersion={this.props.initialSdkVersion}
+                  sdkVersion={this.props.sdkVersion}
+                  dependencies={this.props.dependencies}
+                  syncDependenciesAsync={this.props.syncDependenciesAsync}
+                />
               </React.Fragment>
             );
           }}

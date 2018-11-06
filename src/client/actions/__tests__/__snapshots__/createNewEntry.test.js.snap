@@ -30,9 +30,7 @@ Array [
       "path": "Untitled file.js",
       "type": "file",
     },
-    "state": Object {
-      "isCreating": true,
-    },
+    "state": Object {},
   },
 ]
 `;
@@ -69,9 +67,7 @@ Array [
       "path": "test/Untitled file.js",
       "type": "file",
     },
-    "state": Object {
-      "isCreating": true,
-    },
+    "state": Object {},
   },
 ]
 `;
@@ -105,9 +101,7 @@ Array [
       "path": "Untitled folder",
       "type": "folder",
     },
-    "state": Object {
-      "isCreating": true,
-    },
+    "state": Object {},
   },
 ]
 `;
@@ -143,9 +137,7 @@ Array [
       "path": "test/Untitled folder",
       "type": "folder",
     },
-    "state": Object {
-      "isCreating": true,
-    },
+    "state": Object {},
   },
 ]
 `;

@@ -229,18 +229,16 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
             />
           </div>
         ) : null}
-        {FeatureFlags.isAvailable('PROJECT_DEPENDENCIES', this.props.sdkVersion) ? (
-          <DependencyManager
-            fileEntries={this.props.fileEntries}
-            onEntriesChange={this.props.onFileEntriesChange}
-            initialSdkVersion={this.props.initialSdkVersion}
-            sdkVersion={this.props.sdkVersion}
-            dependencies={this.props.dependencies}
-            syncDependenciesAsync={this.props.syncDependenciesAsync}
-            onOpenFullView={this._handleOpenFullView}
-            sessionID={SESSION_ID}
-          />
-        ) : null}
+        <DependencyManager
+          fileEntries={this.props.fileEntries}
+          onEntriesChange={this.props.onFileEntriesChange}
+          initialSdkVersion={this.props.initialSdkVersion}
+          sdkVersion={this.props.sdkVersion}
+          dependencies={this.props.dependencies}
+          syncDependenciesAsync={this.props.syncDependenciesAsync}
+          onOpenFullView={this._handleOpenFullView}
+          sessionID={SESSION_ID}
+        />
       </main>
     );
   }
