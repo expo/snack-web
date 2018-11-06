@@ -34,6 +34,7 @@
     "@koa/cors": "^2.2.2",
     "aphrodite": "^2.2.3",
     "babylon": "^6.18.0",
+    "broadcast-channel": "^2.1.5",
     "classnames": "^2.2.6",
     "cookie": "^0.3.1",
     "date-fns": "^1.29.0",

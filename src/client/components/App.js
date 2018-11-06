@@ -8,6 +8,7 @@ import isEqual from 'lodash/isEqual';
 import mapValues from 'lodash/mapValues';
 import Raven from 'raven-js';
 import debounce from 'lodash/debounce';
+import BroadcastChannel from 'broadcast-channel';
 
 import Segment from '../utils/Segment';
 import withAuth, { type AuthProps } from '../auth/withAuth';
@@ -152,6 +153,8 @@ const INITIAL_DEPENDENCIES = {
   'react-native-paper': { version: '2.1.3', isUserSpecified: true },
 };
 
+const BROADCAST_CHANNEL_NAME = 'SNACK_BROADCAST_CHANNEL';
+
 type Device = { name: string, id: string, platform: string };
 
 type DeviceError = {|
@@ -205,6 +208,7 @@ type State = {|
   snackSessionReady: boolean,
   channel: string,
   deviceId: string,
+  autosaveEnabled: boolean,
   saveHistory: Array<{ id: string, savedAt: string }>,
   saveStatus: SaveStatus,
   params: Params,
@@ -334,6 +338,7 @@ class App extends React.Component<Props, State> {
     this.state = {
       snackSessionState,
       snackSessionReady: false,
+      autosaveEnabled: true,
       saveHistory: props.snack && props.snack.history ? props.snack.history : [],
       saveStatus:
         props.snack && props.snack.isDraft ? 'saved-draft' : params.id ? 'published' : 'changed',
@@ -370,6 +375,47 @@ class App extends React.Component<Props, State> {
     this._snack = create(this._snackSessionWorker);
 
     this._initializeSnackSession();
+
+    this._broadcastChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME, {
+      webWorkerSupport: false,
+    });
+
+    // Let other tabs know that a new tab is opened
+    this._broadcastChannel.postMessage({
+      type: 'NEW_TAB',
+      id: this.state.params.id,
+    });
+
+    // Listen to messages from other tabs
+    this._broadcastChannel.addEventListener('message', e => {
+      const { id } = this.state.params;
+
+      // Only respond to messages which have the same snack
+      if (e.id !== id) {
+        return;
+      }
+
+      switch (e.type) {
+        case 'NEW_TAB':
+          // If another tab with same snack is opened,
+          // Let it know that there's a duplicate tab
+          this._broadcastChannel.postMessage({
+            type: 'DUPLICATE_TAB',
+            id,
+            autosaveEnabled: this.state.autosaveEnabled,
+          });
+
+          break;
+        case 'DUPLICATE_TAB':
+          // If there's a duplicate tab, and it has autosave enabled,
+          // Disable autosave in the current tab
+          if (e.autosaveEnabled) {
+            this.setState({ autosaveEnabled: false });
+          }
+
+          break;
+      }
+    });
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -406,6 +452,8 @@ class App extends React.Component<Props, State> {
     this._snackSessionErrorListener && this._snackSessionErrorListener.dispose();
     this._snackSessionPresenceListener && this._snackSessionPresenceListener.dispose();
     this._snackSessionStateListener && this._snackSessionStateListener.dispose();
+
+    this._broadcastChannel.close();
   }
 
   _initializeSnackSession = async () => {
@@ -502,6 +550,8 @@ class App extends React.Component<Props, State> {
   _snackSessionErrorListener: *;
   _snackSessionPresenceListener: *;
   _snackSessionStateListener: *;
+
+  _broadcastChannel: BroadcastChannel;
 
   _handleSnackDependencyError = error => Raven.captureMessage(error);
 
@@ -720,6 +770,10 @@ class App extends React.Component<Props, State> {
   _handleSaveDraft = debounce(this._handleSaveDraftNotDebounced, 3000);
 
   _saveSnack = async (options = {}) => {
+    if (!this.state.autosaveEnabled) {
+      return;
+    }
+
     this.setState({ saveStatus: options.isDraft ? 'saving-draft' : 'publishing' });
 
     try {
