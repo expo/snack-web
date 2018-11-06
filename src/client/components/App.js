@@ -4,6 +4,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { create, persist } from 'web-worker-proxy';
 import nullthrows from 'nullthrows';
+import isEqual from 'lodash/isEqual';
 import mapValues from 'lodash/mapValues';
 import Raven from 'raven-js';
 import debounce from 'lodash/debounce';
@@ -647,8 +648,11 @@ class App extends React.Component<Props, State> {
     );
   };
 
-  _handleChangeSDKVersion = (sdkVersion: SDKVersion) =>
-    this._snack.session.setSdkVersion(sdkVersion);
+  _handleChangeSDKVersion = async (sdkVersion: SDKVersion) => {
+    await this._snack.session.setSdkVersion(sdkVersion);
+
+    this._handleSaveDraftNotDebounced();
+  };
 
   _handleClearDeviceLogs = () =>
     this.setState({
@@ -780,10 +784,19 @@ class App extends React.Component<Props, State> {
   _uploadAssetAsync = asset => this._snack.session.uploadAssetAsync(asset);
 
   _syncDependenciesAsync = async (dependencies, callback) => {
+    const didDependeciesChange = !isEqual(
+      mapValues(this.state.snackSessionState.dependencies, o => o.version),
+      dependencies
+    );
+
     const errorListener = persist(callback);
 
     try {
       await this._snack.session.syncDependenciesAsync(dependencies, errorListener);
+
+      if (didDependeciesChange) {
+        this._handleSaveDraftNotDebounced();
+      }
     } finally {
       errorListener.dispose();
     }
