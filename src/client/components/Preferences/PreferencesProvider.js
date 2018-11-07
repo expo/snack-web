@@ -48,7 +48,7 @@ let overrides = {};
 try {
   // Restore editor preferences from saved data
   if ('localStorage' in window) {
-    overrides = JSON.parse(window.localStorage.getItem(EDITOR_CONFIG_KEY));
+    overrides = JSON.parse(window.localStorage.getItem(EDITOR_CONFIG_KEY)) || {};
   }
 } catch (e) {
   // Ignore error
