@@ -33,7 +33,6 @@ import KeyboardShortcuts, { Shortcuts } from './KeyboardShortcuts';
 
 import openEntry from '../actions/openEntry';
 
-import FeatureFlags from '../utils/FeatureFlags';
 import { isInsideFolder, changeParentPath } from '../utils/fileUtilities';
 import * as defaults from '../configs/defaults';
 
@@ -107,6 +106,7 @@ type Props = PreferencesContextType & {|
   theme: ThemeName,
   previewQueue: 'standard' | 'test',
   wasUpgraded: boolean,
+  autosaveEnabled: boolean,
 |};
 
 type ModalName = PublishModals | 'device-instructions' | 'embed' | 'edit-info' | 'shortcuts';
@@ -115,6 +115,7 @@ type BannerName =
   | 'connected'
   | 'disconnected'
   | 'reconnect'
+  | 'autosave-disabled'
   | 'sdk-upgraded'
   | 'embed-unavailable'
   | 'export-unavailable'
@@ -187,6 +188,10 @@ class EditorView extends React.Component<Props, State> {
 
     if (prevProps.sdkVersion !== this.props.sdkVersion && this.props.connectedDevices.length) {
       this._showBanner('reconnect', BANNER_TIMEOUT_LONG);
+    }
+
+    if (prevProps.autosaveEnabled !== this.props.autosaveEnabled && !this.props.autosaveEnabled) {
+      this._showBanner('autosave-disabled', BANNER_TIMEOUT_LONG);
     }
   }
 
@@ -735,6 +740,10 @@ class EditorView extends React.Component<Props, State> {
                 </Banner>
                 <Banner type="error" visible={currentBanner === 'disconnected'}>
                   Device disconnected!
+                </Banner>
+                <Banner type="info" visible={currentBanner === 'autosave-disabled'}>
+                  Automatic saving has been disabled in this Snack because you have it open in
+                  another tab.
                 </Banner>
                 <Banner type="info" visible={currentBanner === 'sdk-upgraded'}>
                   This Snack was written in an older Expo version that is not longer supported. We

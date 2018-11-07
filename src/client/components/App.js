@@ -25,7 +25,6 @@ import { isPackageJson } from '../utils/fileUtilities';
 import { getSnackName } from '../utils/projectNames';
 import { isMobile } from '../utils/detectPlatform';
 import updateEntry from '../actions/updateEntry';
-import FeatureFlags from '../utils/FeatureFlags';
 
 import type { SDKVersion } from '../configs/sdk';
 import type {
@@ -770,7 +769,7 @@ class App extends React.Component<Props, State> {
   _handleSaveDraft = debounce(this._handleSaveDraftNotDebounced, 3000);
 
   _saveSnack = async (options = {}) => {
-    if (!this.state.autosaveEnabled) {
+    if (options.isDraft && !this.state.autosaveEnabled) {
       return;
     }
 
@@ -886,6 +885,7 @@ class App extends React.Component<Props, State> {
             loaded && this.state.snackSessionReady ? (
               <Comp
                 createdAt={this.props.snack ? this.props.snack.created : undefined}
+                autosaveEnabled={this.state.autosaveEnabled}
                 saveHistory={this.state.saveHistory}
                 saveStatus={this.state.saveStatus}
                 creatorUsername={this.state.params.username}
