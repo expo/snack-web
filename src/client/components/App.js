@@ -208,6 +208,7 @@ type State = {|
   channel: string,
   deviceId: string,
   autosaveEnabled: boolean,
+  isSavedOnce: boolean,
   saveHistory: Array<{ id: string, savedAt: string }>,
   saveStatus: SaveStatus,
   params: Params,
@@ -338,6 +339,7 @@ class App extends React.Component<Props, State> {
       snackSessionState,
       snackSessionReady: false,
       autosaveEnabled: true,
+      isSavedOnce: false,
       saveHistory: props.snack && props.snack.history ? props.snack.history : [],
       saveStatus:
         props.snack && props.snack.isDraft ? 'saved-draft' : params.id ? 'published' : 'changed',
@@ -390,20 +392,35 @@ class App extends React.Component<Props, State> {
       const { id } = this.state.params;
 
       // Only respond to messages which have the same snack
-      if (e.id !== id) {
+      if (e.id !== id || !e.id) {
         return;
       }
 
       switch (e.type) {
         case 'NEW_TAB':
-          // If another tab with same snack is opened,
-          // Let it know that there's a duplicate tab
-          this._broadcastChannel.postMessage({
-            type: 'DUPLICATE_TAB',
-            id,
-            autosaveEnabled: this.state.autosaveEnabled,
-          });
+          {
+            let autosaveEnabled;
 
+            if (this.state.isSavedOnce) {
+              autosaveEnabled = this.state.autosaveEnabled;
+            } else {
+              // If we have never saved in this tab, disable autosave in this tab
+              // It allows the user to autosave in the new tab which is more covenient
+              this.setState({
+                autosaveEnabled: false,
+              });
+
+              autosaveEnabled = false;
+            }
+
+            // If another tab with same snack is opened,
+            // Let it know that there's a duplicate tab
+            this._broadcastChannel.postMessage({
+              type: 'DUPLICATE_TAB',
+              id,
+              autosaveEnabled,
+            });
+          }
           break;
         case 'DUPLICATE_TAB':
           // If there's a duplicate tab, and it has autosave enabled,
@@ -790,6 +807,7 @@ class App extends React.Component<Props, State> {
       });
 
       this.setState(state => ({
+        isSavedOnce: true,
         saveHistory: [
           ...state.saveHistory,
           { id: saveResult.id, savedAt: new Date().toISOString() },
