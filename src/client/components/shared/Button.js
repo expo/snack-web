@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
     outline: 0,
     borderRadius: 3,
     whiteSpace: 'nowrap',
+    textAlign: 'center',
     textDecoration: 'none',
     transitionDuration: '170ms',
     transitionProperty: 'box-shadow',

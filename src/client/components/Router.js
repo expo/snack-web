@@ -23,15 +23,22 @@ type Props = {
 
 export default class Router extends React.Component<Props> {
   _renderRoute = (props: *) => {
-    const data = this.props.data;
+    const { data, ...rest } = this.props;
     const isEmbedded = props.location.pathname.split('/')[1] === 'embedded';
 
     if (data && data.type === 'success') {
       if (isEmbedded) {
-        return <EmbeddedApp {...props} query={parse(props.location.search)} snack={data.snack} />;
+        return (
+          <EmbeddedApp
+            {...props}
+            {...rest}
+            query={parse(props.location.search)}
+            snack={data.snack}
+          />
+        );
       }
 
-      return <App {...props} query={parse(props.location.search)} snack={data.snack} />;
+      return <App {...props} {...rest} query={parse(props.location.search)} snack={data.snack} />;
     } else {
       return <NonExistent />;
     }

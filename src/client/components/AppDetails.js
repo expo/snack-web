@@ -32,7 +32,7 @@ const AppDetails = ({
   userAgent,
 }: Props) => {
   return (
-    <div className={css(styles.container)}>
+    <main className={css(styles.container)}>
       <div className={css(styles.card)}>
         <div className={css(styles.section, styles.first)}>
           <div className={css(styles.details)}>
@@ -94,7 +94,7 @@ const AppDetails = ({
           />
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 
