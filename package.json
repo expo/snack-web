@@ -16,7 +16,7 @@
     "clean:server": "del build/",
     "clean:client": "del dist/",
     "test": "cross-env NODE_ENV=test jest --config jest/unit.config.js",
-    "test:integration": "cross-env NODE_ENV=test jest --config jest/integration.config.js",
+    "test:integration": "cross-env NODE_ENV=test jest --config jest/integration.config.js --forceExit",
     "prestart:dev": "yarn domain",
     "prestart:prod": "yarn build",
     "prebuild": "yarn clean",

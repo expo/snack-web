@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = async function setup() {
-  const server = child_process.spawn('node', ['server/build']);
+  const server = child_process.spawn('node', ['build/server']);
 
   server.stdout.on('data', data => process.stdout.write(data));
   server.stderr.on('data', data => process.stderr.write(data));
