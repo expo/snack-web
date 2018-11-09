@@ -31,7 +31,7 @@ export default function createEntryAtPath(
   });
 
   /* $FlowFixMe */
-  item.state = {};
+  item.state = { isCreating: true };
 
   return item;
 }

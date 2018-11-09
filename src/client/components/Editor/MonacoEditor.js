@@ -17,7 +17,6 @@ import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import ResizeDetector from '../shared/ResizeDetector';
 import prettierCode from '../../utils/prettierCode';
 import getRelativePath from '../../utils/getRelativePath';
-import constants from '../../configs/constants';
 import type { SDKVersion } from '../../configs/sdk';
 import type { FileSystemEntry } from '../../types';
 import type { Annotation } from '../../utils/convertErrorToAnnotation';
@@ -102,7 +101,7 @@ const compilerOptions = {
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions);
 monaco.languages.typescript.javascriptDefaults.setCompilerOptions(compilerOptions);
 
-type Language = 'javascript' | 'typescript' | 'json' | 'css' | 'html';
+type Language = 'javascript' | 'typescript' | 'json' | 'css' | 'html' | 'markdown';
 
 type Props = {
   entries: FileSystemEntry[],

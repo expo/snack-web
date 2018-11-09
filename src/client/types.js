@@ -28,8 +28,6 @@ export type Snack = {
   isDraft?: boolean,
 };
 
-export type FileSystemItem<E, S> = {| item: E, state: S |};
-
 export type TextFileEntry = {|
   +item: {|
     +path: string,
