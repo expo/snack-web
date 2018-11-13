@@ -474,14 +474,12 @@ class EditorView extends React.Component<Props, State> {
           currentModal={currentModal}>
           {({ onPublishAsync, isPublishing }) => {
             const handleDownloadCode = async () => {
-              const isSaved = saveStatus === 'published' || saveStatus === 'saved-draft';
-
-              if (!isSaved) {
+              // Make sure file is saved before downloading
+              if (saveStatus !== 'published') {
                 this._showBanner('export-unavailable', BANNER_TIMEOUT_LONG);
                 return;
               }
 
-              // Make sure file is saved before downloading
               this.setState({ isDownloading: true });
 
               Segment.getInstance().logEvent('DOWNLOADED_CODE');
