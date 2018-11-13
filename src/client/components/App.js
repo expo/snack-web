@@ -209,7 +209,7 @@ type State = {|
   deviceId: string,
   autosaveEnabled: boolean,
   isSavedOnce: boolean,
-  saveHistory: Array<{ id: string, savedAt: string }>,
+  saveHistory: Array<{ id: string, savedAt: string, isDraft: boolean }>,
   saveStatus: SaveStatus,
   params: Params,
   fileEntries: Array<FileSystemEntry>,
@@ -340,7 +340,7 @@ class App extends React.Component<Props, State> {
       snackSessionReady: false,
       autosaveEnabled: true,
       isSavedOnce: false,
-      saveHistory: props.snack && props.snack.history ? props.snack.history : [],
+      saveHistory: [],
       saveStatus:
         props.snack && props.snack.isDraft ? 'saved-draft' : params.id ? 'published' : 'changed',
       fileEntries: [...fileEntries, this._getPackageJson(snackSessionState)],
@@ -810,7 +810,7 @@ class App extends React.Component<Props, State> {
         isSavedOnce: true,
         saveHistory: [
           ...state.saveHistory,
-          { id: saveResult.id, savedAt: new Date().toISOString() },
+          { id: saveResult.id, savedAt: new Date().toISOString(), isDraft: options.isDraft },
         ],
         saveStatus: options.isDraft ? 'saved-draft' : 'published',
         params: {
