@@ -68,7 +68,7 @@ type Props = PreferencesContextType & {|
   saveStatus: SaveStatus,
   creatorUsername?: string,
   fileEntries: FileSystemEntry[],
-  entry: TextFileEntry | AssetFileEntry,
+  entry: TextFileEntry | AssetFileEntry | void,
   name: string,
   description: string,
   dependencies: { [name: string]: { version: string } },
@@ -130,12 +130,38 @@ type State = {|
   deviceLogsShown: boolean,
   lintErrors: Array<Annotation>,
   shouldPreventRedirectWarning: boolean,
+  previousEntry: TextFileEntry | AssetFileEntry | void,
 |};
 
 const BANNER_TIMEOUT_SHORT = 1500;
 const BANNER_TIMEOUT_LONG = 5000;
 
 class EditorView extends React.Component<Props, State> {
+  static getDerivedStateFromProps(props: Props, state: State) {
+    if (props.entry !== state.previousEntry) {
+      const { entry } = props;
+      const { previousEntry } = state;
+
+      let isMarkdownPreview = state.isMarkdownPreview;
+
+      if (
+        entry &&
+        (!previousEntry || entry.item.path !== previousEntry.item.path) &&
+        // When an empty markdown file is opened, switch to edit mode
+        (entry.item.path.endsWith('.md') && !entry.item.content)
+      ) {
+        isMarkdownPreview = false;
+      }
+
+      return {
+        isMarkdownPreview,
+        previousEntry: entry,
+      };
+    }
+
+    return null;
+  }
+
   state = {
     loadedEditor: null,
     currentModal: null,
@@ -145,6 +171,7 @@ class EditorView extends React.Component<Props, State> {
     deviceLogsShown: false,
     lintErrors: [],
     shouldPreventRedirectWarning: false,
+    previousEntry: undefined,
   };
 
   componentDidMount() {
@@ -231,17 +258,23 @@ class EditorView extends React.Component<Props, State> {
   _lint = debounce(this._lintNotDebounced, 500);
 
   _prettier = async () => {
-    // $FlowFixMe this will fail if run against an asset file
-    let code = this.props.entry.item.content;
+    const { entry } = this.props;
 
-    if (this._isJSFile(this.props.entry)) {
+    if (!entry) {
+      return;
+    }
+
+    // $FlowFixMe this will fail if run against an asset file
+    let code = entry.item.content;
+
+    if (this._isJSFile(entry)) {
       /* $FlowFixMe */
       code = await prettierCode(code);
-    } else if (this._isJSONFile(this.props.entry)) {
+    } else if (this._isJSONFile(entry)) {
       code = JSON.stringify(JSON.parse(code), null, 2);
     }
 
-    if (code !== this.props.entry.item.content) {
+    if (code !== entry.item.content) {
       this.props.onChangeCode(code);
     }
   };
