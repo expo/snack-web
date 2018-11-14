@@ -75,6 +75,8 @@ class DevicePreview extends React.PureComponent<Props, State> {
         appetizeStatus: { type: 'unknown' },
         payerCodeFormStatus: { type: 'closed' },
         autoplay: state.payerCodeFormStatus.type === 'submitted',
+        platform: props.platform,
+        sdkVersion: props.sdkVersion,
         viewer: props.viewer,
       };
     }
