@@ -89,7 +89,7 @@ export default class ModalEditTitleAndDescription extends React.Component<Props,
             value={this.state.description}
             onChange={e => this.setState({ description: e.target.value })}
             minRows={4}
-            default={defaults.DEFAULT_DESCRIPTION}
+            placeholder={defaults.DEFAULT_DESCRIPTION}
           />
           <div className={css(styles.buttons)}>
             <FormButton type="submit" large variant="secondary" loading={isWorking}>

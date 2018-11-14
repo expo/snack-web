@@ -2,15 +2,17 @@
 
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
-
 import querystring from 'query-string';
+import parseGitUrl from 'git-url-parse';
 
 import Button from './shared/Button';
 import ProgressIndicator from './shared/ProgressIndicator';
 import ModalDialog from './shared/ModalDialog';
 import LargeInput from './shared/LargeInput';
+import LargeTextArea from './shared/LargeTextArea';
 import Segment from '../utils/Segment';
 import withThemeName, { type ThemeName } from './Preferences/withThemeName';
+import colors from '../configs/colors';
 
 type Props = {|
   visible: boolean,
@@ -21,7 +23,9 @@ type Props = {|
 
 type State = {|
   status: 'idle' | 'importing' | 'error',
+  advanced: boolean,
   url: string,
+  repo: string,
   path: string,
   branch: string,
 |};
@@ -31,7 +35,9 @@ const TIMEOUT_MS = 45000;
 class RepoImportManager extends React.PureComponent<Props, State> {
   state: State = {
     status: 'idle',
+    advanced: false,
     url: '',
+    repo: '',
     path: '',
     branch: '',
   };
@@ -41,6 +47,7 @@ class RepoImportManager extends React.PureComponent<Props, State> {
     this.setState({
       status: 'idle',
       url: '',
+      repo: '',
       path: '',
       branch: '',
     });
@@ -72,7 +79,7 @@ class RepoImportManager extends React.PureComponent<Props, State> {
       const IMPORT_API_URL = `${process.env.IMPORT_SERVER_URL}/git`;
 
       let params = {
-        repo: this.state.url,
+        repo: this.state.repo,
       };
       if (this.state.path) {
         /* $FlowFixMe */
@@ -116,6 +123,18 @@ class RepoImportManager extends React.PureComponent<Props, State> {
     });
   };
 
+  _handleChangeUrl = (e: *) => {
+    const url = e.target.value;
+    const parsed = parseGitUrl(url);
+
+    this.setState({
+      url,
+      repo: `${parsed.protocol}://${parsed.source}/${parsed.owner}/${parsed.name}`,
+      path: parsed.filepath,
+      branch: parsed.ref,
+    });
+  };
+
   render() {
     const { status } = this.state;
     const importing = status === 'importing';
@@ -130,42 +149,62 @@ class RepoImportManager extends React.PureComponent<Props, State> {
         <form onSubmit={this._handleImportRepoClick}>
           <p className={!error ? css(styles.paragraph) : css(styles.errorParagraph)}>
             {!error
-              ? 'Import an Expo project from a Git repository to use in your expo project.'
+              ? 'Import an Expo project from a Git repository.'
               : 'An error occurred during import. This could be because the data provided was invalid, or because the repository referenced is not a properly formatted Expo project.'}
           </p>
-          <h4 className={css(styles.subtitle)}>Git Repository</h4>
-          <LargeInput
-            name="url"
-            theme={this.props.theme}
-            value={this.state.url}
-            onChange={this._handleChange}
-            placeholder={'https://github.com/ide/love-languages.git'}
-            autofocus
-          />
-          <h4 className={css(styles.subtitle)}>Subpath</h4>
-          <LargeInput
-            name="path"
-            theme={this.props.theme}
-            value={this.state.path}
-            onChange={this._handleChange}
-            placeholder={'/example/app'}
-          />
-          <h4 className={css(styles.subtitle)}>Branch</h4>
-          <LargeInput
-            name="branch"
-            theme={this.props.theme}
-            value={this.state.branch}
-            onChange={this._handleChange}
-            placeholder={'master'}
-          />
-          <Button
-            large
-            disabled={!this.state.url}
-            loading={importing}
-            type="submit"
-            variant="secondary">
-            {importing ? 'Importing repository…' : 'Import repository'}
-          </Button>
+          {this.state.advanced ? (
+            <React.Fragment>
+              <h4 className={css(styles.subtitle)}>Repository URL</h4>
+              <LargeInput
+                name="repo"
+                value={this.state.repo}
+                onChange={this._handleChange}
+                placeholder={'https://github.com/ide/love-languages.git'}
+                autoFocus
+              />
+              <h4 className={css(styles.subtitle)}>Folder path</h4>
+              <LargeInput
+                name="path"
+                value={this.state.path}
+                onChange={this._handleChange}
+                placeholder={'/example/app'}
+              />
+              <h4 className={css(styles.subtitle)}>Branch name</h4>
+              <LargeInput
+                name="branch"
+                value={this.state.branch}
+                onChange={this._handleChange}
+                placeholder={'master'}
+              />
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <h4 className={css(styles.subtitle)}>Git URL</h4>
+              <LargeTextArea
+                minRows={2}
+                value={this.state.url}
+                onChange={this._handleChangeUrl}
+                placeholder="https://github.com/ide/love-languages/tree/master/example/app"
+                autoFocus
+              />
+            </React.Fragment>
+          )}
+          <button
+            type="button"
+            onClick={() => this.setState(state => ({ advanced: !state.advanced }))}
+            className={css(styles.advanced)}>
+            {this.state.advanced ? 'Hide' : 'Show'} advanced options
+          </button>
+          <div className={css(styles.buttons)}>
+            <Button
+              large
+              disabled={!this.state.url}
+              loading={importing}
+              type="submit"
+              variant="secondary">
+              {importing ? 'Importing repository…' : 'Import repository'}
+            </Button>
+          </div>
         </form>
       </ModalDialog>
     );
@@ -194,5 +233,20 @@ const styles = StyleSheet.create({
 
   progress: {
     marginTop: -16,
+  },
+
+  advanced: {
+    appearance: 'none',
+    background: 'none',
+    border: 0,
+    padding: '8px 0',
+    marginTop: 8,
+    textAlign: 'left',
+    width: '100%',
+    color: colors.primary,
+  },
+
+  buttons: {
+    margin: '16px 0 0 0',
   },
 });

@@ -7,23 +7,20 @@ import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import colors from '../../configs/colors';
 
 type Props = {
+  autoFocus?: boolean,
   value: ?string,
   name?: string,
   theme: ThemeName,
   minRows?: number,
-  default?: string,
+  placeholder?: string,
   onChange: (e: *) => mixed,
 };
 
-function LargeTextArea(props: Props) {
+function LargeTextArea({ theme, ...rest }: Props) {
   return (
     <Textarea
-      className={css(styles.input, props.theme === 'light' ? styles.inputLight : styles.inputDark)}
-      name={props.name}
-      minRows={props.minRows}
-      value={props.value}
-      onChange={props.onChange}
-      placeholder={props.default}
+      className={css(styles.input, theme === 'light' ? styles.inputLight : styles.inputDark)}
+      {...rest}
     />
   );
 }
