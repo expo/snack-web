@@ -117,11 +117,9 @@ export default class FileListEntry extends React.Component<Props, State> {
 
     if (usedCharacters.length) {
       return new Error(
-        `${
-          usedCharacters.length === 1
-            ? `${usedCharacters[0]} is`
-            : `${usedCharacters.join(', ')} are`
-        } not allowed`
+        `${usedCharacters.length === 1
+          ? `${usedCharacters[0]} is`
+          : `${usedCharacters.join(', ')} are`} not allowed`
       );
     }
 
@@ -327,8 +325,14 @@ export default class FileListEntry extends React.Component<Props, State> {
 
   render() {
     const { entry, rest, onOpen, onFocus, onRename, onExpand, theme } = this.props;
-    /* $FlowFixMe */
-    const draggable = !isEntryPoint(this.props.entry.item.path) && !this.props.entry.item.virtual;
+    // Disable drag n drop for the entry file and virtual files
+    // Also disable for files being created because they will have a nested input
+    // Otherwise it'll be impossible to move the cursor in the input by dragging
+    const draggable = !(
+      isEntryPoint(this.props.entry.item.path) ||
+      this.props.entry.item.virtual ||
+      this.props.entry.state.isCreating
+    );
 
     return (
       <FileListEntryBase

@@ -35,6 +35,10 @@ type State = {|
 export let lastDraggedEntry;
 
 export default class FileListEntry extends React.Component<Props, State> {
+  static defaultProps = {
+    draggable: true,
+  };
+
   state = {
     menu: null,
     isHovered: false,
@@ -149,7 +153,7 @@ export default class FileListEntry extends React.Component<Props, State> {
   _menu: any;
 
   render() {
-    const { entry, rest, draggable = true, onRename, onExpand, theme, actions } = this.props;
+    const { entry, rest, draggable, onRename, onExpand, theme, actions } = this.props;
     const { menu, isHovered } = this.state;
 
     return (
