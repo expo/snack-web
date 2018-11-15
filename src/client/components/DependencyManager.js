@@ -5,7 +5,6 @@ import debounce from 'lodash/debounce';
 import pickBy from 'lodash/pickBy';
 import mapValues from 'lodash/mapValues';
 import flatMap from 'lodash/flatMap';
-import JSON5 from 'json5';
 import { isModulePreloaded } from 'snack-sdk';
 import Toast from './shared/Toast';
 import KeybindingsManager, { KeyMap } from './shared/KeybindingsManager';
@@ -113,7 +112,7 @@ export default class DependencyManager extends React.Component<Props, State> {
     let dependencies;
 
     try {
-      dependencies = JSON5.parse(packageJson.item.content).dependencies;
+      dependencies = JSON.parse(packageJson.item.content).dependencies;
     } catch (e) {
       return;
     }

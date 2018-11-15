@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
-import JSON5 from 'json5';
 import { isModulePreloaded } from 'snack-sdk';
 import withThemeName, { type ThemeName } from '../Preferences/withThemeName';
 import ResizablePane from '../shared/ResizablePane';
@@ -167,11 +166,10 @@ class FileList extends React.PureComponent<Props, State> {
       entries = this.props.entries.map(e => {
         if (isPackageJson(e.item.path)) {
           try {
-            // Use JSON5 for a more forgiving approach, e.g. trailing commas
             // $FlowFixMe
-            const previous = JSON5.parse(e.item.content);
+            const previous = JSON.parse(e.item.content);
             // $FlowFixMe
-            const next = JSON5.parse(entry.item.content);
+            const next = JSON.parse(entry.item.content);
 
             // $FlowFixMe
             return {
