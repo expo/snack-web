@@ -616,10 +616,12 @@ class App extends React.Component<Props, State> {
     if (presence.status === 'join') {
       this.setState(state => ({
         connectedDevices: [...state.connectedDevices, presence.device],
+        deviceError: null,
       }));
     } else if (presence.status === 'leave') {
       this.setState(state => ({
         connectedDevices: state.connectedDevices.filter(device => device.id !== presence.device.id),
+        deviceError: null,
       }));
     }
   };
