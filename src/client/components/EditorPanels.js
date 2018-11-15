@@ -112,7 +112,6 @@ export default class EditorPanels extends React.Component<Props> {
 const styles = StyleSheet.create({
   container: {
     height: '14em',
-    zIndex: 20,
   },
 
   header: {
