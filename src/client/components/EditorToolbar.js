@@ -34,6 +34,7 @@ type Props = {|
     details: { name: string, description: string },
     draft?: boolean
   ) => Promise<void>,
+  onShowPreviousSaves: () => mixed,
   onShowEditModal: () => mixed,
   onDismissEditModal: () => mixed,
   onShowAuthModal: () => mixed,
@@ -74,6 +75,7 @@ class EditorToolbar extends React.PureComponent<Props, State> {
       isEditModalVisible,
       isAuthModalVisible,
       onSubmitMetadata,
+      onShowPreviousSaves,
       onShowEditModal,
       onDismissEditModal,
       onShowEmbedCode,
@@ -110,6 +112,7 @@ class EditorToolbar extends React.PureComponent<Props, State> {
               onLogInClick={this._handleShowAuthModal}
               isEditModalVisible={isEditModalVisible}
               onSubmitMetadata={onSubmitMetadata}
+              onShowPreviousSaves={onShowPreviousSaves}
               onShowEditModal={onShowEditModal}
               onDismissEditModal={onDismissEditModal}
             />

@@ -27,6 +27,7 @@ import EditorFooter from './EditorFooter';
 import AssetViewer from './AssetViewer';
 import NoFileSelected from './NoFileSelected';
 import FileList from './FileList/FileList';
+import PreviousSaves from './PreviousSaves';
 import PublishManager, { type PublishModals } from './Publish/PublishManager';
 import DependencyManager from './DependencyManager';
 import KeyboardShortcuts, { Shortcuts } from './KeyboardShortcuts';
@@ -46,7 +47,14 @@ import { c } from './ColorsProvider';
 
 import type { Error as DeviceError, Annotation } from '../utils/convertErrorToAnnotation';
 import type { SDKVersion } from '../configs/sdk';
-import type { FileSystemEntry, TextFileEntry, AssetFileEntry, Viewer, SaveStatus } from '../types';
+import type {
+  FileSystemEntry,
+  TextFileEntry,
+  AssetFileEntry,
+  Viewer,
+  SaveStatus,
+  Snack,
+} from '../types';
 
 const EDITOR_LOAD_FALLBACK_TIMEOUT = 3000;
 const DEFAULT_METADATA_NAME = 'Snack';
@@ -62,6 +70,7 @@ type DeviceLog = {|
 |};
 
 type Props = PreferencesContextType & {|
+  snack?: Snack,
   viewer?: Viewer,
   createdAt: ?string,
   saveHistory: ?Array<{ id: string, savedAt: string }>,
@@ -109,7 +118,13 @@ type Props = PreferencesContextType & {|
   autosaveEnabled: boolean,
 |};
 
-type ModalName = PublishModals | 'device-instructions' | 'embed' | 'edit-info' | 'shortcuts';
+type ModalName =
+  | PublishModals
+  | 'device-instructions'
+  | 'embed'
+  | 'edit-info'
+  | 'shortcuts'
+  | 'previous-saves';
 
 type BannerName =
   | 'connected'
@@ -341,6 +356,10 @@ class EditorView extends React.Component<Props, State> {
     this.setState({ currentModal: 'shortcuts' });
   };
 
+  _handleShowPreviousSaves = () => {
+    this.setState({ currentModal: 'previous-saves' });
+  };
+
   _handleHideModal = () => {
     this.setState({ currentModal: null });
   };
@@ -552,6 +571,7 @@ class EditorView extends React.Component<Props, State> {
                   isResolving={this.props.isResolving}
                   isEditModalVisible={currentModal === 'edit-info'}
                   isAuthModalVisible={currentModal === 'auth'}
+                  onShowPreviousSaves={this._handleShowPreviousSaves}
                   onShowEditModal={this._handleShowTitleDescriptionModal}
                   onDismissEditModal={this._handleDismissEditModal}
                   onSubmitMetadata={this.props.onSubmitMetadata}
@@ -760,6 +780,16 @@ class EditorView extends React.Component<Props, State> {
                   visible={currentModal === 'embed'}
                   onDismiss={this._handleHideModal}>
                   <EmbedCode params={params} />
+                </ModalDialog>
+                <ModalDialog
+                  visible={currentModal === 'previous-saves'}
+                  title="Previous saves"
+                  onDismiss={this._handleHideModal}>
+                  <PreviousSaves
+                    history={
+                      this.props.snack && this.props.snack.history ? this.props.snack.history : []
+                    }
+                  />
                 </ModalDialog>
                 <ModalDialog
                   visible={currentModal === 'shortcuts'}

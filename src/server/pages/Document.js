@@ -103,6 +103,14 @@ export default class Document extends React.Component<Props> {
                   box-sizing: inherit;
                 }
 
+                *:focus {
+                  outline: none;
+                }
+
+                *:focus-visible {
+                  outline: auto;
+                }
+
                 html,
                 body {
                   height: 100%;

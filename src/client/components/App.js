@@ -904,6 +904,7 @@ class App extends React.Component<Props, State> {
           {({ loaded, data: Comp }) =>
             loaded && this.state.snackSessionReady ? (
               <Comp
+                snack={this.props.snack}
                 createdAt={this.props.snack ? this.props.snack.created : undefined}
                 autosaveEnabled={this.state.autosaveEnabled}
                 saveHistory={this.state.saveHistory}

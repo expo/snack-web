@@ -36,6 +36,7 @@ const styles = StyleSheet.create({
     width: '100%',
     lineHeight: '24px',
     display: 'flex',
+    flexShrink: 0,
     alignItems: 'center',
     justifyContent: 'center',
     boxShadow: '0 1px 0 rgba(36, 44, 58, 0.1)',

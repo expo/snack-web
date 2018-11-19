@@ -20,6 +20,7 @@ type Props = {|
   saveStatus: SaveStatus,
   viewer: ?Viewer,
   isEditModalVisible: boolean,
+  onShowPreviousSaves: () => mixed,
   onShowEditModal: () => mixed,
   onDismissEditModal: () => mixed,
   onSubmitMetadata: (
@@ -62,6 +63,7 @@ class EditorTitle extends React.Component<Props, State> {
       viewer,
       theme,
       isEditModalVisible,
+      onShowPreviousSaves,
       onShowEditModal,
       onSubmitMetadata,
       onDismissEditModal,
@@ -98,12 +100,19 @@ class EditorTitle extends React.Component<Props, State> {
         }
       }
 
-      statusText = <span className={css(styles.statusText)}>{statusText}</span>;
+      statusText = (
+        <React.Fragment>
+          <span className={css(styles.statusText)}>{statusText}.</span>{' '}
+          <button onClick={onShowPreviousSaves} className={css(styles.textButton)}>
+            See previous saves.
+          </button>
+        </React.Fragment>
+      );
     } else {
       // User is a guest
       statusText = (
         <React.Fragment>
-          <button onClick={onLogInClick} className={css(styles.loginButton)}>
+          <button onClick={onLogInClick} className={css(styles.textButton)}>
             Log in
           </button>{' '}
           <span className={css(styles.statusText)}>to save your changes as you work</span>
@@ -214,7 +223,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 
-  loginButton: {
+  textButton: {
     appearance: 'none',
     background: 'none',
     border: 0,
