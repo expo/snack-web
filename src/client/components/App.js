@@ -338,7 +338,9 @@ class App extends React.Component<Props, State> {
     this.state = {
       snackSessionState,
       snackSessionReady: false,
-      autosaveEnabled: true,
+      // We don't have any UI for autosave in embed
+      // In addition, enabling autosave in embed will disable autosave in editor when embed dialog is open
+      autosaveEnabled: !this.props.isEmbedded,
       isSavedOnce: false,
       saveHistory: [],
       saveStatus:
