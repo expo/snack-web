@@ -72,6 +72,7 @@ class EditorTitle extends React.Component<Props, State> {
 
     const lastSave = saveHistory ? saveHistory[saveHistory.length - 1] : null;
     const savedAt = lastSave ? lastSave.savedAt : createdAt;
+    const hasPermanentHistory = saveHistory ? saveHistory.some(item => !item.isDraft) : false;
 
     let statusText;
 
@@ -103,9 +104,11 @@ class EditorTitle extends React.Component<Props, State> {
       statusText = (
         <React.Fragment>
           <span className={css(styles.statusText)}>{statusText}.</span>{' '}
-          <button onClick={onShowPreviousSaves} className={css(styles.textButton)}>
-            See previous saves.
-          </button>
+          {hasPermanentHistory ? (
+            <button onClick={onShowPreviousSaves} className={css(styles.textButton)}>
+              See previous saves.
+            </button>
+          ) : null}
         </React.Fragment>
       );
     } else {
