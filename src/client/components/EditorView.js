@@ -785,11 +785,7 @@ class EditorView extends React.Component<Props, State> {
                   visible={currentModal === 'previous-saves'}
                   title="Previous saves"
                   onDismiss={this._handleHideModal}>
-                  <PreviousSaves
-                    history={
-                      this.props.snack && this.props.snack.history ? this.props.snack.history : []
-                    }
-                  />
+                  <PreviousSaves history={saveHistory} />
                 </ModalDialog>
                 <ModalDialog
                   visible={currentModal === 'shortcuts'}

@@ -70,7 +70,7 @@ class EditorTitle extends React.Component<Props, State> {
       onLogInClick,
     } = this.props;
 
-    const lastSave = saveHistory ? saveHistory[saveHistory.length - 1] : null;
+    const lastSave = saveHistory.length ? saveHistory[0] : null;
     const savedAt = lastSave ? lastSave.savedAt : createdAt;
     const hasPermanentHistory = saveHistory ? saveHistory.some(item => !item.isDraft) : false;
 

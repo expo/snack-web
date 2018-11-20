@@ -342,7 +342,7 @@ class App extends React.Component<Props, State> {
       // In addition, enabling autosave in embed will disable autosave in editor when embed dialog is open
       autosaveEnabled: !this.props.isEmbedded,
       isSavedOnce: false,
-      saveHistory: [],
+      saveHistory: props.snack && props.snack.history ? props.snack.history : [],
       saveStatus:
         props.snack && props.snack.isDraft ? 'saved-draft' : params.id ? 'published' : 'changed',
       fileEntries: [...fileEntries, this._getPackageJson(snackSessionState)],
@@ -811,8 +811,8 @@ class App extends React.Component<Props, State> {
       this.setState(state => ({
         isSavedOnce: true,
         saveHistory: [
-          ...state.saveHistory,
           { id: saveResult.id, savedAt: new Date().toISOString(), isDraft: options.isDraft },
+          ...state.saveHistory,
         ],
         saveStatus: options.isDraft ? 'saved-draft' : 'published',
         params: {
@@ -945,7 +945,8 @@ class App extends React.Component<Props, State> {
               <EmbeddedShell />
             ) : (
               <AppShell title={title} />
-            )}
+            )
+          }
         </LazyLoad>
       );
     }
