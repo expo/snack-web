@@ -13,7 +13,7 @@ import SearchButton from './Search/SearchButton';
 import UserMenu from './UserMenu';
 import ModalAuthentication from './Auth/ModalAuthentication';
 import withThemeName, { type ThemeName } from './Preferences/withThemeName';
-import type { SaveStatus, Viewer } from '../types';
+import type { SaveStatus, SaveHistory, Viewer } from '../types';
 
 type State = {
   isLoggingIn: boolean,
@@ -23,8 +23,8 @@ type Props = {|
   name: string,
   description: string,
   createdAt: ?string,
-  saveHistory: ?Array<{ id: string, savedAt: string }>,
   saveStatus: SaveStatus,
+  saveHistory: SaveHistory,
   viewer: ?Viewer,
   isDownloading: boolean,
   isResolving: boolean,

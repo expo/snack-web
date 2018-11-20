@@ -24,7 +24,7 @@ export type Snack = {
     sdkVersion?: SDKVersion,
   },
   dependencies?: { [key: string]: string },
-  history?: Array<{ id: string, savedAt: string }>,
+  history?: SaveHistory,
   isDraft?: boolean,
 };
 
@@ -99,3 +99,9 @@ export type QueryParams = {|
 |};
 
 export type SaveStatus = 'changed' | 'saving-draft' | 'saved-draft' | 'publishing' | 'published';
+
+export type SaveHistory = Array<{
+  id: string,
+  savedAt: string,
+  isDraft?: boolean,
+}>;

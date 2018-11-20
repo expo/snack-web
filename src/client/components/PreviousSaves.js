@@ -4,24 +4,25 @@ import * as React from 'react';
 import format from 'date-fns/format';
 import { StyleSheet, css } from 'aphrodite';
 import withThemeName, { type ThemeName } from './Preferences/withThemeName';
+import type { SaveHistory } from '../types';
 
 type Props = {
-  history: Array<{ id: string, savedAt: string }>,
+  saveHistory: SaveHistory,
   theme: ThemeName,
 };
 
 class PreviousSaves extends React.Component<Props> {
   render() {
-    const { history, theme } = this.props;
+    const { saveHistory, theme } = this.props;
     return (
       <div className={css(styles.container)}>
-        {history.length ? (
+        {saveHistory.length ? (
           <React.Fragment>
             <p className={css(styles.hint)}>
               Click on a previous save to open it in a new tab. You can make changes and then save
               it to overwrite the current version, or change the name to save as a new Snack.
             </p>
-            {history.map(
+            {saveHistory.map(
               data =>
                 data.isDraft ? null : (
                   <a

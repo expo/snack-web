@@ -53,6 +53,7 @@ import type {
   AssetFileEntry,
   Viewer,
   SaveStatus,
+  SaveHistory,
   Snack,
 } from '../types';
 
@@ -73,7 +74,7 @@ type Props = PreferencesContextType & {|
   snack?: Snack,
   viewer?: Viewer,
   createdAt: ?string,
-  saveHistory: ?Array<{ id: string, savedAt: string }>,
+  saveHistory: SaveHistory,
   saveStatus: SaveStatus,
   creatorUsername?: string,
   fileEntries: FileSystemEntry[],
@@ -785,7 +786,7 @@ class EditorView extends React.Component<Props, State> {
                   visible={currentModal === 'previous-saves'}
                   title="Previous saves"
                   onDismiss={this._handleHideModal}>
-                  <PreviousSaves history={saveHistory} />
+                  <PreviousSaves saveHistory={saveHistory} />
                 </ModalDialog>
                 <ModalDialog
                   visible={currentModal === 'shortcuts'}

@@ -35,6 +35,7 @@ import type {
   Snack,
   QueryParams,
   SaveStatus,
+  SaveHistory,
 } from '../types';
 
 const Auth = new AuthManager();
@@ -209,7 +210,7 @@ type State = {|
   deviceId: string,
   autosaveEnabled: boolean,
   isSavedOnce: boolean,
-  saveHistory: Array<{ id: string, savedAt: string, isDraft: boolean }>,
+  saveHistory: SaveHistory,
   saveStatus: SaveStatus,
   params: Params,
   fileEntries: Array<FileSystemEntry>,
@@ -945,8 +946,7 @@ class App extends React.Component<Props, State> {
               <EmbeddedShell />
             ) : (
               <AppShell title={title} />
-            )
-          }
+            )}
         </LazyLoad>
       );
     }

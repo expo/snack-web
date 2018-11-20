@@ -10,13 +10,13 @@ import ModalEditTitleAndDescription from './ModalEditTitleAndDescription';
 import withThemeName, { type ThemeName } from './Preferences/withThemeName';
 import colors from '../configs/colors';
 import * as defaults from '../configs/defaults';
-import type { SaveStatus, Viewer } from '../types';
+import type { SaveStatus, Viewer, SaveHistory } from '../types';
 
 type Props = {|
   name: string,
   description: ?string,
   createdAt: ?string,
-  saveHistory: ?Array<{ id: string, savedAt: string }>,
+  saveHistory: SaveHistory,
   saveStatus: SaveStatus,
   viewer: ?Viewer,
   isEditModalVisible: boolean,
