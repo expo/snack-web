@@ -14,40 +14,37 @@ type Props = {
 class PreviousSaves extends React.Component<Props> {
   render() {
     const { saveHistory, theme } = this.props;
+    const previousSaves = saveHistory.filter(data => !data.isDraft);
+
     return (
       <div className={css(styles.container)}>
-        {saveHistory.length ? (
+        {previousSaves.length ? (
           <React.Fragment>
             <p className={css(styles.hint)}>
               Click on a previous save to open it in a new tab. You can make changes and then save
               it to overwrite the current version, or change the name to save as a new Snack.
             </p>
-            {saveHistory.map(
-              data =>
-                data.isDraft ? null : (
-                  <a
-                    key={data.id}
-                    target="_blank"
-                    href={`/${data.id}`}
-                    className={css(styles.item, theme === 'dark' ? styles.dark : styles.light)}>
-                    <div>
-                      <h4 className={css(styles.title)}>{format(data.savedAt, 'hh:mm a, dddd')}</h4>
-                      <p className={css(styles.description)}>
-                        {format(data.savedAt, 'Do MMMM YYYY')}
-                      </p>
-                    </div>
-                    <img
-                      className={css(styles.icon)}
-                      src={
-                        theme === 'dark'
-                          ? require('../assets/open-link-icon-light.png')
-                          : require('../assets/open-link-icon.png')
-                      }
-                      alt="Open in new tab"
-                    />
-                  </a>
-                )
-            )}{' '}
+            {previousSaves.map(data => (
+              <a
+                key={data.id}
+                target="_blank"
+                href={`/${data.id}`}
+                className={css(styles.item, theme === 'dark' ? styles.dark : styles.light)}>
+                <div>
+                  <h4 className={css(styles.title)}>{format(data.savedAt, 'hh:mm a, dddd')}</h4>
+                  <p className={css(styles.description)}>{format(data.savedAt, 'Do MMMM YYYY')}</p>
+                </div>
+                <img
+                  className={css(styles.icon)}
+                  src={
+                    theme === 'dark'
+                      ? require('../assets/open-link-icon-light.png')
+                      : require('../assets/open-link-icon.png')
+                  }
+                  alt="Open in new tab"
+                />
+              </a>
+            ))}
           </React.Fragment>
         ) : (
           <p className={css(styles.placeholder)}>There are no previous saves for this Snack.</p>
