@@ -919,6 +919,7 @@ class App extends React.Component<Props, State> {
                 name={this.state.snackSessionState.name}
                 description={this.state.snackSessionState.description}
                 initialSdkVersion={this.state.initialSdkVersion}
+                dependencyQueryParam={this.props.query.dependencies}
                 sdkVersion={this.state.snackSessionState.sdkVersion}
                 isResolving={this.state.snackSessionState.isResolving}
                 loadingMessage={this.state.snackSessionState.loadingMessage}

@@ -20,6 +20,7 @@ import type { FileSystemEntry, TextFileEntry } from '../types';
 type Props = {|
   initialSdkVersion: SDKVersion,
   sdkVersion: SDKVersion,
+  dependencyQueryParam: ?string,
   fileEntries: FileSystemEntry[],
   onEntriesChange: (Array<FileSystemEntry>) => Promise<void>,
   dependencies: { [name: string]: { version: string } },
@@ -58,7 +59,12 @@ export default class DependencyManager extends React.Component<Props, State> {
 
   componentDidMount() {
     if (FeatureFlags.isAvailable('PROJECT_DEPENDENCIES', this.props.initialSdkVersion)) {
-      this._syncPackageJson(this.props.fileEntries.find(e => isPackageJson(e.item.path)));
+      if (this.props.dependencyQueryParam) {
+        this._syncDependencyQueryParam(this.props.dependencyQueryParam);
+      } else {
+        this._syncPackageJson(this.props.fileEntries.find(e => isPackageJson(e.item.path)));
+      }
+
       this._findNewDependencies(this.props.fileEntries.filter(entry => this._isJSFile(entry)));
     } else {
       this._handleVersionComments();
@@ -103,6 +109,34 @@ export default class DependencyManager extends React.Component<Props, State> {
   }
 
   _isJSFile = (entry: *) => entry && !entry.item.asset && entry.item.path.endsWith('.js');
+
+  _syncDependencyQueryParam = async (dependencyQueryParam: ?string) => {
+    if (!dependencyQueryParam) {
+      return;
+    }
+
+    // If any initial dependencies were specified in query param, sync them
+    // Dependencies will be in following format:
+    // dependencies=lodash,redux@0.3.4,@expo/fonts@4.3.2
+    const dependencies = dependencyQueryParam.split(',').reduce((acc, curr) => {
+      const first = curr.slice(0, 1);
+
+      // remove the first letter so we don't match stuff like `@expo/` when splitting
+      const [dep, version] = curr.slice(1).split('@');
+      const name = first + dep;
+
+      if (isModulePreloaded(name, this.props.sdkVersion)) {
+        return acc;
+      }
+
+      return {
+        ...acc,
+        [name]: version || null,
+      };
+    }, {});
+
+    this._syncDependencies(dependencies);
+  };
 
   _syncPackageJsonNotDebounced = async (packageJson: ?TextFileEntry) => {
     if (!packageJson) {

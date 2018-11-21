@@ -93,6 +93,7 @@ type Props = PreferencesContextType & {|
   connectedDevices: Array<Device>,
   deviceError: ?DeviceError,
   deviceLogs: Array<DeviceLog>,
+  dependencyQueryParam: ?string,
   initialSdkVersion: SDKVersion,
   sdkVersion: SDKVersion,
   onClearDeviceLogs: () => void,
@@ -824,6 +825,7 @@ class EditorView extends React.Component<Props, State> {
                 <DependencyManager
                   fileEntries={this.props.fileEntries}
                   onEntriesChange={this.props.onFileEntriesChange}
+                  dependencyQueryParam={this.props.dependencyQueryParam}
                   initialSdkVersion={this.props.initialSdkVersion}
                   sdkVersion={this.props.sdkVersion}
                   dependencies={this.props.dependencies}

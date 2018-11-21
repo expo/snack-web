@@ -91,6 +91,7 @@ export type QueryParams = {|
   code?: string,
   name?: string,
   description?: string,
+  dependencies?: string,
   sdkVersion?: SDKVersion,
   appetizePayerCode?: string,
   iframeId?: string,
