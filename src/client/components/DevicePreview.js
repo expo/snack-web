@@ -325,6 +325,59 @@ class DevicePreview extends React.PureComponent<Props, State> {
   _popup: ?Object;
   _mql: Object;
 
+  _iframe: ?HTMLIFrameElement;
+  _waitingForMessage: ?IntervalID;
+
+  _onTapToPlay = () => {
+    if (this._waitingForMessage) {
+      return;
+    }
+
+    // Attempt to start the session immediately
+    this._requestSession();
+    // Keep asking for a session every second until something is posted from the
+    // iframe This handles the edge case where the iframe hasn't loaded and
+    // isn't ready to receive events.
+    this._waitingForMessage = setInterval(this._requestSession, 1000);
+  };
+
+  _requestSession = () => {
+    if (this._iframe) {
+      this._iframe.contentWindow.postMessage('requestSession', '*');
+    }
+  };
+
+  _renderButtons = () => {
+    return (
+      <div
+        className={
+          this.props.screenOnly ? css(styles.buttonContainerEmbedded) : css(styles.buttonContainer)
+        }>
+        {this.props.wasUpgraded ? (
+          <div style={{ top: 90 }} className={css(styles.warningText)}>
+            This Snack was written in an SDK version that is not longer supported and has been
+            automatically upgraded.
+          </div>
+        ) : null}
+        <a className={css(styles.buttonLink)} style={{ top: 160 }} onClick={this._onTapToPlay}>
+          <div className={css(styles.buttonFrame)}>
+            <span className={css(styles.buttonText)}>Tap to play</span>
+          </div>
+        </a>
+        {this.state.isPopupOpen ? null : (
+          <a
+            className={css(styles.buttonLink)}
+            style={{ top: 250 }}
+            onClick={this.props.onClickRunOnPhone}>
+            <div className={css(styles.buttonFrame)}>
+              <span className={css(styles.buttonText)}>Run on your device</span>
+            </div>
+          </a>
+        )}
+      </div>
+    );
+  };
+
   render() {
     if (!this.state.isRendered || this.state.isPopupOpen) {
       return null;
@@ -354,7 +407,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
             ref={iframe => {
               this._iframe = iframe;
             }}
-            key={url}
+            key={url + this.props.sdkVersion}
             src={url}
             className={css(
               styles.frame,
@@ -432,59 +485,6 @@ class DevicePreview extends React.PureComponent<Props, State> {
       </div>
     );
   }
-
-  _onTapToPlay = () => {
-    if (this._waitingForMessage) {
-      return;
-    }
-
-    // Attempt to start the session immediately
-    this._requestSession();
-    // Keep asking for a session every second until something is posted from the
-    // iframe This handles the edge case where the iframe hasn't loaded and
-    // isn't ready to receive events.
-    this._waitingForMessage = setInterval(this._requestSession, 1000);
-  };
-
-  _requestSession = () => {
-    if (this._iframe) {
-      this._iframe.contentWindow.postMessage('requestSession', '*');
-    }
-  };
-
-  _iframe: ?HTMLIFrameElement;
-  _waitingForMessage: ?IntervalID;
-
-  _renderButtons = () => {
-    return (
-      <div
-        className={
-          this.props.screenOnly ? css(styles.buttonContainerEmbedded) : css(styles.buttonContainer)
-        }>
-        {this.props.wasUpgraded ? (
-          <div style={{ top: 90 }} className={css(styles.warningText)}>
-            This Snack was written in an SDK version that is not longer supported and has been
-            automatically upgraded.
-          </div>
-        ) : null}
-        <a className={css(styles.buttonLink)} style={{ top: 160 }} onClick={this._onTapToPlay}>
-          <div className={css(styles.buttonFrame)}>
-            <span className={css(styles.buttonText)}>Tap to play</span>
-          </div>
-        </a>
-        {this.state.isPopupOpen ? null : (
-          <a
-            className={css(styles.buttonLink)}
-            style={{ top: 250 }}
-            onClick={this.props.onClickRunOnPhone}>
-            <div className={css(styles.buttonFrame)}>
-              <span className={css(styles.buttonText)}>Run on your device</span>
-            </div>
-          </a>
-        )}
-      </div>
-    );
-  };
 }
 
 export default withThemeName(withAuth(DevicePreview));
