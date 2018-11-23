@@ -150,7 +150,7 @@ Snack is Open Source. You can find the code on the [GitHub repo](https://github.
 };
 
 const INITIAL_DEPENDENCIES = {
-  'react-native-paper': { version: '2.1.3', isUserSpecified: true },
+  'react-native-paper': { version: '2.2.8', isUserSpecified: true },
 };
 
 const BROADCAST_CHANNEL_NAME = 'SNACK_BROADCAST_CHANNEL';
