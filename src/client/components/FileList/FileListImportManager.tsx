@@ -7,7 +7,7 @@ import convertDataTransferItemsToFiles from '../../utils/convertDataTransferItem
 import colors from '../../configs/colors';
 import { c } from '../ColorsProvider';
 import withThemeName, { ThemeName } from '../Preferences/withThemeName';
-import { getUniquePath } from '../../utils/fileUtilities';
+import { getUniquePath, isESLintConfig } from '../../utils/fileUtilities';
 import { WebkitFileEntry, WebkitDirectoryEntry } from '../../utils/convertDataTransferItemsToFiles';
 import dragEventIncludes from '../../utils/dragEventIncludes';
 import { FileSystemEntry, TextFileEntry, AssetFileEntry } from '../../types';
@@ -137,34 +137,35 @@ class FileListImportManager extends React.PureComponent<Props, State> {
     await Promise.all(
       files.map(async ({ file, path }) => {
         try {
-          const entry = /\.(js|json|md|tsx?)$/.test(path)
-            ? await new Promise<TextFileEntry>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e: ProgressEvent) =>
-                  resolve({
-                    item: {
-                      path,
-                      type: 'file',
-                      // @ts-ignore
-                      content: e.target ? e.target.result : '',
-                    },
-                    state: {},
-                  });
-                reader.onerror = error => reject(error);
-                reader.readAsText(file);
-              })
-            : await this.props.uploadFileAsync(file).then(
-                uri =>
-                  ({
-                    item: {
-                      path,
-                      type: 'file',
-                      uri,
-                      asset: true,
-                    },
-                    state: {},
-                  } as AssetFileEntry)
-              );
+          const entry =
+            /\.(md|json|js|tsx?)$/.test(path) || isESLintConfig(path)
+              ? await new Promise<TextFileEntry>((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = (e: ProgressEvent) =>
+                    resolve({
+                      item: {
+                        path,
+                        type: 'file',
+                        // @ts-ignore
+                        content: e.target ? e.target.result : '',
+                      },
+                      state: {},
+                    });
+                  reader.onerror = error => reject(error);
+                  reader.readAsText(file);
+                })
+              : await this.props.uploadFileAsync(file).then(
+                  uri =>
+                    ({
+                      item: {
+                        path,
+                        type: 'file',
+                        uri,
+                        asset: true,
+                      },
+                      state: {},
+                    } as AssetFileEntry)
+                );
 
           if (!this.state.itemsToImport.length) {
             // Import was cancelled

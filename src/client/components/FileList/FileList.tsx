@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
+import pickBy from 'lodash/pickBy';
 import { isModulePreloaded } from 'snack-sdk';
 import withThemeName, { ThemeName } from '../Preferences/withThemeName';
 import ResizablePane from '../shared/ResizablePane';
@@ -23,7 +24,13 @@ import renameEntry from '../../actions/renameEntry';
 import selectEntry from '../../actions/selectEntry';
 import openEntry from '../../actions/openEntry';
 import updateEntry from '../../actions/updateEntry';
-import { isPackageJson, getUniquePath, isInsideFolder } from '../../utils/fileUtilities';
+import {
+  isPackageJson,
+  getUniquePath,
+  isInsideFolder,
+  isESLintConfig,
+} from '../../utils/fileUtilities';
+import eslintrc from '../../configs/eslint.json';
 import { SDKVersion } from '../../configs/sdk';
 import { FileSystemEntry, TextFileEntry, AssetFileEntry, SaveStatus } from '../../types';
 
@@ -206,6 +213,56 @@ class FileList extends React.PureComponent<Props, State> {
 
         return e;
       });
+    } else if (isESLintConfig(entry.item.path)) {
+      try {
+        const content = JSON.parse((entry as TextFileEntry).item.content);
+
+        // Cleanup the config file to remove unsupported plugins and rules
+        if (content.plugins) {
+          content.plugins = content.plugins.filter((name: string) =>
+            eslintrc.plugins.includes(name)
+          );
+
+          if (!content.plugins.length) {
+            delete content.plugins;
+          }
+        }
+
+        if (content.rules) {
+          content.rules = pickBy(content.rules, (_, key) => {
+            if (key.includes('/')) {
+              return eslintrc.plugins.some(name => key.startsWith(`${name}/`));
+            }
+
+            return key;
+          });
+        }
+
+        if (content.extends) {
+          if (typeof content.extends === 'string' && !content.extends.startsWith('eslint:')) {
+            delete content.extends;
+          } else {
+            content.extends = content.extends.filter((name: string) => name.startsWith('eslint:'));
+
+            if (!content.extends.length) {
+              delete content.extends;
+            }
+          }
+        }
+
+        // Remove existing eslintrc if any
+        entries = this.props.entries.filter(e => !isESLintConfig(e.item.path));
+        entries.push(
+          updateEntry(entry, {
+            item: {
+              content: JSON.stringify(content, null, 2),
+            },
+          })
+        );
+      } catch (e) {
+        // Ignore errors
+        entries = this.props.entries;
+      }
     } else {
       const parents = recursivelyCreateParents(this.props.entries, entry.item.path);
 

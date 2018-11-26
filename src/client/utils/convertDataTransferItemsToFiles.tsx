@@ -41,12 +41,14 @@ const blacklist = [
   /~$/, // hidden and backup files
 ];
 
+const whitelist = [/^\.eslintrc(\.json)?$/];
+
 const processEntry = async (
   entry: WebkitFileEntry | WebkitDirectoryEntry,
   files: Array<{ file: File; path: string }>,
   path: string
 ) => {
-  if (blacklist.some(r => r.test(entry.name))) {
+  if (blacklist.some(r => r.test(entry.name)) && !whitelist.some(r => r.test(entry.name))) {
     return;
   }
 

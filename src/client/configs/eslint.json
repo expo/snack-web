@@ -8,6 +8,7 @@
   },
   "plugins": [
     "babel",
+    "flowtype",
     "react",
     "react-native"
   ],
@@ -88,7 +89,7 @@
     "require-yield": "error",
     "use-isnan": "error",
     "valid-typeof": "error",
-    
+
     "flowtype/array-style-complex-type": "off",
     "flowtype/array-style-simple-type": "off",
     "flowtype/boolean-style": "off",
