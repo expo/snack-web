@@ -44,6 +44,10 @@ export function isPackageJson(name: string): boolean {
   return name === 'package.json';
 }
 
+export function isESLintConfig(name: string): boolean {
+  return /^\.eslintrc(\.json)?$/.test(name);
+}
+
 export function isImage(name: string): boolean {
   return /\.(bmp|jpg|jpeg|png|gif|svg)$/.test(name);
 }

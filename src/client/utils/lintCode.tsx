@@ -1,10 +1,8 @@
-export default (async function lintCode(code: string) {
-  const {
-    default: Linter,
-    // @ts-ignore
-  } = await import(/* webpackChunkName: "eslint_bundle" */ '../vendor/eslint.bundle');
-  const { default: config } = await import('../configs/eslint.json');
+// @ts-ignore
+import Linter from '../vendor/eslint.bundle';
+import eslintrc from '../configs/eslint.json';
 
+export default function lintCode(code: string, config: {} = eslintrc) {
   // babel-eslint throws error without this
   // @ts-ignore
   window.config = config;
@@ -27,4 +25,4 @@ export default (async function lintCode(code: string) {
     severity: err.message.toLowerCase().startsWith('parsing error') ? 4 : err.severity + 1,
     source: 'ESLint',
   }));
-});
+}

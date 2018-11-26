@@ -97,17 +97,17 @@ type Props = PreferencesContextType & {
   dependencyQueryParam: string | undefined;
   initialSdkVersion: SDKVersion;
   sdkVersion: SDKVersion;
-  onClearDeviceLogs: () => void;
-  onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<void>;
-  onChangeCode: (code: string) => void;
+  onClearDeviceLogs: () => undefined;
+  onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<undefined>;
+  onChangeCode: (code: string) => undefined;
   onSubmitMetadata: (
     details: {
       name: string;
       description: string;
     },
     draft?: boolean
-  ) => Promise<void>;
-  onChangeSDKVersion: (sdkVersion: SDKVersion) => void;
+  ) => Promise<undefined>;
+  onChangeSDKVersion: (sdkVersion: SDKVersion) => undefined;
   onPublishAsync: (
     options: {
       allowedOnProfile?: boolean;
@@ -275,8 +275,8 @@ class EditorView extends React.Component<Props, State> {
     return message;
   };
 
-  _lintNotDebounced = async (entry: any) => {
-    const lintErrors = await lintEntry(entry, this.props.sdkVersion);
+  _lintNotDebounced = async (entry: FileSystemEntry | undefined) => {
+    const lintErrors = await lintEntry(entry, this.props.fileEntries, this.props.sdkVersion);
 
     if (!lintErrors.length && !this.state.lintErrors.length) {
       // There are no lint errors and nothing to clear

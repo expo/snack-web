@@ -1,10 +1,10 @@
 import flatMap from 'lodash/flatMap';
 import semver from 'semver';
+import parse from 'json-to-ast';
 import { isModulePreloaded } from 'snack-sdk';
 import { SDKVersion } from '../configs/sdk';
 
-export default async function lintPackageJson(code: string, sdkVersion: SDKVersion) {
-  const { default: parse } = await import('json-to-ast');
+export default function lintPackageJson(code: string, sdkVersion: SDKVersion) {
   const source = 'package.json';
 
   let ast;
@@ -32,7 +32,7 @@ export default async function lintPackageJson(code: string, sdkVersion: SDKVersi
         endLineNumber: ast.loc.end.line,
         startColumn: ast.loc.start.column,
         endColumn: ast.loc.end.column,
-        message: `Content of "${source}" file must be an Object`,
+        message: `Content of "${source}" file must be an object`,
         severity: 3,
         source,
       },
