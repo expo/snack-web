@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:8.11.1
+FROM mhart/alpine-node:8.14.0
 
 # alpine deps
 RUN apk --update add bash git

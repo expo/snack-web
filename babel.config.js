@@ -22,7 +22,7 @@ module.exports = api => {
             }
           : {
               targets: {
-                node: '8.11',
+                node: '8.14',
               },
             },
       ],
