@@ -1,0 +1,56 @@
+import * as React from 'react';
+import App from './App';
+import EmbeddedShell from './Shell/EmbeddedShell';
+import { QueryParams, $ExtractComponentPropTypes } from '../types';
+
+type Props = $ExtractComponentPropTypes<typeof App> & {
+  query: QueryParams;
+};
+
+type State = {
+  query: QueryParams;
+  receivedDataEvent: boolean;
+};
+
+export default class EmbeddedApp extends React.PureComponent<Props, State> {
+  state = {
+    query: this.props.query,
+    receivedDataEvent: false,
+  };
+
+  componentDidMount() {
+    this._listenForDataEvent();
+  }
+
+  _listenForDataEvent = () => {
+    const { query } = this.state;
+
+    if (query && query.waitForData && query.iframeId) {
+      const iframeId = query.iframeId;
+
+      window.parent.postMessage(['expoFrameLoaded', { iframeId }], '*');
+      window.addEventListener('message', event => {
+        const eventName = event.data[0];
+        const data = event.data[1];
+
+        if (eventName === 'expoDataEvent' && data.iframeId === iframeId) {
+          this.setState({
+            // @ts-ignore
+            query: { ...this.state.query, ...data },
+            receivedDataEvent: true,
+          });
+        }
+      });
+    }
+  };
+
+  render() {
+    const { query, receivedDataEvent } = this.state;
+
+    if (query && query.waitForData && !receivedDataEvent) {
+      return <EmbeddedShell />;
+    }
+
+    return <App {...this.props} query={query} isEmbedded />;
+  }
+}

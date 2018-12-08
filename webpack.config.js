@@ -23,10 +23,10 @@ module.exports = {
   devtool: 'source-map',
   entry: {
     // Main bundle
-    app: './src/client/index',
+    app: './src/client/index.tsx',
 
     // Service worker
-    sw: './src/client/sw',
+    sw: './src/client/sw.tsx',
   },
   output: {
     globalObject: 'self',
@@ -85,7 +85,7 @@ module.exports = {
         use: 'null-loader',
       },
       {
-        test: /\.js$/,
+        test: /\.(js|tsx?)$/,
         exclude: /(node_modules|snack-sdk|(vendor\/.+.bundle\.js))/,
         use: {
           loader: 'babel-loader',
@@ -105,5 +105,8 @@ module.exports = {
         },
       },
     ],
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
   },
 };
