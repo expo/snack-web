@@ -10,7 +10,7 @@
     "start:prod": "nodemon build/server/index.js",
     "domain": "hotel start && hotel add http://localhost:3011 --name snack.expo",
     "build": "cross-env NODE_ENV=production yarn build:server && yarn build:client",
-    "build:server": "babel --source-maps --out-dir build/ src/",
+    "build:server": "babel --source-maps  --extensions '.ts,.tsx' --out-dir build/ src/",
     "build:client": "webpack",
     "clean": "yarn clean:server && yarn clean:client",
     "clean:server": "del build/",
