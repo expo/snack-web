@@ -9,7 +9,7 @@ import KeybindingsManager, { KeyMap } from './shared/KeybindingsManager';
 import ShortcutLabel from './shared/ShortcutLabel';
 import updateEntry from '../actions/updateEntry';
 import getSnackURLFromEmbed from '../utils/getSnackURLFromEmbed';
-import { isPackageJson, isJSFile } from '../utils/fileUtilities';
+import { isPackageJson, isScriptFile } from '../utils/fileUtilities';
 import FeatureFlags from '../utils/FeatureFlags';
 import { SDKVersion } from '../configs/sdk';
 import { FileSystemEntry, TextFileEntry } from '../types';
@@ -65,7 +65,7 @@ export default class DependencyManager extends React.Component<Props, State> {
         this._syncPackageJson(this.props.fileEntries.find(e => isPackageJson(e.item.path)));
       }
 
-      this._findNewDependencies(this.props.fileEntries.filter(entry => isJSFile(entry)));
+      this._findNewDependencies(this.props.fileEntries.filter(entry => isScriptFile(entry)));
     } else {
       this._handleVersionComments();
     }
@@ -92,13 +92,13 @@ export default class DependencyManager extends React.Component<Props, State> {
       let changedEntries;
 
       if (this.props.sdkVersion !== prevProps.sdkVersion) {
-        changedEntries = this.props.fileEntries.filter(entry => isJSFile(entry));
+        changedEntries = this.props.fileEntries.filter(entry => isScriptFile(entry));
       } else if (this.props.fileEntries !== prevProps.fileEntries) {
         // Find dependencies for new or changed files
         changedEntries = this.props.fileEntries.filter(
           entry =>
             // If file doesn't exist in previous entry list, then it's new or changed
-            isJSFile(entry) && !prevProps.fileEntries.includes(entry)
+            isScriptFile(entry) && !prevProps.fileEntries.includes(entry)
         );
       }
 
@@ -161,8 +161,8 @@ export default class DependencyManager extends React.Component<Props, State> {
 
     const deps = {};
     const newEntries = this.props.fileEntries.map(entry => {
-      if (isJSFile(entry)) {
-        const { code, dependencies } = findDependencies(entry.item.content, true);
+      if (isScriptFile(entry)) {
+        const { code, dependencies } = findDependencies(entry.item.content, entry.item.path, true);
 
         if (code !== entry.item.content) {
           return updateEntry(entry, {
@@ -210,9 +210,12 @@ export default class DependencyManager extends React.Component<Props, State> {
                 name: string;
                 origin: string;
               }> => {
-                if (isJSFile(entry) && typeof entry.item.content === 'string') {
+                if (isScriptFile(entry) && typeof entry.item.content === 'string') {
                   // Get the list of dependencies the file
-                  const { dependencies: deps } = findDependencies(entry.item.content);
+                  const { dependencies: deps } = findDependencies(
+                    entry.item.content,
+                    entry.item.path
+                  );
 
                   return Object.keys(deps).map(name => ({
                     name,

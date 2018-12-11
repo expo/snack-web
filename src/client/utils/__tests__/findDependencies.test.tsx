@@ -9,7 +9,7 @@ it('finds all imported modules', () => {
     import { connect } from 'react-redux';
   `;
 
-  const { dependencies } = findDependencies(code);
+  const { dependencies } = findDependencies(code, 'index.js');
 
   expect(dependencies).toEqual({ base64: null, 'lodash/debounce': null, 'react-redux': null });
 });
@@ -21,7 +21,7 @@ it('finds all required modules', () => {
     const { connect } = require('react-redux');
   `;
 
-  const { dependencies } = findDependencies(code);
+  const { dependencies } = findDependencies(code, 'index.js');
 
   expect(dependencies).toEqual({ base64: null, 'lodash/debounce': null, 'react-redux': null });
 });
@@ -33,7 +33,7 @@ it('finds all required modules with backticks', () => {
     const { connect } = require(\`react-redux\`);
   `;
 
-  const { dependencies } = findDependencies(code);
+  const { dependencies } = findDependencies(code, 'index.js');
 
   expect(dependencies).toEqual({ base64: null, 'lodash/debounce': null, 'react-redux': null });
 });
@@ -44,7 +44,7 @@ it('finds all required modules with version comments', () => {
     const { connect } = require(\`react-redux\`); // 3.5.2
   `;
 
-  const { dependencies } = findDependencies(code);
+  const { dependencies } = findDependencies(code, 'index.js');
 
   expect(dependencies).toEqual({ base64: '2.4.1', 'react-redux': '3.5.2' });
 });
@@ -67,7 +67,39 @@ it('finds dependencies using all import styles', () => {
     export { otherValue }
   `;
 
-  const { dependencies } = findDependencies(code);
+  const { dependencies } = findDependencies(code, 'index.js');
+
+  expect(dependencies).toEqual({
+    mod1: null,
+    mod2: null,
+    mod3: null,
+    mod4: null,
+    mod5: null,
+    mod6: null,
+    mod7: null,
+    mod8: null,
+  });
+});
+
+it('finds dependencies using all import styles in TypeScript file', () => {
+  const code = `
+    import v from "mod1"
+    import * as ns from "mod2";
+    import {x} from "mod3";
+    import {x as v} from "mod4";
+    import "mod5";
+
+    export {x} from "mod6";
+    export {x as v} from "mod7";
+    export * from "mod8";
+
+    export default 7;
+    export const value = 6;
+    const otherValue = 5;
+    export { otherValue }
+  `;
+
+  const { dependencies } = findDependencies(code, 'index.tsx');
 
   expect(dependencies).toEqual({
     mod1: null,
@@ -94,7 +126,7 @@ it('finds dependencies with version comments', () => {
     export * from "mod8"; // 9.1.8
   `;
 
-  const { dependencies } = findDependencies(code);
+  const { dependencies } = findDependencies(code, 'index.js');
 
   expect(dependencies).toEqual({
     mod1: '2.4.1',
@@ -124,7 +156,7 @@ it('removes version comments', () => {
     export * from "mod8"; // 9.1.8
   `;
 
-  const { code: result } = findDependencies(code, true);
+  const { code: result } = findDependencies(code, 'index.js', true);
 
   expect(result).toEqual(`
     import v from "mod1";
@@ -157,7 +189,7 @@ it("doesn't parse non-static and invalid requires", () => {
     const ten = require(10);
   `;
 
-  const { dependencies } = findDependencies(code);
+  const { dependencies } = findDependencies(code, 'index.js');
 
   expect(dependencies).toEqual({});
 });

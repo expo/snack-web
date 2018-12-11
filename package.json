@@ -33,9 +33,9 @@
     ]
   },
   "dependencies": {
+    "@babel/parser": "^7.2.0",
     "@koa/cors": "^2.2.2",
     "aphrodite": "^2.2.3",
-    "babylon": "^6.18.0",
     "broadcast-channel": "^2.1.5",
     "classnames": "^2.2.6",
     "cookie": "^0.3.1",
@@ -99,7 +99,6 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.1.0",
     "@types/aphrodite": "^0.5.13",
-    "@types/babylon": "^6.16.4",
     "@types/classnames": "^2.2.6",
     "@types/cookie": "^0.3.2",
     "@types/date-fns": "^2.6.0",

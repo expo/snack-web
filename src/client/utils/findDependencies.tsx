@@ -1,12 +1,32 @@
-import * as babylon from 'babylon';
+import * as babylon from '@babel/parser';
 import { print, parse, types } from 'recast';
 import validate from 'validate-npm-package-name';
 import pickBy from 'lodash/pickBy';
-import config from '../configs/babylon';
+import getFileLanguage from './getFileLanguage';
 
-const parser = {
-  parse: (code: string) => babylon.parse(code, config),
-};
+const parserPlugins = [
+  'asyncGenerators',
+  'bigInt',
+  'classProperties',
+  'classPrivateProperties',
+  'classPrivateMethods',
+  ['decorators', { decoratorsBeforeExport: true }],
+  'doExpressions',
+  'dynamicImport',
+  'exportDefaultFrom',
+  'exportNamespaceFrom',
+  'functionBind',
+  'functionSent',
+  'importMeta',
+  'logicalAssignment',
+  'nullishCoalescingOperator',
+  'numericSeparator',
+  'objectRestSpread',
+  'optionalCatchBinding',
+  'optionalChaining',
+  ['pipelineOperator', { proposal: 'minimal' }],
+  'throwExpressions',
+];
 
 const getVersionFromComments = (comments: Array<{ value: string }>) => {
   return comments &&
@@ -50,8 +70,31 @@ const removeCommentFromPath = (path: any) => {
 
 const findDependencies = (
   code: string,
+  filename: string,
   removeVersionComments: boolean = false
 ): { dependencies: { [key: string]: string | null }; code: string } => {
+  const babylonPlugins = [...parserPlugins];
+  const language = getFileLanguage(filename);
+
+  if (language === 'typescript') {
+    babylonPlugins.push('typescript');
+
+    if (filename.endsWith('.tsx')) {
+      babylonPlugins.push('jsx');
+    }
+  } else {
+    babylonPlugins.push('flow', 'jsx');
+  }
+
+  const parser = {
+    parse: (code: string) =>
+      // @ts-ignore
+      babylon.parse(code, {
+        sourceType: 'module',
+        plugins: babylonPlugins,
+      }),
+  };
+
   const dependencies: { [key: string]: string | null } = {};
   const ast = parse(code, { parser });
 

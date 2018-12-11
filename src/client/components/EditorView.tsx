@@ -28,7 +28,7 @@ import PublishManager, { PublishModals } from './Publish/PublishManager';
 import DependencyManager from './DependencyManager';
 import KeyboardShortcuts, { Shortcuts } from './KeyboardShortcuts';
 import openEntry from '../actions/openEntry';
-import { isInsideFolder, changeParentPath, isJSFile, isJSONFile } from '../utils/fileUtilities';
+import { isInsideFolder, changeParentPath, isJSONFile } from '../utils/fileUtilities';
 import * as defaults from '../configs/defaults';
 import convertErrorToAnnotation from '../utils/convertErrorToAnnotation';
 import lintEntry from '../utils/lintEntry';

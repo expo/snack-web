@@ -48,6 +48,15 @@ export function isImage(name: string): boolean {
   return /\.(bmp|jpg|jpeg|png|gif|svg)$/.test(name);
 }
 
+export function isScriptFile(entry: FileSystemEntry | undefined): entry is TextFileEntry {
+  return (
+    entry != null &&
+    entry.item.type === 'file' &&
+    !entry.item.asset &&
+    /\.(js|tsx?)$/.test(entry.item.path)
+  );
+}
+
 export function isJSFile(entry: FileSystemEntry | undefined): entry is TextFileEntry {
   return (
     entry != null &&

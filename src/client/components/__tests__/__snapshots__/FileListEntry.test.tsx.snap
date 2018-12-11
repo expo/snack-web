@@ -35,6 +35,7 @@ exports[`renders children 1`] = `
         "handler": [Function],
         "label": "Duplicate",
       },
+      undefined,
       Object {
         "combo": Array [
           113,
