@@ -89,7 +89,7 @@ monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
 /**
  * Configure the typescript compiler to detect JSX and load type definitions
  */
-const compilerOptions = {
+const compilerOptions: monaco.languages.typescript.CompilerOptions = {
   allowJs: true,
   allowSyntheticDefaultImports: true,
   alwaysStrict: true,
@@ -148,11 +148,11 @@ type Props = {
 };
 
 // Store editor states such as cursor position, selection and scroll position for each model
-const editorStates = new Map();
+const editorStates = new Map<string, monaco.editor.ICodeEditorViewState | undefined | null>();
 
 // Store details about typings we have requested and loaded
-const requestedTypings = new Map();
-const extraLibs = new Map();
+const requestedTypings = new Map<string, string>();
+const extraLibs = new Map<string, { js: monaco.IDisposable; ts: monaco.IDisposable }>();
 
 const codeEditorService = StaticServices.codeEditorService.get();
 
@@ -219,10 +219,14 @@ class MonacoEditor extends React.Component<Props> {
     const editor = monaco.editor.create(this._node, rest, codeEditorService);
 
     this._subscription = editor.onDidChangeModelContent(() => {
-      const value = editor.getModel().getValue();
+      const model = editor.getModel();
 
-      if (value !== this.props.value) {
-        this.props.onValueChange(value);
+      if (model) {
+        const value = model.getValue();
+
+        if (value !== this.props.value) {
+          this.props.onValueChange(value);
+        }
       }
     });
 
@@ -245,22 +249,27 @@ class MonacoEditor extends React.Component<Props> {
       }
     });
 
-    // Add custom hover provider to show version for imported modules
-    this._hoverProvider = monaco.languages.registerHoverProvider('javascript', {
+    // Hover provider to show version for imported modules
+    const hoverProvider: monaco.languages.HoverProvider = {
       provideHover: (model: monaco.editor.ITextModel, position: monaco.Position): any => {
         // Get the current line
         const line = model.getLineContent(position.lineNumber);
+        const language = this._getLanguage(this.props.path);
+
+        if (!language) {
+          return;
+        }
 
         // Tokenize the line
-        // @ts-ignore
-        const tokens = monaco.editor.tokenize(line, this._getLanguage(this.props.path))[0];
+        const tokens = monaco.editor.tokenize(line, language)[0];
 
         for (let i = 0, l = tokens.length; i < l; i++) {
           const current = tokens[i];
           const next = tokens[i + 1];
           const end = next ? next.offset : line.length;
+
           if (
-            current.type === 'string.js' &&
+            (current.type === 'string.js' || current.type === 'string.ts') &&
             position.column > current.offset &&
             position.column < end
           ) {
@@ -284,10 +293,10 @@ class MonacoEditor extends React.Component<Props> {
           }
         }
       },
-    });
+    };
 
-    // Add custom completion provider to provide autocomplete for files and dependencies
-    this._completionProvider = monaco.languages.registerCompletionItemProvider('javascript', {
+    // Completion provider to provide autocomplete for files and dependencies
+    const completionProvider: monaco.languages.CompletionItemProvider = {
       triggerCharacters: ["'", '"', '.', '/'],
       provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position): any => {
         // Get editor content before the pointer
@@ -310,7 +319,7 @@ class MonacoEditor extends React.Component<Props> {
             // Map '.' to './' and '..' to '../' for better autocomplete
             const prefix = typed === '.' ? './' : typed === '..' ? '../' : typed;
 
-            return this.props.entries
+            const suggestions = this.props.entries
               .filter(({ item }) => item.path !== this.props.path && !item.virtual)
               .map(({ item }) => {
                 let file = getRelativePath(this.props.path, item.path);
@@ -328,7 +337,7 @@ class MonacoEditor extends React.Component<Props> {
                     // Show only the file name for label
                     label: file.split('/').pop(),
                     // Don't keep extension for JS files
-                    insertText: item.type === 'file' ? file.replace(/\.js$/, '') : file,
+                    insertText: item.type === 'file' ? file.replace(/\.(js|tsx?)$/, '') : file,
                     kind:
                       item.type === 'folder'
                         ? monaco.languages.CompletionItemKind.Folder
@@ -339,19 +348,35 @@ class MonacoEditor extends React.Component<Props> {
                 return null;
               })
               .filter(Boolean);
+
+            return { suggestions };
           } else {
             const deps = this._getAllDependencies(this.props.dependencies, this.props.sdkVersion);
 
-            // User is trying to import a dependency
-            return Object.keys(deps).map(name => ({
-              label: name,
-              detail: deps[name].version,
-              kind: monaco.languages.CompletionItemKind.Module,
-            }));
+            return {
+              // User is trying to import a dependency
+              suggestions: Object.keys(deps).map(name => ({
+                label: name,
+                detail: deps[name].version,
+                kind: monaco.languages.CompletionItemKind.Module,
+              })),
+            };
           }
         }
       },
-    });
+    };
+
+    this._hoverProviderJS = monaco.languages.registerHoverProvider('javascript', hoverProvider);
+    this._hoverProviderTS = monaco.languages.registerHoverProvider('typescript', hoverProvider);
+
+    this._completionProviderJS = monaco.languages.registerCompletionItemProvider(
+      'javascript',
+      completionProvider
+    );
+    this._completionProviderTS = monaco.languages.registerCompletionItemProvider(
+      'typescript',
+      completionProvider
+    );
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -370,16 +395,18 @@ class MonacoEditor extends React.Component<Props> {
     if (this._editor) {
       this._editor.updateOptions(rest);
 
+      const model = this._editor.getModel();
+
       if (path !== prevProps.path) {
         // Save the editor state for the previous file so we can restore it when it's re-opened
         editorStates.set(prevProps.path, this._editor.saveViewState());
 
         this._openFile(path, value, autoFocus);
-      } else if (value !== this._editor.getModel().getValue()) {
+      } else if (model && value !== model.getValue()) {
         // @ts-ignore
         this._editor.executeEdits(null, [
           {
-            range: this._editor.getModel().getFullModelRange(),
+            range: model.getFullModelRange(),
             text: value,
           },
         ]);
@@ -424,8 +451,10 @@ class MonacoEditor extends React.Component<Props> {
   componentWillUnmount() {
     this._subscription && this._subscription.dispose();
     this._editor && this._editor.dispose();
-    this._hoverProvider && this._hoverProvider.dispose();
-    this._completionProvider && this._completionProvider.dispose();
+    this._hoverProviderJS && this._hoverProviderJS.dispose();
+    this._hoverProviderTS && this._hoverProviderTS.dispose();
+    this._completionProviderJS && this._completionProviderJS.dispose();
+    this._completionProviderTS && this._completionProviderTS.dispose();
     this._typingsWorker && this._typingsWorker.terminate();
   }
 
@@ -435,6 +464,7 @@ class MonacoEditor extends React.Component<Props> {
         case 'js':
           return 'javascript';
         case 'ts':
+        case 'tsx':
           return 'typescript';
         case 'json':
           return 'json';
@@ -470,9 +500,11 @@ class MonacoEditor extends React.Component<Props> {
         ]
       );
     } else {
-      const language = this._getLanguage(path);
-
-      model = monaco.editor.createModel(value, language, monaco.Uri.from({ scheme: 'file', path }));
+      model = monaco.editor.createModel(
+        value,
+        undefined,
+        monaco.Uri.from({ scheme: 'file', path })
+      );
 
       model.updateOptions({
         tabSize: 2,
@@ -541,15 +573,19 @@ class MonacoEditor extends React.Component<Props> {
 
   _addTypings = ({ typings }: { typings: { [key: string]: string } }) => {
     Object.keys(typings).forEach(path => {
-      let extraLib = extraLibs.get(path);
+      const extraLib = extraLibs.get(path);
 
-      extraLib && extraLib.dispose();
-      extraLib = monaco.languages.typescript.javascriptDefaults.addExtraLib(
-        typings[path],
-        monaco.Uri.from({ scheme: 'file', path }).toString()
-      );
+      if (extraLib) {
+        extraLib.js.dispose();
+        extraLib.ts.dispose();
+      }
 
-      extraLibs.set(path, extraLib);
+      const uri = monaco.Uri.from({ scheme: 'file', path }).toString();
+
+      const js = monaco.languages.typescript.javascriptDefaults.addExtraLib(typings[path], uri);
+      const ts = monaco.languages.typescript.typescriptDefaults.addExtraLib(typings[path], uri);
+
+      extraLibs.set(path, { js, ts });
     });
   };
 
@@ -570,10 +606,12 @@ class MonacoEditor extends React.Component<Props> {
     trailing: true,
   });
 
-  _typingsWorker: Worker | null = null;
-  _hoverProvider: any;
-  _completionProvider: any;
-  _subscription: any;
+  _typingsWorker: Worker | undefined;
+  _hoverProviderJS: monaco.IDisposable | undefined;
+  _hoverProviderTS: monaco.IDisposable | undefined;
+  _completionProviderJS: monaco.IDisposable | undefined;
+  _completionProviderTS: monaco.IDisposable | undefined;
+  _subscription: monaco.IDisposable | undefined;
   _editor: monaco.editor.IStandaloneCodeEditor | null = null;
   _vim: any;
   _node: any;
