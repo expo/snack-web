@@ -134,6 +134,10 @@ export default class FileListEntry extends React.Component<Props, State> {
       return new Error(`Another entry already exists with same name`);
     }
 
+    if (isEntryPoint(name)) {
+      return new Error(`Cannot name a new file as ${name}`);
+    }
+
     return null;
   };
 
