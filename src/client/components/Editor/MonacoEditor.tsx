@@ -15,6 +15,7 @@ import withThemeName, { ThemeName } from '../Preferences/withThemeName';
 import ResizeDetector from '../shared/ResizeDetector';
 import prettierCode from '../../utils/prettierCode';
 import getRelativePath from '../../utils/getRelativePath';
+import getFileLanguage from '../../utils/getFileLanguage';
 import { SDKVersion } from '../../configs/sdk';
 import { FileSystemEntry } from '../../types';
 import { Annotation } from '../../utils/convertErrorToAnnotation';
@@ -63,12 +64,12 @@ monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
 });
 
 /**
- * Use prettier to format JavaScript code.
+ * Use prettier to format code.
  * This will replace the default formatter.
  */
-monaco.languages.registerDocumentFormattingEditProvider('javascript', {
+const documentFormattingProvider: monaco.languages.DocumentFormattingEditProvider = {
   async provideDocumentFormattingEdits(model) {
-    const text = await prettierCode(model.getValue());
+    const text = await prettierCode(model.uri.path, model.getValue());
 
     return [
       {
@@ -77,7 +78,11 @@ monaco.languages.registerDocumentFormattingEditProvider('javascript', {
       },
     ];
   },
-});
+};
+
+monaco.languages.registerDocumentFormattingEditProvider('javascript', documentFormattingProvider);
+monaco.languages.registerDocumentFormattingEditProvider('typescript', documentFormattingProvider);
+monaco.languages.registerDocumentFormattingEditProvider('markdown', documentFormattingProvider);
 
 /**
  * Sync all the models to the worker eagerly.
@@ -110,8 +115,6 @@ const compilerOptions: monaco.languages.typescript.CompilerOptions = {
 
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions);
 monaco.languages.typescript.javascriptDefaults.setCompilerOptions(compilerOptions);
-
-type Language = 'javascript' | 'typescript' | 'json' | 'css' | 'html' | 'markdown';
 
 type DependencyList = { [key: string]: { version: string } };
 
@@ -254,7 +257,7 @@ class MonacoEditor extends React.Component<Props> {
       provideHover: (model: monaco.editor.ITextModel, position: monaco.Position): any => {
         // Get the current line
         const line = model.getLineContent(position.lineNumber);
-        const language = this._getLanguage(this.props.path);
+        const language = getFileLanguage(this.props.path);
 
         if (!language) {
           return;
@@ -457,30 +460,6 @@ class MonacoEditor extends React.Component<Props> {
     this._completionProviderTS && this._completionProviderTS.dispose();
     this._typingsWorker && this._typingsWorker.terminate();
   }
-
-  _getLanguage = (path: string): Language | undefined => {
-    if (path.includes('.')) {
-      switch (path.split('.').pop()) {
-        case 'js':
-          return 'javascript';
-        case 'ts':
-        case 'tsx':
-          return 'typescript';
-        case 'json':
-          return 'json';
-        case 'css':
-          return 'css';
-        case 'html':
-          return 'html';
-        case 'md':
-          return 'markdown';
-        default:
-          return undefined;
-      }
-    }
-
-    return undefined;
-  };
 
   _initializeFile = (path: string, value: string) => {
     let model = findModel(path);

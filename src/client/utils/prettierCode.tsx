@@ -1,15 +1,40 @@
-export default async function prettierCode(code: string): Promise<string> {
-  // @ts-ignore
-  const prettier = await import('prettier/standalone');
+import getFileLanguage from './getFileLanguage';
 
-  // @ts-ignore
-  const plugins = [await import('prettier/parser-babylon')];
+export default async function prettierCode(path: string, code: string): Promise<string> {
+  const language = getFileLanguage(path);
 
-  const { default: config } = await import('../configs/prettier.json');
+  let parser;
+  let plugins;
 
-  return prettier.format(code, {
-    parser: 'babylon',
-    plugins,
-    ...config,
-  });
+  switch (language) {
+    case 'javascript':
+      parser = 'babylon';
+      plugins = [await import('prettier/parser-babylon')];
+      break;
+    case 'typescript':
+      parser = 'typescript';
+      plugins = [await import('prettier/parser-typescript')];
+      break;
+    case 'markdown':
+      parser = 'markdown';
+      plugins = await Promise.all([
+        import('prettier/parser-babylon'),
+        import('prettier/parser-typescript'),
+        import('prettier/parser-markdown'),
+      ]);
+      break;
+  }
+
+  if (parser && plugins) {
+    const prettier = await import('prettier/standalone');
+    const { default: config } = (await import('../configs/prettier.json')) as any;
+
+    return prettier.format(code, {
+      parser,
+      plugins,
+      ...config,
+    });
+  }
+
+  return code;
 }

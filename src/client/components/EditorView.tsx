@@ -207,7 +207,7 @@ class EditorView extends React.Component<Props, State> {
     window.addEventListener('beforeunload', this._handleUnload);
 
     // Load prettier early so that clicking on the prettier button doesn't take too long
-    setTimeout(() => prettierCode(''), 5000);
+    setTimeout(() => prettierCode('index.js', ''), 5000);
 
     if (this.props.wasUpgraded) {
       // eslint-disable-next-line react/no-did-mount-set-state
@@ -291,10 +291,10 @@ class EditorView extends React.Component<Props, State> {
 
     let code = entry.item.content;
 
-    if (isJSFile(entry)) {
-      code = await prettierCode(code);
-    } else if (isJSONFile(entry)) {
+    if (isJSONFile(entry)) {
       code = JSON.stringify(JSON.parse(code), null, 2);
+    } else {
+      code = await prettierCode(entry.item.path, code);
     }
 
     if (!entry.item.asset && code !== entry.item.content) {
