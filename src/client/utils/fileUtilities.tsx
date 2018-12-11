@@ -37,7 +37,7 @@ export function getUniquePath(allPaths: string[], suggestedPath: string, initial
 }
 
 export function isEntryPoint(name: string): boolean {
-  return name === 'App.js';
+  return /^App\.(js|tsx?)$/.test(name);
 }
 
 export function isPackageJson(name: string): boolean {

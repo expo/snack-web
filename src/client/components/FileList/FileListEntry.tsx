@@ -140,8 +140,7 @@ export default class FileListEntry extends React.Component<Props, State> {
   _handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     const input = e.target;
     if (input instanceof HTMLInputElement) {
-      const name = input.value.replace(/\.[\S]+$/, '');
-      input.setSelectionRange(0, name.length);
+      input.select();
     }
   };
 

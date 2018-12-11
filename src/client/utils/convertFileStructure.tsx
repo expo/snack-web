@@ -1,3 +1,4 @@
+import { isEntryPoint } from './fileUtilities';
 import { ExpoSnackFiles, FileSystemEntry } from '../types';
 
 const getFolders = (path: string): string[] => {
@@ -34,7 +35,7 @@ export const snackToEntryArray = (snackFormat: ExpoSnackFiles): FileSystemEntry[
       }
     }
 
-    const isEntry = filename === 'App.js';
+    const isEntry = isEntryPoint(filename);
 
     fileSystem.push(
       snackFormat[filename].type === 'ASSET'
