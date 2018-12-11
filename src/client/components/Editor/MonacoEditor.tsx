@@ -93,7 +93,19 @@ const compilerOptions = {
   allowJs: true,
   allowSyntheticDefaultImports: true,
   alwaysStrict: true,
-  jsxFactory: 'React.createElement',
+  esModuleInterop: true,
+  forceConsistentCasingInFileNames: true,
+  isolatedModules: true,
+  jsx: monaco.languages.typescript.JsxEmit.React,
+  module: monaco.languages.typescript.ModuleKind.ESNext,
+  moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+  noEmit: true,
+  resolveJsonModule: true,
+  strict: true,
+  target: monaco.languages.typescript.ScriptTarget.ESNext,
+  paths: {
+    '*': ['*', '*.native', '*.ios', '*.android'],
+  },
 };
 
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions);
@@ -144,6 +156,9 @@ const extraLibs = new Map();
 
 const codeEditorService = StaticServices.codeEditorService.get();
 
+const findModel = (path: string) =>
+  monaco.editor.getModels().find(model => model.uri.path === `/${path}`);
+
 class MonacoEditor extends React.Component<Props> {
   static defaultProps: Partial<Props> = {
     lineNumbers: 'on',
@@ -161,7 +176,7 @@ class MonacoEditor extends React.Component<Props> {
     editorStates.delete(path);
 
     // Remove associated models
-    const model = monaco.editor.getModels().find(model => model.uri.path === path);
+    const model = findModel(path);
 
     model && model.dispose();
   }
@@ -190,7 +205,8 @@ class MonacoEditor extends React.Component<Props> {
       { resource, options }: any,
       editor: monaco.editor.IStandaloneCodeEditor
     ) => {
-      await this.props.onOpenPath(resource.path);
+      // Remove the leading slash added by the Uri
+      await this.props.onOpenPath(resource.path.replace(/^\//, ''));
 
       editor.setSelection(options.selection);
       editor.revealLine(options.selection.startLineNumber);
@@ -437,7 +453,7 @@ class MonacoEditor extends React.Component<Props> {
   };
 
   _initializeFile = (path: string, value: string) => {
-    let model = monaco.editor.getModels().find(model => model.uri.path === path);
+    let model = findModel(path);
 
     if (model && !model.isDisposed()) {
       // If a model exists, we need to update it's value
@@ -456,7 +472,8 @@ class MonacoEditor extends React.Component<Props> {
     } else {
       const language = this._getLanguage(path);
 
-      model = monaco.editor.createModel(value, language, new monaco.Uri().with({ path }));
+      model = monaco.editor.createModel(value, language, monaco.Uri.from({ scheme: 'file', path }));
+
       model.updateOptions({
         tabSize: 2,
         insertSpaces: true,
@@ -467,7 +484,7 @@ class MonacoEditor extends React.Component<Props> {
   _openFile = (path: string, value: string, focus?: boolean) => {
     this._initializeFile(path, value);
 
-    const model = monaco.editor.getModels().find(model => model.uri.path === path);
+    const model = findModel(path);
 
     if (this._editor && model) {
       this._editor.setModel(model);
@@ -527,7 +544,10 @@ class MonacoEditor extends React.Component<Props> {
       let extraLib = extraLibs.get(path);
 
       extraLib && extraLib.dispose();
-      extraLib = monaco.languages.typescript.javascriptDefaults.addExtraLib(typings[path], path);
+      extraLib = monaco.languages.typescript.javascriptDefaults.addExtraLib(
+        typings[path],
+        monaco.Uri.from({ scheme: 'file', path }).toString()
+      );
 
       extraLibs.set(path, extraLib);
     });
