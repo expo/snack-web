@@ -35,6 +35,9 @@ type State = {
   isRenaming: boolean;
 };
 
+const toggleTSExt = (name: string) =>
+  name.replace(/(\.[^.]+$)/, (_, $1) => ($1 === '.js' ? '.tsx' : '.js'));
+
 export default class FileListEntry extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -192,6 +195,12 @@ export default class FileListEntry extends React.Component<Props, State> {
     onPaste(path, entry);
   };
 
+  _handleToggleTSExt = () => {
+    const filepath = this.props.entry.item.path;
+
+    this.props.onRename(filepath, toggleTSExt(filepath));
+  };
+
   _getActions = (): Array<Action | undefined> => [
     {
       label: 'New file',
@@ -229,6 +238,12 @@ export default class FileListEntry extends React.Component<Props, State> {
           label: 'Duplicate',
           handler: this._handleDuplicate,
           combo: [KeyMap.Meta, KeyMap.D],
+        }
+      : undefined,
+    isEntryPoint(this.props.entry.item.path)
+      ? {
+          label: `Rename to ${toggleTSExt(this.props.entry.item.path)}`,
+          handler: this._handleToggleTSExt,
         }
       : undefined,
     ...(!isEntryPoint(this.props.entry.item.path) && !this.props.entry.item.virtual
