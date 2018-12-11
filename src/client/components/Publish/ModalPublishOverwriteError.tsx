@@ -7,8 +7,8 @@ type Props = {
   username: string | undefined;
   slug: string;
   visible: boolean;
-  onEditName: () => unknown;
-  onDismiss: () => unknown;
+  onEditName: () => void;
+  onDismiss: () => void;
 };
 
 export default class ModalPublishOverwriteError extends React.Component<Props> {

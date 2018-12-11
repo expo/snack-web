@@ -12,10 +12,6 @@ type Props = {
   theme: ThemeName;
 };
 
-type State = {
-  popoverVisible: boolean;
-};
-
 const ExternalLink = ({
   sessionID,
   onOpenFullview,
@@ -38,39 +34,7 @@ const ExternalLink = ({
   );
 };
 
-class EmbeddedEditorTitle extends React.PureComponent<Props, State> {
-  state = {
-    popoverVisible: false,
-  };
-
-  componentDidMount() {
-    document.addEventListener('click', this._handleDocumentClick);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('click', this._handleDocumentClick);
-  }
-
-  _handleDocumentClick = (e: any) => {
-    if (
-      this.state.popoverVisible &&
-      (e.target === this._info ||
-        e.target === this._popover ||
-        (this._popover && this._popover.contains(e.target)))
-    ) {
-      return;
-    }
-
-    this._hidePopover();
-  };
-
-  _togglePopover = () => this.setState(state => ({ popoverVisible: !state.popoverVisible }));
-
-  _hidePopover = () => this.setState({ popoverVisible: false });
-
-  _info: any;
-  _popover: any;
-
+class EmbeddedEditorTitle extends React.PureComponent<Props> {
   render() {
     const { name, sessionID, onOpenFullview, theme } = this.props;
 

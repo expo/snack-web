@@ -120,7 +120,7 @@ type Props = PreferencesContextType & {
     modules: {
       [name: string]: string | undefined;
     },
-    onError: (name: string, e: Error) => unknown
+    onError: (name: string, e: Error) => void
   ) => Promise<void>;
   setDeviceId: (deviceId: string) => Promise<void>;
   deviceId: string | undefined;
@@ -556,7 +556,7 @@ class EditorView extends React.Component<Props, State> {
                 <KeybindingsManager
                   bindings={Shortcuts}
                   onTrigger={({ type }: any) => {
-                    const commands: { [key: string]: (() => unknown) | null } = {
+                    const commands: { [key: string]: (() => void) | null } = {
                       save:
                         saveStatus === 'published'
                           ? null

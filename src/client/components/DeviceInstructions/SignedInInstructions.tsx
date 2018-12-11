@@ -3,7 +3,7 @@ import { StyleSheet, css } from 'aphrodite';
 import { Viewer } from '../../types';
 
 type Props = {
-  logout: () => unknown;
+  logout: () => void;
   viewer: Viewer;
 };
 

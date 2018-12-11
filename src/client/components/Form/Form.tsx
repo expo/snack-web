@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 type Props = {
-  onSubmit: () => unknown;
+  onSubmit: () => void;
   children: React.ReactNode;
 };
 
@@ -12,7 +12,7 @@ type State = {
 type Register = (
   options: {
     validate: () => Error | null;
-    focus: () => unknown;
+    focus: () => void;
   }
 ) => number;
 
@@ -39,7 +39,7 @@ export default class Form extends React.Component<Props, State> {
   }
 
   _key = 0;
-  _inputs: Array<{ key: number; validate: () => Error | null; focus: () => unknown }> = [];
+  _inputs: Array<{ key: number; validate: () => Error | null; focus: () => void }> = [];
 
   _register: Register = ({ validate, focus }) => {
     const key = this._key++;

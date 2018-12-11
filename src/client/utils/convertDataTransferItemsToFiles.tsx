@@ -2,8 +2,8 @@ export type WebkitDirectoryReaderResult = Array<WebkitFileEntry | WebkitDirector
 
 export type WebkitDirectoryReader = {
   readEntries: (
-    success: (result: WebkitDirectoryReaderResult) => unknown,
-    error: (e: Error) => unknown
+    success: (result: WebkitDirectoryReaderResult) => void,
+    error: (e: Error) => void
   ) => void;
 };
 
@@ -12,7 +12,7 @@ export type WebkitFileEntry = {
   isDirectory: false;
   name: string;
   fullPath: string;
-  file: (success: (f: File) => unknown, failure: (e: Error) => unknown) => unknown;
+  file: (success: (f: File) => void, failure: (e: Error) => void) => void;
 };
 
 export type WebkitDirectoryEntry = {

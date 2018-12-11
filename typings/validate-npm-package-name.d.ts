@@ -4,5 +4,5 @@ declare module 'validate-npm-package-name' {
     validForNewPackages: boolean;
   };
 
-  export default (name: string | null) => ValidationResult;
+  export default function(name: string | null): ValidationResult;
 }

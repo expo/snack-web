@@ -32,7 +32,7 @@ type Props = {
   };
 };
 
-const css: any = String.raw;
+const css = String.raw;
 
 const DEFAULT_DESCRIPTION = 'No description';
 const DEFAULT_METADATA_NAME = 'Snack - React Native in the browser';

@@ -6,7 +6,6 @@ const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { StatsWriterPlugin } = require('webpack-stats-plugin');
 const WorkerPlugin = require('worker-plugin');
-const babelrc = require('./babel.config');
 
 function env(key, def) {
   let value = process.env[key];

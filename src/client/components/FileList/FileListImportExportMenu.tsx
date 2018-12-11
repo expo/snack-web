@@ -5,9 +5,9 @@ import ContextMenu from '../shared/ContextMenu';
 import { SaveStatus } from '../../types';
 
 type Props = {
-  onImportFilesClick: () => unknown;
-  onImportRepoClick: () => unknown;
-  onExportClick: () => unknown;
+  onImportFilesClick: () => void;
+  onImportRepoClick: () => void;
+  onExportClick: () => void;
   hasSnackId: boolean;
   saveStatus: SaveStatus;
 };

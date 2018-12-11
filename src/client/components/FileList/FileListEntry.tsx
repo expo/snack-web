@@ -14,17 +14,17 @@ type Props = {
   entry: FileSystemEntry;
   rest: FileSystemEntry[];
   clipboard: FileSystemEntry[];
-  onOpen: (path: string) => unknown;
-  onFocus: (path: string) => unknown;
-  onSelect: (path: string) => unknown;
-  onDelete: (path: string) => unknown;
-  onCopy: (path: string) => unknown;
-  onExpand: (path: string, expand?: boolean) => unknown;
-  onRename: (oldPath: string, newPath: string) => unknown;
-  onCreateFile: (path: string | undefined) => unknown;
-  onCreateFolder: (path: string | undefined) => unknown;
-  onPaste: (path: string | undefined, entry: FileSystemEntry) => unknown;
-  onClearClipboard: () => unknown;
+  onOpen: (path: string) => void;
+  onFocus: (path: string) => void;
+  onSelect: (path: string) => void;
+  onDelete: (path: string) => void;
+  onCopy: (path: string) => void;
+  onExpand: (path: string, expand?: boolean) => void;
+  onRename: (oldPath: string, newPath: string) => void;
+  onCreateFile: (path: string | undefined) => void;
+  onCreateFolder: (path: string | undefined) => void;
+  onPaste: (path: string | undefined, entry: FileSystemEntry) => void;
+  onClearClipboard: () => void;
   getAdjacentEntries: () => FileSystemEntry[];
   theme: ThemeName;
 };
@@ -97,7 +97,7 @@ export default class FileListEntry extends React.Component<Props, State> {
     }
   };
 
-  _handleInputChange = (e: any) => {
+  _handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
 
     this.setState({
@@ -156,7 +156,7 @@ export default class FileListEntry extends React.Component<Props, State> {
     });
   };
 
-  _handleInputKeyUp = (e: any) => {
+  _handleInputKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     switch (e.keyCode) {
       case KeyMap.Enter:
         this._handleToggleRename();

@@ -7,7 +7,7 @@ import colors from '../../configs/colors';
 
 export type ModalSheetProps = {
   visible: boolean;
-  onDismiss: () => unknown;
+  onDismiss: () => void;
   children: React.ReactNode;
   className?: string;
 };

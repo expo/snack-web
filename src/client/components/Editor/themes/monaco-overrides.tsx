@@ -4,7 +4,7 @@ import * as lightColors from './colors-light';
 import * as darkColors from './colors-dark';
 import { c } from '../../ColorsProvider';
 
-const css: any = String.raw;
+const css = String.raw;
 
 export default css`
   /* Common overrides */

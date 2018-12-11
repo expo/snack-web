@@ -1,4 +1,5 @@
 import cookie from 'cookie';
+import { Context } from 'koa';
 
 const SNACK_COOKIE_NAME = 'snack-values';
 const choose = (array: string[]) => array[Math.floor(Math.random() * array.length)];
@@ -7,7 +8,6 @@ const chooseWithWeights = (weights: { [key: string]: number }) => {
   let runningWeight = 0;
   let value;
   for (value of Object.keys(weights)) {
-    // $FlowIgnore
     runningWeight += weights[value];
     if (random <= runningWeight) {
       return value;
@@ -17,10 +17,10 @@ const chooseWithWeights = (weights: { [key: string]: number }) => {
 };
 
 // TODO: define a type for next contexts (see https://github.com/zeit/next.js/blob/master/readme.md#fetching-data-and-component-lifecycle)
-export default async (ctx: any) => {
+export default async (ctx: Context) => {
   let cookies: { [SNACK_COOKIE_NAME]?: string } = {};
   if (ctx.req.headers && ctx.req.headers.cookie) {
-    /* $FlowIgnore */
+    // @ts-ignore
     cookies = cookie.parse(ctx.req.headers.cookie || {});
   }
   const storedValues = cookies[SNACK_COOKIE_NAME];

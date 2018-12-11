@@ -3,13 +3,13 @@ declare module 'monaco-editor/esm/vs/editor/editor.main' {
 }
 
 declare module 'monaco-editor/esm/vs/editor/standalone/browser/simpleServices' {
-  export const SimpleEditorModelResolverService = any;
+  export const SimpleEditorModelResolverService: any;
 }
 
 declare module 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices' {
-  export const StaticServices = {
+  export const StaticServices: {
     codeEditorService: {
-      get(): any;,
+      get(): any,
     },
   };
 }

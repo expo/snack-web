@@ -10,10 +10,10 @@ import { FileSystemEntry } from '../../types';
 type Props = {
   entry: FileSystemEntry;
   rest: FileSystemEntry[];
-  onOpen: (path: string) => unknown;
-  onFocus: (path: string) => unknown;
-  onRename: (oldPath: string, newPath: string) => unknown;
-  onExpand?: (path: string, expand?: boolean) => unknown;
+  onOpen: (path: string) => void;
+  onFocus: (path: string) => void;
+  onRename: (oldPath: string, newPath: string) => void;
+  onExpand?: (path: string, expand?: boolean) => void;
   renderMenuIcon: () => React.ReactNode;
   renderItem: () => React.ReactNode;
   renderTree?: () => React.ReactNode;

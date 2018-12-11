@@ -116,8 +116,8 @@ type Props = {
   path: string;
   value: string;
   mode: EditorMode;
-  onOpenPath: (path: string) => unknown;
-  onValueChange: (value: string) => unknown;
+  onOpenPath: (path: string) => void;
+  onValueChange: (value: string) => void;
   annotations: Annotation[];
   lineNumbers?: 'on' | 'off' | 'relative' | 'interval';
   wordWrap: 'off' | 'on' | 'wordWrapColumn' | 'bounded';
@@ -295,10 +295,7 @@ class MonacoEditor extends React.Component<Props> {
             const prefix = typed === '.' ? './' : typed === '..' ? '../' : typed;
 
             return this.props.entries
-              .filter(
-                // $FlowIgnore  only TextFileEntries have the virtual property
-                ({ item }) => item.path !== this.props.path && !item.virtual
-              )
+              .filter(({ item }) => item.path !== this.props.path && !item.virtual)
               .map(({ item }) => {
                 let file = getRelativePath(this.props.path, item.path);
 

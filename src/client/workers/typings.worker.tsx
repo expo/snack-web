@@ -96,17 +96,6 @@ const tempTransformFiles = (files: File[]) => {
   return finalObj;
 };
 
-const transformFiles = (dir: any) =>
-  dir.files
-    ? dir.files.reduce((prev: { [key: string]: File }, next: File) => {
-        if (next.type === 'file') {
-          return { ...prev, [next.path]: next };
-        }
-
-        return { ...prev, ...transformFiles(next) };
-      }, {})
-    : {};
-
 const getFileMetaData = (dependency: string, version: string, depPath: string) =>
   doFetch(`https://data.jsdelivr.com/v1/package/npm/${dependency}@${version}/flat`)
     .then((response: string) => JSON.parse(response))
@@ -215,13 +204,13 @@ function fetchFromTypings(dependency: string, version: string, fetchedPaths: Fet
 
         // get all files in the specified directory
         return getFileMetaData(dependency, version, path.join('/', path.dirname(types))).then(
-          (fileData: any) =>
+          (fileMetaData: { [key: string]: File }) =>
             getFileTypes(
               depUrl,
               dependency,
-              resolveAppropiateFile(fileData, types),
+              resolveAppropiateFile(fileMetaData, types),
               fetchedPaths,
-              fileData
+              fileMetaData
             )
         );
       }

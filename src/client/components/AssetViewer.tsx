@@ -22,13 +22,16 @@ export default class AssetViewer extends React.PureComponent<Props, State> {
     layout: null,
   };
 
-  _handleImageLoad = (e: any) =>
+  _handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const image = e.target as HTMLImageElement;
+
     this.setState({
       layout: {
-        height: e.target.naturalHeight,
-        width: e.target.naturalWidth,
+        height: image.naturalHeight,
+        width: image.naturalWidth,
       },
     });
+  };
 
   render() {
     const ext = this.props.entry.item.path.includes('.')

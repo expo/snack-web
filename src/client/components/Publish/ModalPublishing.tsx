@@ -6,7 +6,7 @@ import ModalDialog from '../shared/ModalDialog';
 
 type Props = {
   visible: boolean;
-  onDismiss: () => unknown;
+  onDismiss: () => void;
   theme: ThemeName;
 };
 

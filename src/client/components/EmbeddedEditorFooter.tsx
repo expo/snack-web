@@ -11,8 +11,8 @@ type Props = {
   loadingMessage: string | undefined;
   devicePreviewShown: boolean;
   devicePreviewPlatform: 'android' | 'ios';
-  onToggleDevicePreview: () => unknown;
-  onChangeDevicePreviewPlatform: (platform: 'android' | 'ios') => unknown;
+  onToggleDevicePreview: () => void;
+  onChangeDevicePreviewPlatform: (platform: 'android' | 'ios') => void;
   theme: ThemeName;
 };
 

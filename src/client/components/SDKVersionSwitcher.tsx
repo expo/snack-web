@@ -7,7 +7,7 @@ import { SDKVersion } from '../configs/sdk';
 type Props = {
   light?: boolean;
   sdkVersion: SDKVersion;
-  onChange: (sdkVersion: SDKVersion) => unknown;
+  onChange: (sdkVersion: SDKVersion) => void;
 };
 
 export default function SDKVersionSwitcher({ sdkVersion, onChange, light }: Props) {

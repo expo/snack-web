@@ -3,21 +3,21 @@ import { StyleSheet, css } from 'aphrodite';
 import withThemeName, { ThemeName } from '../Preferences/withThemeName';
 import colors from '../../configs/colors';
 
-type Segment = {
-  id: string;
+type Segment<T> = {
+  id: T;
   text: string;
 };
 
-type Props = {
-  selectedId: string;
-  onSelect: (id: string) => void;
-  onClick?: () => unknown;
-  segments: Segment[];
+type Props<T> = {
+  selectedId: T;
+  onSelect: (id: T) => void;
+  onClick?: () => void;
+  segments: Array<Segment<T>>;
   className?: string;
   theme: ThemeName;
 };
 
-function SegmentedButton({ selectedId, onSelect, segments, theme }: Props) {
+function SegmentedButton<T extends string>({ selectedId, onSelect, segments, theme }: Props<T>) {
   return (
     <div className={css(styles.container)}>
       {segments.map(({ id, text }) => (

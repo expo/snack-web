@@ -31,7 +31,7 @@ export default class SendProjectLink extends React.Component<Props, State> {
 
   _isMounted: boolean = false;
 
-  _handleChange = (e: any) => {
+  _handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       value: e.target.value,
       status: null,
@@ -59,8 +59,8 @@ export default class SendProjectLink extends React.Component<Props, State> {
     }
   };
 
-  _handleSubmit = async (ev: any) => {
-    ev.preventDefault();
+  _handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
     if (this.state.status === 'saved' || !this.state.value) {
       return;

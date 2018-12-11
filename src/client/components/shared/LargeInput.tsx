@@ -7,7 +7,7 @@ type Props = {
   theme: ThemeName;
   value: string | undefined;
   disabled?: boolean;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => unknown;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   name?: string;
   type?: string;
@@ -32,7 +32,7 @@ class LargeInput extends React.Component<Props, State> {
 
   _handleBlur = () => this.setState({ focused: false });
 
-  _input: any;
+  _input: HTMLInputElement | null = null;
 
   render() {
     return (

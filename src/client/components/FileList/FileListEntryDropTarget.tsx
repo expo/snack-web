@@ -8,8 +8,8 @@ import { FileSystemEntry } from '../../types';
 type Props = {
   entry?: FileSystemEntry;
   rest: FileSystemEntry[];
-  onExpand?: (path: string, expand?: boolean) => unknown;
-  onRename: (oldPath: string, newPath: string) => unknown;
+  onExpand?: (path: string, expand?: boolean) => void;
+  onRename: (oldPath: string, newPath: string) => void;
   className?: string;
   theme: ThemeName;
   children?: any;

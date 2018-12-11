@@ -11,8 +11,8 @@ type Props = {
   snackUrl?: string;
   zipUrl?: string;
   isPublishing: boolean;
-  onDismiss: () => unknown;
-  onPublish: () => unknown;
+  onDismiss: () => void;
+  onPublish: () => void;
 };
 
 class ModalPublishToProfile extends React.Component<Props> {
@@ -24,7 +24,7 @@ class ModalPublishToProfile extends React.Component<Props> {
     document.removeEventListener('keydown', this._handleKeyDown);
   }
 
-  _handleKeyDown = (e: any) => {
+  _handleKeyDown = (e: KeyboardEvent) => {
     if (this.props.visible && e.keyCode === 13) {
       e.preventDefault();
       this.props.onPublish();

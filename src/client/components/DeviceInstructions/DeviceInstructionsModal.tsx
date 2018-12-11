@@ -20,7 +20,7 @@ type Props = {
   method: ConnectionMethod;
   onSignIn?: () => Promise<void>;
   onChangeMethod: (method: ConnectionMethod) => void;
-  onDismiss: () => unknown;
+  onDismiss: () => void;
   setDeviceId: (deviceId: string) => Promise<void>;
   wasUpgraded?: boolean;
   deviceId: string | undefined;
@@ -69,7 +69,7 @@ export default class DeviceInstructionsModal extends React.Component<Props> {
         <div className={css(styles.container)}>
           <SegmentedButton
             selectedId={method}
-            onSelect={(id: any) => onChangeMethod(id)}
+            onSelect={(id: string) => onChangeMethod(id as ConnectionMethod)}
             segments={segments}
           />
           <div className={css(styles.wrapper)}>

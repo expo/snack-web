@@ -17,9 +17,9 @@ type Props = {
   saveStatus: SaveStatus;
   viewer: Viewer | undefined;
   isEditModalVisible: boolean;
-  onShowPreviousSaves: () => unknown;
-  onShowEditModal: () => unknown;
-  onDismissEditModal: () => unknown;
+  onShowPreviousSaves: () => void;
+  onShowEditModal: () => void;
+  onDismissEditModal: () => void;
   onSubmitMetadata: (
     details: {
       name: string;
@@ -27,7 +27,7 @@ type Props = {
     },
     draft?: boolean
   ) => Promise<void>;
-  onLogInClick: () => unknown;
+  onLogInClick: () => void;
   theme: ThemeName;
 };
 

@@ -19,8 +19,8 @@ type Props = {
       name: string;
       description: string;
     }
-  ) => unknown;
-  onDismiss: () => unknown;
+  ) => void;
+  onDismiss: () => void;
   description: string | undefined;
   name: string;
   isWorking?: boolean;

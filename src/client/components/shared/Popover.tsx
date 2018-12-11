@@ -37,12 +37,12 @@ class Popover extends PureComponent<Props, State> {
     }
   };
 
-  _handleDocumentClick = (e: any) => {
+  _handleDocumentClick = (e: MouseEvent) => {
     if (
       this.state.visible &&
       (e.target === this._anchor ||
         e.target === this._popover ||
-        (this._popover && this._popover.contains(e.target)))
+        (this._popover && this._popover.contains(e.target as Node)))
     ) {
       return;
     }

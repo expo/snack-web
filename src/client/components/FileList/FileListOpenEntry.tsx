@@ -8,10 +8,10 @@ import { TextFileEntry, AssetFileEntry } from '../../types';
 
 type Props = {
   entry: TextFileEntry | AssetFileEntry;
-  onOpen: () => unknown;
-  onClose: () => unknown;
-  onCloseOthers: () => unknown;
-  onCloseAll: () => unknown;
+  onOpen: () => void;
+  onClose: () => void;
+  onCloseOthers: () => void;
+  onCloseAll: () => void;
   theme: ThemeName;
 };
 
@@ -110,7 +110,7 @@ class FileListOpenEntry extends React.PureComponent<Props, State> {
           <span className={css(styles.label)}>{displayName}</span>
         </div>
         <ContextMenu
-          ref={(c: any) => (this._menu = ReactDOM.findDOMNode(c) as any)}
+          ref={c => (this._menu = ReactDOM.findDOMNode(c) as any)}
           visible={Boolean(this.state.menu)}
           position={this.state.menu}
           actions={[

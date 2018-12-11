@@ -59,7 +59,7 @@ function ColorsProvider({ theme, children }: Props) {
   return (
     <div
       className={css(styles.container)}
-      style={mapKeys(theme === 'dark' ? dark : light, (_: any, key) => `--color-${key}`)}>
+      style={mapKeys(theme === 'dark' ? dark : light, (_, key) => `--color-${key}`)}>
       {children}
     </div>
   );

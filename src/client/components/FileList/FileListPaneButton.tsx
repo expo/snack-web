@@ -3,7 +3,7 @@ import { StyleSheet, css } from 'aphrodite';
 
 type Props = {
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  children?: any;
+  children?: React.ReactNode;
 };
 
 export default class FileListPaneButton extends React.PureComponent<Props> {

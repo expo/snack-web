@@ -5,7 +5,7 @@ import { StyleSheet, css } from 'aphrodite';
 type Props = {
   visible: boolean;
   children?: React.ReactNode;
-  onDismiss?: () => unknown;
+  onDismiss?: () => void;
 };
 
 type State = {
@@ -48,18 +48,18 @@ export default class Modal extends React.PureComponent<Props, State> {
   }
 
   _container = document.createElement('div');
+  _content: HTMLDivElement | null = null;
   _timer: any;
-  _content: any;
 
-  _handleDismiss = (e: any) => {
-    if (this._content && this._content !== e.target && this._content.contains(e.target)) {
+  _handleDismiss = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (this._content && this._content !== e.target && this._content.contains(e.target as Node)) {
       return;
     }
 
     this.props.onDismiss && this.props.onDismiss();
   };
 
-  _handleKeyDown = (e: any) => {
+  _handleKeyDown = (e: KeyboardEvent) => {
     if (e.keyCode === 27 && this.props.visible) {
       // Esc was pressed
       e.preventDefault();

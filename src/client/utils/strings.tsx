@@ -1,5 +1,5 @@
 // TODO(jim): Snack and Web should share this file.
-export const isEmptyOrNull = (text: any) => {
+export const isEmptyOrNull = (text: string | null | undefined): text is null | undefined => {
   return !text || !text.trim();
 };
 
@@ -15,7 +15,7 @@ export const pluralize = (text: string, count: number) => {
   return count > 1 || count === 0 ? `${text}s` : text;
 };
 
-export const getRenderedLength = (text: any) => {
+export const getRenderedLength = (text: string | null | undefined) => {
   if (isEmptyOrNull(text)) {
     return 0;
   }

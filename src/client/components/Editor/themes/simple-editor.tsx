@@ -1,7 +1,7 @@
 import * as lightColors from './colors-light';
 import * as darkColors from './colors-dark';
 
-const css: any = String.raw;
+const css = String.raw;
 
 const theme = ({
   ui,

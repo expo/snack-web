@@ -4,7 +4,7 @@ import ModalDialog from '../shared/ModalDialog';
 
 type Props = {
   visible: boolean;
-  onDismiss: () => unknown;
+  onDismiss: () => void;
 };
 
 export default class ModalPublishUnknownError extends React.PureComponent<Props> {

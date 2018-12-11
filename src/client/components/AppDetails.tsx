@@ -14,7 +14,7 @@ type Props = {
   snackId?: string;
   channel: string;
   sdkVersion: SDKVersion;
-  onOpenEditor: () => unknown;
+  onOpenEditor: () => void;
   userAgent: string;
 };
 

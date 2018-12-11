@@ -1,5 +1,4 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom';
 import { StyleSheet, css } from 'aphrodite';
 
 type Props = {
@@ -41,6 +40,10 @@ export default class ResizablePane extends React.PureComponent<Props, State> {
   }
 
   _handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!this._pane) {
+      return;
+    }
+
     const style = getComputedStyle(this._pane);
     this.setState({
       resizing: true,
@@ -80,17 +83,16 @@ export default class ResizablePane extends React.PureComponent<Props, State> {
         style = `height: ${initialHeight - e.pageY + initialPosition.pageY}px !important`;
       }
 
-      this._pane.setAttribute('style', style);
+      this._pane && this._pane.setAttribute('style', style);
     }
   };
 
-  _pane: any;
+  _pane: HTMLDivElement | null = null;
 
   render() {
     return (
       <div
-        // eslint-disable-next-line react/no-find-dom-node
-        ref={(c: any) => (this._pane = ReactDOM.findDOMNode(c))}
+        ref={c => (this._pane = c)}
         className={`${css(styles.container)} ${this.props.className || ''}`}>
         {this.props.children}
         <div

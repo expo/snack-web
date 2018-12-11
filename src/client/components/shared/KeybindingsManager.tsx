@@ -7,7 +7,7 @@ type Binding = {
 
 type Props = {
   bindings: Binding[];
-  onTrigger: (binding: Binding) => unknown;
+  onTrigger: (binding: Binding) => void;
 };
 
 const isMac = 'navigator' in global && /Mac/i.test(navigator.platform);

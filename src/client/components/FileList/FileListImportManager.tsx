@@ -16,7 +16,7 @@ type Props = {
   entries: FileSystemEntry[];
   onImportFile: (e: TextFileEntry | AssetFileEntry) => void;
   uploadFileAsync: (file: File) => Promise<string>;
-  render: (options: { onImportStart: () => unknown }) => React.ReactNode;
+  render: (options: { onImportStart: () => void }) => React.ReactNode;
   className?: string;
   theme: ThemeName;
 };

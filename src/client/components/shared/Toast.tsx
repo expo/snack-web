@@ -10,8 +10,8 @@ type Props = {
   persistent?: boolean;
   type?: 'success' | 'error';
   theme: ThemeName;
-  actions: Array<{ label: string; action?: () => unknown; primary?: boolean }>;
-  onDismiss?: () => unknown;
+  actions: Array<{ label: string; action?: () => void; primary?: boolean }>;
+  onDismiss?: () => void;
 };
 
 type State = {

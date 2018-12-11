@@ -23,14 +23,14 @@ type Props = {
   devicePreviewShown: boolean;
   devicePreviewPlatform: 'android' | 'ios';
   sdkVersion: SDKVersion;
-  onToggleTheme: () => unknown;
-  onTogglePanels: () => unknown;
-  onToggleFileTree: () => unknown;
-  onToggleDevicePreview: () => unknown;
-  onToggleVimMode?: () => unknown;
-  onChangeDevicePreviewPlatform: (platform: 'android' | 'ios') => unknown;
-  onChangeSDKVersion: (sdkVersion: SDKVersion) => unknown;
-  onPrettifyCode: () => unknown;
+  onToggleTheme: () => void;
+  onTogglePanels: () => void;
+  onToggleFileTree: () => void;
+  onToggleDevicePreview: () => void;
+  onToggleVimMode?: () => void;
+  onChangeDevicePreviewPlatform: (platform: 'android' | 'ios') => void;
+  onChangeSDKVersion: (sdkVersion: SDKVersion) => void;
+  onPrettifyCode: () => void;
   theme: ThemeName;
 };
 

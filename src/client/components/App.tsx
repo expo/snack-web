@@ -187,7 +187,7 @@ type Props = AuthProps & {
         pathname: string;
         search: string;
       }
-    ) => unknown;
+    ) => void;
   };
   match: {
     params: Params;
@@ -230,6 +230,8 @@ type State = {
   initialSdkVersion: SDKVersion;
 };
 
+type Listener = ReturnType<typeof persist>;
+
 type SnackSessionProxy = {
   create: (options: SnackSessionOptions) => Promise<void>;
   session: {
@@ -250,7 +252,7 @@ type SnackSessionProxy = {
       modules: {
         [name: string]: string | undefined;
       },
-      callback: any
+      callback: Listener
     ) => Promise<void>;
     sendCodeAsync: (payload: ExpoSnackFiles) => Promise<void>;
     setSdkVersion: (version: SDKVersion) => Promise<void>;
@@ -265,11 +267,11 @@ type SnackSessionProxy = {
     getState: () => Promise<SnackSessionState>;
     getChannel: () => Promise<string>;
   };
-  addStateListener: (listener: any) => Promise<void>;
-  addPresenceListener: (listener: any) => Promise<void>;
-  addErrorListener: (listener: any) => Promise<void>;
-  addLogListener: (listener: any) => Promise<void>;
-  setDependencyErrorListener: (listener: any) => Promise<void>;
+  addStateListener: (listener: Listener) => Promise<void>;
+  addPresenceListener: (listener: Listener) => Promise<void>;
+  addErrorListener: (listener: Listener) => Promise<void>;
+  addLogListener: (listener: Listener) => Promise<void>;
+  setDependencyErrorListener: (listener: Listener) => Promise<void>;
 };
 
 type SaveOptions = {
@@ -591,11 +593,11 @@ class App extends React.Component<Props, State> {
 
   _snack: SnackSessionProxy = undefined as any;
   _snackSessionWorker: Worker = undefined as any;
-  _snackSessionDependencyErrorListener: any;
-  _snackSessionLogListener: any;
-  _snackSessionErrorListener: any;
-  _snackSessionPresenceListener: any;
-  _snackSessionStateListener: any;
+  _snackSessionDependencyErrorListener: Listener | undefined;
+  _snackSessionLogListener: Listener | undefined;
+  _snackSessionErrorListener: Listener | undefined;
+  _snackSessionPresenceListener: Listener | undefined;
+  _snackSessionStateListener: Listener | undefined;
 
   _broadcastChannel: BroadcastChannel = undefined as any;
 
@@ -777,7 +779,6 @@ class App extends React.Component<Props, State> {
       return;
     }
 
-    /* $FlowIgnore */
     const url = `${process.env.API_SERVER_URL}/--/api/v2/snack/download/${snackId}`;
 
     // Simulate link click to download file
@@ -788,7 +789,7 @@ class App extends React.Component<Props, State> {
       element.setAttribute('download', 'snack.zip');
       element.style.display = '';
       element.click();
-      // $FlowIgnore
+
       document.body.removeChild(element);
     }
   };
@@ -892,7 +893,7 @@ class App extends React.Component<Props, State> {
 
   _syncDependenciesAsync = async (
     dependencies: { [key: string]: string },
-    callback: () => unknown
+    callback: () => void
   ) => {
     const didDependeciesChange = !isEqual(
       mapValues(this.state.snackSessionState.dependencies, o => o.version),

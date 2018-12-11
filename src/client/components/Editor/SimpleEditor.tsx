@@ -17,7 +17,7 @@ import { light, dark } from './themes/simple-editor';
 type Props = {
   path: string;
   value: string;
-  onValueChange: (value: string) => unknown;
+  onValueChange: (value: string) => void;
   lineNumbers: 'on' | 'off';
   theme: ThemeName;
 };

@@ -11,7 +11,7 @@ type Props = {
   theme: ThemeName;
   minRows?: number;
   placeholder?: string;
-  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => unknown;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 };
 
 function LargeTextArea({ theme, ...rest }: Props) {

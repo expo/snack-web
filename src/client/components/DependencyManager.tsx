@@ -29,7 +29,7 @@ type Props = {
     modules: {
       [name: string]: string | undefined;
     },
-    onError: (name: string, e: Error) => unknown
+    onError: (name: string, e: Error) => void
   ) => Promise<void>;
   onOpenFullView?: () => void;
   sessionID?: string;
@@ -371,7 +371,6 @@ export default class DependencyManager extends React.Component<Props, State> {
     const link = document.createElement('a');
 
     link.target = '_blank';
-    // $FlowIgnore :(
     link.href = getSnackURLFromEmbed(this.props.sessionID);
 
     link.click();

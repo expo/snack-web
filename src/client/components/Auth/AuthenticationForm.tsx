@@ -8,7 +8,7 @@ import colors from '../../configs/colors';
 
 type Props = AuthProps & {
   onSuccess?: () => Promise<void>;
-  onError?: () => unknown;
+  onError?: () => void;
 };
 
 type State = {
@@ -33,7 +33,7 @@ class AuthenticationForm extends React.Component<Props, State> {
     } as any);
   };
 
-  _handleUserAuth = async (e: any) => {
+  _handleUserAuth = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     this.setState({ loading: true, error: false });

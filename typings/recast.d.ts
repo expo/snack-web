@@ -1,21 +1,21 @@
 declare module 'recast' {
   type PrintResult = { code: string };
 
-  export const print = (ast: any) => PrintResult;
+  export function print(ast: any): PrintResult;
 
-  export const parse = (
+  export function parse(
     code: string,
     options: {
       parser: { parse: (code: string) => any };
     }
-  ) => PrintResult;
+  ): PrintResult;
 
-  export const types = {
+  export const types: {
     visit(
       ast: any,
       visitor: {
         [key: string]: (path: any) => void;
       }
-    ): void;,
+    ): void;
   };
 }

@@ -34,11 +34,11 @@ type Props = {
     },
     draft?: boolean
   ) => Promise<void>;
-  onShowPreviousSaves: () => unknown;
-  onShowEditModal: () => unknown;
-  onDismissEditModal: () => unknown;
-  onShowAuthModal: () => unknown;
-  onDismissAuthModal: () => unknown;
+  onShowPreviousSaves: () => void;
+  onShowEditModal: () => void;
+  onDismissEditModal: () => void;
+  onShowAuthModal: () => void;
+  onDismissAuthModal: () => void;
   onShowEmbedCode: () => void;
   onDownloadCode: () => Promise<void>;
   onShowQRCode: () => void;

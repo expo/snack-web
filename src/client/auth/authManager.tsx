@@ -213,7 +213,7 @@ export default class AuthenticationManager {
     return null;
   }
 
-  _saveSessionData(sessionSecret: string): void {
+  _saveSessionData(sessionSecret: string) {
     this._clearSessionSecretData();
     const { expires_at } = JSON.parse(sessionSecret);
     this._cookieStorage.setItem('sessionSecret', sessionSecret, {
@@ -221,7 +221,7 @@ export default class AuthenticationManager {
     });
   }
 
-  _saveTokenAndUserData(tokenData: Auth0TokenData): void {
+  _saveTokenAndUserData(tokenData: Auth0TokenData) {
     this._clearTokenAndUserData();
     const expiresAt = tokenData.expires_in * 1000 + Date.now();
     tokenData.expires_at = expiresAt;

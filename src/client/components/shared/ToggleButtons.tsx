@@ -10,7 +10,7 @@ type Props<T extends string> = {
     value: T;
   }>;
   value: T;
-  onValueChange: (value: T) => unknown;
+  onValueChange: (value: T) => void;
   light?: boolean;
   disabled?: boolean;
   className?: string;

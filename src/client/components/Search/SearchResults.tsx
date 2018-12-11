@@ -9,7 +9,7 @@ import SearchPlaceholder from './SearchPlaceholder';
 import withThemeName, { ThemeName } from '../Preferences/withThemeName';
 import Segment from '../../utils/Segment';
 
-const gql: any = String.raw;
+const gql = String.raw;
 
 const ENDPOINT = `${nullthrows(process.env.API_SERVER_URL)}/--/graphql`;
 

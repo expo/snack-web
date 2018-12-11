@@ -10,7 +10,7 @@ type State = {
 };
 
 type Props = AuthProps & {
-  onLogInClick: () => unknown;
+  onLogInClick: () => void;
 };
 
 class UserMenu extends React.Component<Props, State> {
@@ -34,7 +34,10 @@ class UserMenu extends React.Component<Props, State> {
       if (this._menu && e.target !== this._menu && !this._menu.contains(e.target)) {
         this._hideMenu();
       }
-    } else if (this._avatar && (e.target === this._avatar || this._avatar.contains(e.target))) {
+    } else if (
+      this._avatar &&
+      (e.target === this._avatar || this._avatar.contains(e.target as Node))
+    ) {
       this.setState(state => ({ visible: !state.visible }));
     }
   };
@@ -48,16 +51,14 @@ class UserMenu extends React.Component<Props, State> {
   _hideMenu = () => this.setState({ visible: false });
 
   _menu: any;
-  _avatar: any;
+  _avatar: HTMLButtonElement | null = null;
 
   render() {
     const { viewer, logout } = this.props;
 
     return (
       <div className={css(styles.container)}>
-        <button
-          ref={(c: any) => (this._avatar = ReactDOM.findDOMNode(c))}
-          className={css(styles.button)}>
+        <button ref={c => (this._avatar = c)} className={css(styles.button)}>
           <Avatar
             source={viewer && viewer.picture ? viewer.picture : require('../assets/avatar.svg')}
             size={40}

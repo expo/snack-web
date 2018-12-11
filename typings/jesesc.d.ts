@@ -1,5 +1,5 @@
 declare module 'jsesc' {
-  export default (
+  export default function jsesc(
     value: any,
     options: {
       quotes?: 'single' | 'double' | 'backtick';
@@ -15,5 +15,5 @@ declare module 'jsesc' {
       json?: boolean;
       lowercaseHex?: boolean;
     }
-  ) => string;
+  ): string;
 }

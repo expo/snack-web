@@ -18,7 +18,7 @@ export default class Searchbar extends React.Component<{}, State> {
     focused: false,
   };
 
-  _handleChange = (e: any) =>
+  _handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     this.setState({
       query: e.target.value,
     });

@@ -20,10 +20,10 @@ type DeviceLog = {
 type Props = {
   annotations: Annotation[];
   deviceLogs: DeviceLog[];
-  onShowErrorPanel: () => unknown;
-  onShowDeviceLogs: () => unknown;
-  onTogglePanels: () => unknown;
-  onClearDeviceLogs: () => unknown;
+  onShowErrorPanel: () => void;
+  onShowDeviceLogs: () => void;
+  onTogglePanels: () => void;
+  onClearDeviceLogs: () => void;
   panelType: 'errors' | 'logs';
 };
 

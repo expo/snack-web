@@ -35,9 +35,10 @@ class EditableField extends React.Component<Props, State> {
     focused: false,
   };
 
-  _handleChangeText = (e: any) => this.setState({ value: e.target.value });
+  _handleChangeText = (e: React.ChangeEvent<HTMLInputElement>) =>
+    this.setState({ value: e.target.value });
 
-  _handleFocus = (e: any) => {
+  _handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     e.target.select();
     this.setState({ focused: true });
   };
@@ -47,9 +48,9 @@ class EditableField extends React.Component<Props, State> {
     this.setState({ focused: false });
   };
 
-  _handleKeyDown = (e: any) => {
+  _handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.keyCode === RETURN_KEYCODE || e.keyCode === ESCAPE_KEYCODE) {
-      e.target.blur();
+      (e.target as HTMLInputElement).blur();
     }
   };
 

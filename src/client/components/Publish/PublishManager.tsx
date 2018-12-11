@@ -32,8 +32,8 @@ type Props = AuthProps & {
   onSubmitMetadata: (details: Metadata, draft?: boolean) => Promise<void>;
   onPublishAsync: (options: PublishOptions) => Promise<void>;
   currentModal: string | null;
-  onShowModal: (name: PublishModals) => unknown;
-  onHideModal: () => unknown;
+  onShowModal: (name: PublishModals) => void;
+  onHideModal: () => void;
   creatorUsername: undefined | string;
   snackId: undefined | string;
   sdkVersion: SDKVersion;

@@ -1,5 +1,4 @@
 export const CONFIG = {
-  /* $FlowIgnore */
   koaServerPath: `${process.env.API_SERVER_URL}/--/api/v2/auth`,
 };
 

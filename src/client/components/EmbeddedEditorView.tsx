@@ -48,7 +48,7 @@ type Props = {
     modules: {
       [name: string]: string | undefined;
     },
-    onError: (name: string, e: Error) => unknown
+    onError: (name: string, e: Error) => void
   ) => Promise<void>;
   setDeviceId: (deviceId: string) => Promise<void>;
   deviceId: string | undefined;

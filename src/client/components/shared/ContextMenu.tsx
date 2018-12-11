@@ -7,13 +7,13 @@ import { c } from '../ColorsProvider';
 
 export type Action = {
   label: string;
-  handler: () => unknown;
+  handler: () => void;
   disabled?: boolean;
   combo?: number[];
 };
 
 type Props = {
-  ref?: (c: any) => unknown;
+  ref?: (c: HTMLUListElement) => void;
   visible: boolean;
   actions: Array<Action | undefined>;
   position?: {
@@ -36,7 +36,7 @@ class ContextMenu extends React.PureComponent<Props> {
       return null;
     }
 
-    const shownActions: any[] = actions.filter(action => action);
+    const shownActions = actions.filter(action => action) as Action[];
 
     return (
       <ul
@@ -57,7 +57,7 @@ class ContextMenu extends React.PureComponent<Props> {
               }
             : {}
         }>
-        {(shownActions as Action[]).map(({ label, handler, disabled, combo }: Action) => (
+        {shownActions.map(({ label, handler, disabled, combo }: Action) => (
           <li key={label}>
             <button
               disabled={disabled}

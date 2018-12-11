@@ -51,7 +51,7 @@ class RepoImportManager extends React.PureComponent<Props, State> {
     this.props.onHide();
   };
 
-  _handleImportRepoClick = async (e: any) => {
+  _handleImportRepoClick = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     this.setState({
       status: 'importing',

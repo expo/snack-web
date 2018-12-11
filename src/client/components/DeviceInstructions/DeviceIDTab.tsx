@@ -20,12 +20,12 @@ export default class DeviceIDTab extends React.Component<Props, State> {
     status: null,
   };
 
-  _handleChange = (e: any) =>
+  _handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     this.setState({
       deviceId: e.target.value,
     });
 
-  _handleSubmit = async (e: any) => {
+  _handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     this.setState({ status: 'loading' });

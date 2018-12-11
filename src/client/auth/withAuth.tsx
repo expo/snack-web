@@ -17,7 +17,7 @@ export type AuthProps = {
       type: 'UPDATE_VIEWER';
       viewer: Viewer | null | undefined;
     }
-  ) => unknown;
+  ) => void;
 };
 
 const Auth = new AuthManager();
@@ -120,7 +120,7 @@ export default function withAuth<P extends AuthProps>(
   Comp: React.ComponentType<P>
 ): React.ComponentType<$Subtract<P, AuthProps>> {
   return compose(
-    connect((state: { viewer: any }) => {
+    connect((state: { viewer: Viewer | null }) => {
       return {
         viewer: state.viewer,
       };

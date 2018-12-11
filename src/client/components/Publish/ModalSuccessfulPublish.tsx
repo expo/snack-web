@@ -12,7 +12,7 @@ type Props = {
   viewer: Viewer | undefined;
   snackUrl?: string;
   snackProfileUrl?: string;
-  onDismiss: () => unknown;
+  onDismiss: () => void;
 };
 
 class ModalSuccessfulPublish extends React.PureComponent<Props> {

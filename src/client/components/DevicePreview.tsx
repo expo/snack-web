@@ -27,7 +27,7 @@ type Props = AuthProps & {
   className?: string;
   screenOnly?: boolean;
   payerCode?: string;
-  onClickRunOnPhone: () => unknown;
+  onClickRunOnPhone: () => void;
   theme: ThemeName;
 };
 
@@ -220,12 +220,12 @@ class DevicePreview extends React.PureComponent<Props, State> {
     }
   };
 
-  _handlePayerCodeChange = (e: any) =>
+  _handlePayerCodeChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     this.setState({
       payerCodeFormStatus: { type: 'open', value: e.target.value },
     });
 
-  _handlePayerCodeSubmit = (e: any) => {
+  _handlePayerCodeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (this.props.viewer) {

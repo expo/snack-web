@@ -30,8 +30,8 @@ import { FileSystemEntry, TextFileEntry, AssetFileEntry, SaveStatus } from '../.
 type Props = {
   visible: boolean;
   onEntriesChange: (entries: FileSystemEntry[]) => Promise<void>;
-  onRemoveFile: (path: string) => unknown;
-  onRenameFile: (oldPath: string, newPath: string) => unknown;
+  onRemoveFile: (path: string) => void;
+  onRenameFile: (oldPath: string, newPath: string) => void;
   entries: FileSystemEntry[];
   uploadFileAsync: (file: File) => Promise<string>;
   onDownloadCode: () => Promise<void>;
@@ -280,7 +280,6 @@ class FileList extends React.PureComponent<Props, State> {
                   onClick={this._toggleOpenFilesPane}>
                   <ul className={css(styles.tabs)} data-test-id="file-list-open-files-content">
                     {this.props.entries
-
                       .filter(e => e.item.type === 'file' && e.state.isOpen)
                       .map((e: any) => (
                         <FileListOpenEntry

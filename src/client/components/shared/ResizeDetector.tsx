@@ -2,27 +2,35 @@ import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 
 type Props = {
-  onResize: () => unknown;
+  onResize: () => void;
   children: React.ReactNode;
 };
 
 export default class ResizeDetector extends React.Component<Props> {
   componentDidMount() {
-    this._horizontal.contentWindow.addEventListener('resize', this._handleResize);
-    this._vertical.contentWindow.addEventListener('resize', this._handleResize);
+    this._horizontal &&
+      this._horizontal.contentWindow &&
+      this._horizontal.contentWindow.addEventListener('resize', this._handleResize);
+
+    this._vertical &&
+      this._vertical.contentWindow &&
+      this._vertical.contentWindow.addEventListener('resize', this._handleResize);
   }
 
   componentWillUnmount() {
     this._horizontal &&
+      this._horizontal.contentWindow &&
       this._horizontal.contentWindow.removeEventListener('resize', this._handleResize);
+
     this._vertical &&
+      this._vertical.contentWindow &&
       this._vertical.contentWindow.removeEventListener('resize', this._handleResize);
   }
 
   _handleResize = () => this.props.onResize();
 
-  _horizontal: any;
-  _vertical: any;
+  _horizontal: HTMLIFrameElement | null = null;
+  _vertical: HTMLIFrameElement | null = null;
 
   render() {
     return (

@@ -1,7 +1,7 @@
 import { Context } from 'koa';
 
 export default function sw() {
-  return async (ctx: Context, next: () => unknown) => {
+  return async (ctx: Context, next: () => void) => {
     // Since the service worker is served from /dist/, we need to set this header to allow it to control the page
     ctx.set('Service-Worker-Allowed', '/');
 
