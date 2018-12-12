@@ -7,4 +7,9 @@ module.exports = {
   testRegex: '/__tests__/.*\\.test\\.(js|tsx?)$',
   setupFiles: ['<rootDir>/jest/unit-setup.js'],
   testURL: 'https://snack.expo.io/',
+  globals: {
+    'ts-jest': {
+      diagnostics: false,
+    },
+  },
 };

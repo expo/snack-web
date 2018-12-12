@@ -18,7 +18,7 @@
     "lint": "tslint -t verbose -p . -c tslint.json",
     "typescript": "tsc",
     "test": "cross-env NODE_ENV=test jest --config jest/unit.config.js",
-    "test:integration": "cross-env NODE_ENV=test jest --config jest/integration.config.js --forceExit",
+    "test:integration": "cross-env NODE_ENV=test jest --config jest/integration.config.js",
     "prestart:dev": "yarn domain",
     "prestart:prod": "yarn build",
     "prebuild": "yarn clean",

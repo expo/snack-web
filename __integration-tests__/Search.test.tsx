@@ -1,7 +1,6 @@
-// Trick TypeScript into parsing this as ES module
-export default undefined;
+import { Page } from 'puppeteer';
 
-declare var page: any;
+declare const page: Page;
 
 it('clicking search button shows search dialog', async () => {
   const button = '[data-test-id="search-button"]';

@@ -1,7 +1,6 @@
-// Trick TypeScript into parsing this as ES module
-export default undefined;
+import { Page } from 'puppeteer';
 
-declare var page: any;
+declare const page: Page;
 
 it('expands and collpases open files pane', async () => {
   const openFilesHeader = '[data-test-id="file-list-pane-open-files"]';

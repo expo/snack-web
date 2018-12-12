@@ -5,5 +5,5 @@ module.exports = async function teardown() {
   fs.unlinkSync(path.join('node_modules', '.snack-ws-endpoint'), global.__BROWSER__.wsEndpoint());
 
   await global.__BROWSER__.close();
-  await global.__SERVER__.kill('SIGTERM');
+  await process.kill(-global.__SERVER__.pid);
 };
