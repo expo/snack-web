@@ -53,7 +53,7 @@ export default class Document extends React.Component<Props> {
           : DEFAULT_METADATA_DESCRIPTION_EMPTY
         : DEFAULT_METADATA_DESCRIPTION_SAVED;
     const url = id ? `https://snack.expo.io/${id}` : `https://snack.expo.io`;
-    const image = 'https://s3.amazonaws.com/exp-brand-assets/ExpoIcon_200.png';
+    const image = 'https://s3.amazonaws.com/exp-brand-assets/SnackIcon_200.png';
 
     return (
       <html>
