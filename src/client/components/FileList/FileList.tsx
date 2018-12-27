@@ -344,6 +344,7 @@ class FileList extends React.PureComponent<Props, State> {
                         onDelete={this._handleEntryDelete}
                         onCopy={this._handleCopy}
                         onClearClipboard={this._handleClearClipboard}
+                        sdkVersion={this.props.sdkVersion}
                         theme={this.props.theme}
                         className={css(styles.list)}
                       />

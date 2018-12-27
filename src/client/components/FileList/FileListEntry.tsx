@@ -5,10 +5,12 @@ import FileListChildren from './FileListChildren';
 import FileListEntryIcon from './FileListEntryIcon';
 import { KeyMap } from '../shared/KeybindingsManager';
 import { isEntryPoint, getParentPath } from '../../utils/fileUtilities';
+import FeatureFlags from '../../utils/FeatureFlags';
 import colors from '../../configs/colors';
 import { Action } from '../shared/ContextMenu';
 import { FileSystemEntry } from '../../types';
 import { ThemeName } from '../Preferences/withThemeName';
+import { SDKVersion } from '../../configs/sdk';
 
 type Props = {
   entry: FileSystemEntry;
@@ -26,6 +28,7 @@ type Props = {
   onPaste: (path: string | undefined, entry: FileSystemEntry) => void;
   onClearClipboard: () => void;
   getAdjacentEntries: () => FileSystemEntry[];
+  sdkVersion: SDKVersion;
   theme: ThemeName;
 };
 
@@ -240,7 +243,9 @@ export default class FileListEntry extends React.Component<Props, State> {
           combo: [KeyMap.Meta, KeyMap.D],
         }
       : undefined,
-    isEntryPoint(this.props.entry.item.path)
+    isEntryPoint(this.props.entry.item.path) &&
+    (!this.props.entry.item.path.endsWith('.js') ||
+      FeatureFlags.isAvailable('TYPESCRIPT_ENTRY', this.props.sdkVersion))
       ? {
           label: `Rename to ${toggleTSExt(this.props.entry.item.path)}`,
           handler: this._handleToggleTSExt,
@@ -326,6 +331,7 @@ export default class FileListEntry extends React.Component<Props, State> {
           onExpand={onExpand}
           onDelete={onDelete}
           onClearClipboard={onClearClipboard}
+          sdkVersion={this.props.sdkVersion}
           theme={theme}
         />
       </div>

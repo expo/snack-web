@@ -5,6 +5,7 @@ import FileListEntry from './FileListEntry';
 import { isInsideFolder } from '../../utils/fileUtilities';
 import { FileSystemEntry } from '../../types';
 import { ThemeName } from '../Preferences/withThemeName';
+import { SDKVersion } from '../../configs/sdk';
 
 type Props = {
   parent: string;
@@ -21,6 +22,7 @@ type Props = {
   onRename: (oldPath: string, newPath: string) => void;
   onPaste: (path: string | undefined, entry: FileSystemEntry) => void;
   onClearClipboard: () => void;
+  sdkVersion: SDKVersion;
   theme: ThemeName;
   className?: string;
 };
@@ -90,6 +92,7 @@ export default class FileListChildren extends React.PureComponent<Props> {
               onExpand={onExpand}
               onClearClipboard={onClearClipboard}
               getAdjacentEntries={this._getImmediateChildren}
+              sdkVersion={this.props.sdkVersion}
               theme={theme}
             />
           ))}
