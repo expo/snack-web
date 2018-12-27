@@ -28,7 +28,7 @@ import PublishManager, { PublishModals } from './Publish/PublishManager';
 import DependencyManager from './DependencyManager';
 import KeyboardShortcuts, { Shortcuts } from './KeyboardShortcuts';
 import openEntry from '../actions/openEntry';
-import { isInsideFolder, changeParentPath, isJSONFile } from '../utils/fileUtilities';
+import { isInsideFolder, changeParentPath, isJSONFile, isScriptFile } from '../utils/fileUtilities';
 import * as defaults from '../configs/defaults';
 import convertErrorToAnnotation from '../utils/convertErrorToAnnotation';
 import lintEntry from '../utils/lintEntry';
@@ -75,7 +75,7 @@ type Props = PreferencesContextType & {
   saveStatus: SaveStatus;
   creatorUsername?: string;
   fileEntries: FileSystemEntry[];
-  entry: TextFileEntry | AssetFileEntry | void;
+  entry: TextFileEntry | AssetFileEntry | undefined;
   name: string;
   description: string;
   dependencies: {
@@ -156,7 +156,7 @@ type State = {
   deviceLogsShown: boolean;
   lintErrors: Annotation[];
   shouldPreventRedirectWarning: boolean;
-  previousEntry: TextFileEntry | AssetFileEntry | void;
+  previousEntry: TextFileEntry | AssetFileEntry | undefined;
 };
 
 const BANNER_TIMEOUT_SHORT = 1500;
@@ -206,8 +206,14 @@ class EditorView extends React.Component<Props, State> {
   componentDidMount() {
     window.addEventListener('beforeunload', this._handleUnload);
 
-    // Load prettier early so that clicking on the prettier button doesn't take too long
-    setTimeout(() => prettierCode('index.js', ''), 5000);
+    setTimeout(() => {
+      const { entry } = this.props;
+
+      // Load prettier early so that clicking on the prettier button doesn't take too long
+      // Try to preload plugins required for the current entry first
+      // If entry isn't present, load plugins for markdown, which will load several of them
+      prettierCode(isScriptFile(entry) ? entry.item.path : 'index.md', '');
+    }, 5000);
 
     if (this.props.wasUpgraded) {
       // eslint-disable-next-line react/no-did-mount-set-state
