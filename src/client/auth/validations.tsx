@@ -35,7 +35,7 @@ export const messages = {
   INVALID_USERNAME_PASSWORD: 'Wrong username or password.',
   MUST_BE_LOGGED_IN_FOR_SUGGESTED: 'Must be logged in to find suggested accounts.',
   USER_IS_BLOCKED:
-    'Your user account is currently disabled. Please contact support@expo.io for assistance.',
+    'Your user account is currently disabled. Please contact secure@expo.io for assistance.',
   CANT_SEND_EMAIL_OR_TEXT: 'We were unable to send you an email or text, please try again.',
 };
 
