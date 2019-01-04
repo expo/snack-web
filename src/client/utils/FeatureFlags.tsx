@@ -13,7 +13,7 @@ const FLAGS = {
   // Whether App.tsx and App.ts are supported as entry files
   TYPESCRIPT_ENTRY: {
     sdk: '31.0.0',
-    enabled: false,
+    enabled: true,
   },
 };
 
