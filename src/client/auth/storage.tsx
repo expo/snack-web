@@ -14,7 +14,11 @@ export default class StorageHandler implements IStorageBackend {
     this._namespace = namespace || '';
     switch (storageBackend) {
       case 'localstorage':
-        this._storageBackend = window.localStorage;
+        try {
+          this._storageBackend = window.localStorage;
+        } catch (e) {
+          this._storageBackend = new CookieStorage();
+        }
         break;
       case 'cookie':
         this._storageBackend = new CookieStorage();
