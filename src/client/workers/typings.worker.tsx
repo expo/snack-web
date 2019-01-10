@@ -257,26 +257,35 @@ function fetchDefinitions(name: string, version: string) {
       // If result is empty, fetch from remote
       const fetchedPaths = {};
 
-      // Try checking the types/typings entry in package.json for the declarations
-      return fetchFromTypings(name, version, fetchedPaths)
-        .catch(() =>
-          // Not available in package.json, try checking meta for inline .d.ts files
-          fetchFromMeta(name, version, fetchedPaths)
-        )
-        .catch(() =>
-          // Not available in package.json or inline from meta, try checking in @types/
-          fetchFromDefinitelyTyped(name, version, fetchedPaths)
-        )
-        .then(() => {
-          if (Object.keys(fetchedPaths).length) {
-            // Also cache the definitions
-            setItem(key, fetchedPaths, store);
+      let fetchPromise: Promise<void>;
 
-            return fetchedPaths;
-          } else {
-            throw new Error(`Type definitions are empty for ${key}`);
-          }
-        });
+      if (name === 'expo') {
+        // Temporarily force download type definitions from DefinitelyTyped for expo
+        // Types are shipped with the 'expo' package, but they are highly incomplete
+        fetchPromise = fetchFromDefinitelyTyped(name, version, fetchedPaths);
+      } else {
+        // Try checking the types/typings entry in package.json for the declarations
+        fetchPromise = fetchFromTypings(name, version, fetchedPaths)
+          .catch(() =>
+            // Not available in package.json, try checking meta for inline .d.ts files
+            fetchFromMeta(name, version, fetchedPaths)
+          )
+          .catch(() =>
+            // Not available in package.json or inline from meta, try checking in @types/
+            fetchFromDefinitelyTyped(name, version, fetchedPaths)
+          );
+      }
+
+      return fetchPromise.then(() => {
+        if (Object.keys(fetchedPaths).length) {
+          // Also cache the definitions
+          setItem(key, fetchedPaths, store);
+
+          return fetchedPaths;
+        } else {
+          throw new Error(`Type definitions are empty for ${key}`);
+        }
+      });
     });
 }
 
