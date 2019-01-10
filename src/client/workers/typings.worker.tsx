@@ -15,39 +15,43 @@ type File = {
   path: string;
 };
 
+type FileMetadata = {
+  [key: string]: File;
+};
+
 self.importScripts(resources.typescript);
 
 const ROOT_URL = `https://cdn.jsdelivr.net/`;
 
 const store = new Store('typescript-definitions-cache-v1');
-const fetchCache = new Map();
+const cache = new Map<string, Promise<string>>();
 
-const doFetch = (url: string) => {
-  const cached = fetchCache.get(url);
+const fetchAsText = (url: string): Promise<string> => {
+  const cached = cache.get(url);
 
   if (cached) {
+    // If we have a promise cached for the URL, return it
     return cached;
   }
 
-  const promise = fetch(url)
-    .then(response => {
-      if (response.status >= 200 && response.status < 300) {
-        return Promise.resolve(response);
-      }
+  const promise = fetch(url).then(response => {
+    if (response.ok) {
+      // If response was successful, get the response text
+      return response.text();
+    }
 
-      const error = new Error(String(response.statusText || response.status));
+    throw new Error(response.statusText || `Request failed with status: ${response.status}`);
+  });
 
-      return Promise.reject(error);
-    })
-    .then(response => response.text());
-
-  fetchCache.set(url, promise);
+  // Cache the promise for the URL for subsequent requests
+  cache.set(url, promise);
 
   return promise;
 };
 
+// Fetch definitions published to npm from DefinitelyTyped (@types/x)
 const fetchFromDefinitelyTyped = (dependency: string, _: string, fetchedPaths: FetchedPaths) =>
-  doFetch(
+  fetchAsText(
     `${ROOT_URL}npm/@types/${dependency.replace('@', '').replace(/\//g, '__')}/index.d.ts`
   ).then((typings: string) => {
     fetchedPaths[`node_modules/${dependency}/index.d.ts`] = typings;
@@ -66,54 +70,54 @@ const getRequireStatements = (title: string, code: string) => {
 
   ts.forEachChild(sourceFile, (node: any) => {
     switch (node.kind) {
-      case ts.SyntaxKind.ImportDeclaration: {
+      case ts.SyntaxKind.ImportDeclaration:
         requires.push(node.moduleSpecifier.text);
         break;
-      }
-      case ts.SyntaxKind.ExportDeclaration: {
+      case ts.SyntaxKind.ExportDeclaration:
         // For syntax 'export ... from '...'''
         if (node.moduleSpecifier) {
           requires.push(node.moduleSpecifier.text);
         }
         break;
-      }
-      default: {
-        /* */
-      }
     }
   });
 
   return requires;
 };
 
-const tempTransformFiles = (files: File[]) => {
-  const finalObj: { [key: string]: { name: string } } = {};
-
-  files.forEach(d => {
-    finalObj[d.name] = d;
-  });
-
-  return finalObj;
-};
-
-const getFileMetaData = (dependency: string, version: string, depPath: string) =>
-  doFetch(`https://data.jsdelivr.com/v1/package/npm/${dependency}@${version}/flat`)
+const getFileMetaData = (
+  dependency: string,
+  version: string,
+  depPath: string
+): Promise<FileMetadata> =>
+  fetchAsText(`https://data.jsdelivr.com/v1/package/npm/${dependency}@${version}/flat`)
     .then((response: string) => JSON.parse(response))
     .then((response: { files: File[] }) => response.files.filter(f => f.name.startsWith(depPath)))
-    .then(tempTransformFiles);
+    .then((files: File[]) => {
+      const finalObj: FileMetadata = {};
 
-const resolveAppropiateFile = (fileMetaData: { [key: string]: File }, relativePath: string) => {
+      files.forEach(d => {
+        finalObj[d.name] = d;
+      });
+
+      return finalObj;
+    });
+
+const resolveAppropiateFile = (fileMetaData: FileMetadata, relativePath: string) => {
   const absolutePath = `/${relativePath}`;
 
   if (fileMetaData[`${absolutePath}.d.ts`]) {
     return `${relativePath}.d.ts`;
   }
+
   if (fileMetaData[`${absolutePath}.ts`]) {
     return `${relativePath}.ts`;
   }
+
   if (fileMetaData[absolutePath]) {
     return relativePath;
   }
+
   if (fileMetaData[`${absolutePath}/index.d.ts`]) {
     return `${relativePath}/index.d.ts`;
   }
@@ -126,85 +130,99 @@ const getFileTypes = (
   dependency: string,
   depPath: string,
   fetchedPaths: FetchedPaths,
-  fileMetaData: { [key: string]: File }
-) => {
+  fileMetaData: FileMetadata
+): Promise<any> => {
   const virtualPath = path.join('node_modules', dependency, depPath);
 
   if (fetchedPaths[virtualPath]) {
-    return null;
+    return Promise.resolve();
   }
 
-  return doFetch(`${depUrl}/${depPath}`).then((typings: string) => {
-    if (fetchedPaths[virtualPath]) {
-      return null;
+  return fetchAsText(`${depUrl}/${depPath}`).then(
+    (content: string): any => {
+      if (fetchedPaths[virtualPath]) {
+        return;
+      }
+
+      fetchedPaths[virtualPath] = content;
+
+      // Now find all require statements, so we can download those types too
+      return Promise.all(
+        getRequireStatements(depPath, content)
+          .filter(
+            // Don't add global deps
+            dep => dep.startsWith('.')
+          )
+          .map(relativePath => path.join(path.dirname(depPath), relativePath))
+          .map(relativePath => resolveAppropiateFile(fileMetaData, relativePath))
+          .map(nextDepPath =>
+            getFileTypes(depUrl, dependency, nextDepPath, fetchedPaths, fileMetaData)
+          )
+      );
     }
-
-    fetchedPaths[virtualPath] = typings;
-
-    // Now find all require statements, so we can download those types too
-    return Promise.all(
-      getRequireStatements(depPath, typings)
-        .filter(
-          // Don't add global deps
-          dep => dep.startsWith('.')
-        )
-        .map(relativePath => path.join(path.dirname(depPath), relativePath))
-        .map(relativePath => resolveAppropiateFile(fileMetaData, relativePath))
-        .map(nextDepPath =>
-          getFileTypes(depUrl, dependency, nextDepPath, fetchedPaths, fileMetaData)
-        )
-    );
-  });
+  );
 };
 
 function fetchFromMeta(dependency: string, version: string, fetchedPaths: FetchedPaths) {
-  const depUrl = `https://data.jsdelivr.com/v1/package/npm/${dependency}@${version}/flat`;
+  return fetchAsText(`https://data.jsdelivr.com/v1/package/npm/${dependency}@${version}/flat`).then(
+    (response: string) => {
+      const meta: { files: File[] } = JSON.parse(response);
 
-  return doFetch(depUrl)
-    .then((response: string) => JSON.parse(response))
-    .then((meta: { files: File[] }) => {
+      // Get the list of matching files in the package as a flat array
       const filterAndFlatten = (files: File[], filter: RegExp) =>
         files.reduce((paths: string[], file: File) => {
           if (filter.test(file.name)) {
             paths.push(file.name);
           }
+
           return paths;
         }, []);
 
-      let dtsFiles = filterAndFlatten(meta.files, /\.d\.ts$/);
-      if (dtsFiles.length === 0) {
-        // if no .d.ts files found, fallback to .ts files
-        dtsFiles = filterAndFlatten(meta.files, /\.ts$/);
+      // Get the list of .d.ts files in the package
+      let declarations = filterAndFlatten(meta.files, /\.d\.ts$/);
+
+      if (declarations.length === 0) {
+        // If no .d.ts files found, fallback to .ts files
+        declarations = filterAndFlatten(meta.files, /\.ts$/);
       }
 
-      if (dtsFiles.length === 0) {
+      if (declarations.length === 0) {
         throw new Error(`No inline typings found for ${dependency}@${version}`);
       }
 
-      dtsFiles.forEach(file => {
-        doFetch(`https://cdn.jsdelivr.net/npm/${dependency}@${version}${file}`)
-          .then((dtsFile: string) => {
-            fetchedPaths[`node_modules/${dependency}${file}`] = dtsFile;
-          })
-          .catch(() => undefined);
+      // Also add package.json so TypeScript can find the correct entry file
+      declarations.push('/package.json');
+
+      return Promise.all(
+        declarations.map(file =>
+          fetchAsText(`${ROOT_URL}npm/${dependency}@${version}${file}`).then(
+            (content: string): [string, string] => [`node_modules/${dependency}${file}`, content]
+          )
+        )
+      ).then((items: Array<[string, string]>) => {
+        items.forEach(([key, value]) => {
+          fetchedPaths[key] = value;
+        });
       });
-    });
+    }
+  );
 }
 
 function fetchFromTypings(dependency: string, version: string, fetchedPaths: FetchedPaths) {
   const depUrl = `${ROOT_URL}npm/${dependency}@${version}`;
 
-  return doFetch(`${depUrl}/package.json`)
+  return fetchAsText(`${depUrl}/package.json`)
     .then((response: string) => JSON.parse(response))
     .then((packageJSON: { typings?: string; types?: string }) => {
       const types = packageJSON.typings || packageJSON.types;
+
       if (types) {
         // Add package.json, since this defines where all types lie
         fetchedPaths[`node_modules/${dependency}/package.json`] = JSON.stringify(packageJSON);
 
-        // get all files in the specified directory
+        // Get all files in the specified directory
         return getFileMetaData(dependency, version, path.join('/', path.dirname(types))).then(
-          (fileMetaData: { [key: string]: File }) =>
+          (fileMetaData: FileMetadata) =>
             getFileTypes(
               depUrl,
               dependency,
@@ -239,9 +257,10 @@ function fetchDefinitions(name: string, version: string) {
       // If result is empty, fetch from remote
       const fetchedPaths = {};
 
+      // Try checking the types/typings entry in package.json for the declarations
       return fetchFromTypings(name, version, fetchedPaths)
         .catch(() =>
-          // not available in package.json, try checking meta for inline .d.ts files
+          // Not available in package.json, try checking meta for inline .d.ts files
           fetchFromMeta(name, version, fetchedPaths)
         )
         .catch(() =>
