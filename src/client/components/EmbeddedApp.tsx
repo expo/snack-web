@@ -1,9 +1,9 @@
 import * as React from 'react';
 import App from './App';
 import EmbeddedShell from './Shell/EmbeddedShell';
-import { QueryParams, $ExtractComponentPropTypes } from '../types';
+import { QueryParams } from '../types';
 
-type Props = $ExtractComponentPropTypes<typeof App> & {
+type Props = React.ComponentProps<typeof App> & {
   query: QueryParams;
 };
 
