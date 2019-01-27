@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import classnames from 'classnames';
-import Helmet from 'react-helmet';
 import marked from 'marked';
 import escape from 'escape-html';
 import sanitize from 'sanitize-html';
@@ -61,7 +60,10 @@ class MarkdownPreview extends React.Component<Props> {
             'prism-code'
           )}
         />
-        <Helmet style={[{ cssText: theme === 'dark' ? dark : light }]} />
+        <style
+          type="text/css"
+          dangerouslySetInnerHTML={{ __html: theme === 'dark' ? dark : light }}
+        />
       </React.Fragment>
     );
   }

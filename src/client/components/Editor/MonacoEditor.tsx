@@ -1,5 +1,4 @@
 import * as React from 'react';
-import Helmet from 'react-helmet';
 import { StyleSheet, css } from 'aphrodite';
 import classnames from 'classnames';
 import debounce from 'lodash/debounce';
@@ -603,7 +602,7 @@ class MonacoEditor extends React.Component<Props> {
   render() {
     return (
       <div className={css(styles.container)}>
-        <Helmet style={[{ cssText: overrides }]} />
+        <style type="text/css" dangerouslySetInnerHTML={{ __html: overrides }} />
         <ResizeDetector onResize={this._handleResize}>
           <div
             ref={this._node}

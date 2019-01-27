@@ -7,6 +7,7 @@ import ColorsProvider from './components/ColorsProvider';
 import ServiceWorkerManager from './components/ServiceWorkerManager';
 import Router from './components/Router';
 import createStore from './redux/createStore';
+import { HelmetProvider } from 'react-helmet-async';
 
 declare const __INITIAL_DATA__: {
   data: any;
@@ -18,18 +19,20 @@ const store = createStore({ splitTestSettings: __INITIAL_DATA__.splitTestSetting
 class SnackEntry extends React.Component {
   render() {
     return (
-      <React.Fragment>
+      <React.StrictMode>
         <ServiceWorkerManager />
-        <Provider store={store}>
-          <PreferencesProvider>
-            <ColorsProvider>
-              <BrowserRouter>
-                <Router data={__INITIAL_DATA__.data} userAgent={navigator.userAgent} />
-              </BrowserRouter>
-            </ColorsProvider>
-          </PreferencesProvider>
-        </Provider>
-      </React.Fragment>
+        <HelmetProvider>
+          <Provider store={store}>
+            <PreferencesProvider>
+              <ColorsProvider>
+                <BrowserRouter>
+                  <Router data={__INITIAL_DATA__.data} userAgent={navigator.userAgent} />
+                </BrowserRouter>
+              </ColorsProvider>
+            </PreferencesProvider>
+          </Provider>
+        </HelmetProvider>
+      </React.StrictMode>
     );
   }
 }
