@@ -1,5 +1,4 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom';
 import { StyleSheet, css } from 'aphrodite';
 import Avatar from './shared/Avatar';
 import ContextMenu from './shared/ContextMenu';
@@ -31,12 +30,16 @@ class UserMenu extends React.Component<Props, State> {
 
   _handleDocumentClick = (e: MouseEvent) => {
     if (this.state.visible) {
-      if (this._menu && e.target !== this._menu && !this._menu.contains(e.target)) {
+      if (
+        this._menu.current &&
+        e.target !== this._menu.current &&
+        !this._menu.current.contains(e.target as HTMLElement)
+      ) {
         this._hideMenu();
       }
     } else if (
-      this._avatar &&
-      (e.target === this._avatar || this._avatar.contains(e.target as Node))
+      this._avatar.current &&
+      (e.target === this._avatar.current || this._avatar.current.contains(e.target as Node))
     ) {
       this.setState(state => ({ visible: !state.visible }));
     }
@@ -50,22 +53,22 @@ class UserMenu extends React.Component<Props, State> {
 
   _hideMenu = () => this.setState({ visible: false });
 
-  _menu: any;
-  _avatar: HTMLButtonElement | null = null;
+  _menu = React.createRef<HTMLUListElement>();
+  _avatar = React.createRef<HTMLButtonElement>();
 
   render() {
     const { viewer, logout } = this.props;
 
     return (
       <div className={css(styles.container)}>
-        <button ref={c => (this._avatar = c)} className={css(styles.button)}>
+        <button ref={this._avatar} className={css(styles.button)}>
           <Avatar
             source={viewer && viewer.picture ? viewer.picture : require('../assets/avatar.svg')}
             size={40}
           />
         </button>
         <ContextMenu
-          ref={(c: any) => (this._menu = ReactDOM.findDOMNode(c))}
+          ref={this._menu}
           visible={this.state.visible}
           actions={
             viewer

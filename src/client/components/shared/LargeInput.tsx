@@ -25,20 +25,20 @@ class LargeInput extends React.Component<Props, State> {
   };
 
   focus() {
-    this._input && this._input.focus();
+    this._input.current && this._input.current.focus();
   }
 
   _handleFocus = () => this.setState({ focused: true });
 
   _handleBlur = () => this.setState({ focused: false });
 
-  _input: HTMLInputElement | null = null;
+  _input = React.createRef<HTMLInputElement>();
 
   render() {
     return (
       <div className={css(styles.container)}>
         <input
-          ref={c => (this._input = c)}
+          ref={this._input}
           autoFocus={this.props.autoFocus}
           className={css(
             styles.input,

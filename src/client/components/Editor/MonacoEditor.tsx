@@ -219,7 +219,11 @@ class MonacoEditor extends React.Component<Props> {
       };
     };
 
-    const editor = monaco.editor.create(this._node, rest, codeEditorService);
+    const editor = monaco.editor.create(
+      this._node.current as HTMLDivElement,
+      rest,
+      codeEditorService
+    );
 
     this._subscription = editor.onDidChangeModelContent(() => {
       const model = editor.getModel();
@@ -574,7 +578,7 @@ class MonacoEditor extends React.Component<Props> {
 
   _toggleMode = (mode: EditorMode) => {
     if (mode === 'vim' && this._editor) {
-      this._vim = initVimMode(this._editor, this._statusbar);
+      this._vim = initVimMode(this._editor, this._statusbar.current as HTMLDivElement);
     } else {
       this._vim && this._vim.dispose();
     }
@@ -593,8 +597,8 @@ class MonacoEditor extends React.Component<Props> {
   _subscription: monaco.IDisposable | undefined;
   _editor: monaco.editor.IStandaloneCodeEditor | null = null;
   _vim: any;
-  _node: any;
-  _statusbar: any;
+  _node = React.createRef<HTMLDivElement>();
+  _statusbar = React.createRef<HTMLDivElement>();
 
   render() {
     return (
@@ -602,7 +606,7 @@ class MonacoEditor extends React.Component<Props> {
         <Helmet style={[{ cssText: overrides }]} />
         <ResizeDetector onResize={this._handleResize}>
           <div
-            ref={c => (this._node = c)}
+            ref={this._node}
             className={classnames(
               css(styles.editor),
               'snack-monaco-editor',
@@ -611,7 +615,7 @@ class MonacoEditor extends React.Component<Props> {
           />
         </ResizeDetector>
         {this.props.mode === 'vim' ? (
-          <div className="snack-monaco-vim-statusbar" ref={c => (this._statusbar = c)} />
+          <div className="snack-monaco-vim-statusbar" ref={this._statusbar} />
         ) : null}
       </div>
     );

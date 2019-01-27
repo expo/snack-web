@@ -43,7 +43,7 @@ class SimpleEditor extends React.Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const editor = this._editor;
+    const editor = this._editor.current;
 
     if (this.props.path !== prevProps.path && editor) {
       // Save the editor state for the previous file so we can restore it when it's re-opened
@@ -80,7 +80,7 @@ class SimpleEditor extends React.Component<Props> {
     return escape(code);
   };
 
-  _editor: Editor | null = null;
+  _editor = React.createRef<Editor>();
 
   render() {
     const { value, lineNumbers, theme, onValueChange } = this.props;
@@ -89,7 +89,8 @@ class SimpleEditor extends React.Component<Props> {
       <div
         className={css(styles.container, lineNumbers === 'on' && styles.containerWithLineNumbers)}>
         <Editor
-          ref={(c: any) => (this._editor = c)}
+          // @ts-ignore
+          ref={this._editor}
           value={value}
           onValueChange={onValueChange}
           highlight={(code: string) =>

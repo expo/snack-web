@@ -349,7 +349,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
   _popup: Window | null = null;
   _mql: MediaQueryList | null = null;
 
-  _iframe: HTMLIFrameElement | null = null;
+  _iframe = React.createRef<HTMLIFrameElement>();
   _waitingForMessage: any;
 
   _onTapToPlay = () => {
@@ -366,8 +366,8 @@ class DevicePreview extends React.PureComponent<Props, State> {
   };
 
   _requestSession = () => {
-    if (this._iframe && this._iframe.contentWindow) {
-      this._iframe.contentWindow.postMessage('requestSession', '*');
+    if (this._iframe.current && this._iframe.current.contentWindow) {
+      this._iframe.current.contentWindow.postMessage('requestSession', '*');
     }
   };
 
@@ -434,9 +434,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
         ) : null}
         <div className={css(screenOnly ? styles.screen : styles.device)}>
           <iframe
-            ref={iframe => {
-              this._iframe = iframe;
-            }}
+            ref={this._iframe}
             key={url + this.props.sdkVersion}
             src={url}
             className={css(

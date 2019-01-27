@@ -29,20 +29,26 @@ type Props = {
 
 export default class EditorPanels extends React.Component<Props> {
   getSnapshotBeforeUpdate(prevProps: Props) {
-    if (this.props.deviceLogs !== prevProps.deviceLogs && this._panel) {
+    if (this.props.deviceLogs !== prevProps.deviceLogs && this._panel.current) {
       this._isScrolled =
-        this._panel.scrollHeight - this._panel.clientHeight !== this._panel.scrollTop;
+        this._panel.current.scrollHeight - this._panel.current.clientHeight !==
+        this._panel.current.scrollTop;
     }
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.props.deviceLogs !== prevProps.deviceLogs && this._panel && !this._isScrolled) {
-      this._panel.scrollTop = this._panel.scrollHeight - this._panel.clientHeight;
+    if (
+      this.props.deviceLogs !== prevProps.deviceLogs &&
+      this._panel.current &&
+      !this._isScrolled
+    ) {
+      this._panel.current.scrollTop =
+        this._panel.current.scrollHeight - this._panel.current.clientHeight;
     }
   }
 
   _isScrolled: boolean = false;
-  _panel: HTMLDivElement | null = null;
+  _panel = React.createRef<HTMLDivElement>();
 
   render() {
     const {
@@ -75,7 +81,7 @@ export default class EditorPanels extends React.Component<Props> {
               <button onClick={onTogglePanels} className={css(styles.button, styles.close)} />
             </div>
           </div>
-          <div ref={c => (this._panel = c)} className={css(styles.panel)}>
+          <div ref={this._panel} className={css(styles.panel)}>
             {panelType === 'errors' ? (
               annotations.length === 1 ? (
                 <pre className={css(styles.line, styles.error)}>

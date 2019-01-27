@@ -48,11 +48,15 @@ export default class Modal extends React.PureComponent<Props, State> {
   }
 
   _container = document.createElement('div');
-  _content: HTMLDivElement | null = null;
+  _content = React.createRef<HTMLDivElement>();
   _timer: any;
 
   _handleDismiss = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (this._content && this._content !== e.target && this._content.contains(e.target as Node)) {
+    if (
+      this._content.current &&
+      this._content.current !== e.target &&
+      this._content.current.contains(e.target as Node)
+    ) {
       return;
     }
 
@@ -72,7 +76,7 @@ export default class Modal extends React.PureComponent<Props, State> {
       <div
         className={css(styles.modal, this.props.visible ? styles.visible : styles.hidden)}
         onClick={this._handleDismiss}>
-        <div ref={c => (this._content = c)} className={css(styles.content)}>
+        <div ref={this._content} className={css(styles.content)}>
           {this.state.rendered ? this.props.children : null}
         </div>
       </div>,

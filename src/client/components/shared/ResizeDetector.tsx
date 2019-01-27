@@ -8,39 +8,42 @@ type Props = {
 
 export default class ResizeDetector extends React.Component<Props> {
   componentDidMount() {
-    this._horizontal &&
-      this._horizontal.contentWindow &&
-      this._horizontal.contentWindow.addEventListener('resize', this._handleResize);
+    const horiz = this._horizontal.current;
+    const verti = this._vertical.current;
 
-    this._vertical &&
-      this._vertical.contentWindow &&
-      this._vertical.contentWindow.addEventListener('resize', this._handleResize);
+    horiz &&
+      horiz.contentWindow &&
+      horiz.contentWindow.addEventListener('resize', this._handleResize);
+
+    verti &&
+      verti.contentWindow &&
+      verti.contentWindow.addEventListener('resize', this._handleResize);
   }
 
   componentWillUnmount() {
-    this._horizontal &&
-      this._horizontal.contentWindow &&
-      this._horizontal.contentWindow.removeEventListener('resize', this._handleResize);
+    const horiz = this._horizontal.current;
+    const verti = this._vertical.current;
 
-    this._vertical &&
-      this._vertical.contentWindow &&
-      this._vertical.contentWindow.removeEventListener('resize', this._handleResize);
+    horiz &&
+      horiz.contentWindow &&
+      horiz.contentWindow.removeEventListener('resize', this._handleResize);
+
+    verti &&
+      verti.contentWindow &&
+      verti.contentWindow.removeEventListener('resize', this._handleResize);
   }
 
   _handleResize = () => this.props.onResize();
 
-  _horizontal: HTMLIFrameElement | null = null;
-  _vertical: HTMLIFrameElement | null = null;
+  _horizontal = React.createRef<HTMLIFrameElement>();
+  _vertical = React.createRef<HTMLIFrameElement>();
 
   render() {
     return (
       <div className={css(styles.container)}>
         {/* pointer-events: none is not working properly on EDGE, so we render 2 iframes to detect resize instead of one iframe covering the entire editor */}
-        <iframe
-          ref={c => (this._horizontal = c)}
-          className={css(styles.phantom, styles.horizontal)}
-        />
-        <iframe ref={c => (this._vertical = c)} className={css(styles.phantom, styles.vertical)} />
+        <iframe ref={this._horizontal} className={css(styles.phantom, styles.horizontal)} />
+        <iframe ref={this._vertical} className={css(styles.phantom, styles.vertical)} />
         {this.props.children}
       </div>
     );

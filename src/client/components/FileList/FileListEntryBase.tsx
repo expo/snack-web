@@ -1,5 +1,4 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom';
 import { StyleSheet, css } from 'aphrodite';
 import FileListEntryDropTarget from './FileListEntryDropTarget';
 import { isKeyCombo } from '../shared/KeybindingsManager';
@@ -88,8 +87,8 @@ export default class FileListEntry extends React.Component<Props, State> {
       return;
     }
 
-    const bindings = this.props.actions.filter(
-      action => (action && action.combo ? isKeyCombo(event as any, action.combo) : false)
+    const bindings = this.props.actions.filter(action =>
+      action && action.combo ? isKeyCombo(event as any, action.combo) : false
     );
 
     if (bindings.length) {
@@ -112,10 +111,17 @@ export default class FileListEntry extends React.Component<Props, State> {
 
   _handleDocumentClick = (e: MouseEvent) => {
     if (this.state.menu) {
-      if (this._menu && e.target !== this._menu && !this._menu.contains(e.target)) {
+      if (
+        this._menu.current &&
+        e.target !== this._menu.current &&
+        !this._menu.current.contains(e.target as HTMLElement)
+      ) {
         this._hideContextMenu();
       }
-    } else if (this._more && (e.target === this._more || this._more.contains(e.target as Node))) {
+    } else if (
+      this._more.current &&
+      (e.target === this._more.current || this._more.current.contains(e.target as Node))
+    ) {
       if (this.state.menu) {
         this._hideContextMenu();
       } else {
@@ -125,7 +131,10 @@ export default class FileListEntry extends React.Component<Props, State> {
   };
 
   _handleDocumentContextMenu = (e: MouseEvent) => {
-    if (e.target === this._item || (this._item && this._item.contains(e.target as Node))) {
+    if (
+      e.target === this._item.current ||
+      (this._item.current && this._item.current.contains(e.target as Node))
+    ) {
       e.preventDefault();
       this._showContextMenu(e);
     } else if (this.state.menu) {
@@ -144,9 +153,9 @@ export default class FileListEntry extends React.Component<Props, State> {
   };
 
   _click: boolean = false;
-  _item: HTMLDivElement | null = null;
-  _more: HTMLButtonElement | null = null;
-  _menu: any;
+  _item = React.createRef<HTMLDivElement>();
+  _more = React.createRef<HTMLButtonElement>();
+  _menu = React.createRef<HTMLUListElement>();
 
   render() {
     const { entry, rest, draggable, onRename, onExpand, theme, actions } = this.props;
@@ -155,7 +164,7 @@ export default class FileListEntry extends React.Component<Props, State> {
     return (
       <FileListEntryDropTarget entry={entry} rest={rest} onRename={onRename} onExpand={onExpand}>
         <div
-          ref={c => (this._item = c)}
+          ref={this._item}
           draggable={draggable}
           onDragStart={this._handleDragStart}
           onDragEnd={this._handleDragEnd}
@@ -177,14 +186,14 @@ export default class FileListEntry extends React.Component<Props, State> {
           )}
         />
         <ContextMenu
-          ref={c => (this._menu = ReactDOM.findDOMNode(c))}
+          ref={this._menu}
           visible={Boolean(menu)}
           position={menu}
           actions={actions}
           onHide={this._hideContextMenu}
         />
         <button
-          ref={c => (this._more = c)}
+          ref={this._more}
           tabIndex={-1}
           className={css(
             styles.more,

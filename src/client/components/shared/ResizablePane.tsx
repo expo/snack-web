@@ -40,11 +40,11 @@ export default class ResizablePane extends React.PureComponent<Props, State> {
   }
 
   _handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!this._pane) {
+    if (!this._pane.current) {
       return;
     }
 
-    const style = getComputedStyle(this._pane);
+    const style = getComputedStyle(this._pane.current);
     this.setState({
       resizing: true,
       initialPosition: {
@@ -83,17 +83,15 @@ export default class ResizablePane extends React.PureComponent<Props, State> {
         style = `height: ${initialHeight - e.pageY + initialPosition.pageY}px !important`;
       }
 
-      this._pane && this._pane.setAttribute('style', style);
+      this._pane.current && this._pane.current.setAttribute('style', style);
     }
   };
 
-  _pane: HTMLDivElement | null = null;
+  _pane = React.createRef<HTMLDivElement>();
 
   render() {
     return (
-      <div
-        ref={c => (this._pane = c)}
-        className={`${css(styles.container)} ${this.props.className || ''}`}>
+      <div ref={this._pane} className={`${css(styles.container)} ${this.props.className || ''}`}>
         {this.props.children}
         <div
           className={css(

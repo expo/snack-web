@@ -1,5 +1,4 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom';
 import { StyleSheet, css } from 'aphrodite';
 import FileListEntryIcon from './FileListEntryIcon';
 import ContextMenu from '../shared/ContextMenu';
@@ -55,14 +54,21 @@ class FileListOpenEntry extends React.PureComponent<Props, State> {
 
   _handleDocumentClick = (e: MouseEvent) => {
     if (this.state.menu) {
-      if (this._menu && e.target !== this._menu && !this._menu.contains(e.target as Node)) {
+      if (
+        this._menu.current &&
+        e.target !== this._menu.current &&
+        !this._menu.current.contains(e.target as Node)
+      ) {
         this._hideContextMenu();
       }
     }
   };
 
   _handleDocumentContextMenu = (e: MouseEvent) => {
-    if (e.target === this._item || (this._item && this._item.contains(e.target as Node))) {
+    if (
+      e.target === this._item.current ||
+      (this._item.current && this._item.current.contains(e.target as Node))
+    ) {
       e.preventDefault();
       this._showContextMenu(e);
     } else if (this.state.menu) {
@@ -80,8 +86,8 @@ class FileListOpenEntry extends React.PureComponent<Props, State> {
       isHovered: false,
     });
 
-  _menu: HTMLUListElement | null = null;
-  _item: HTMLLIElement | null = null;
+  _menu = React.createRef<HTMLUListElement>();
+  _item = React.createRef<HTMLLIElement>();
 
   render() {
     const { entry, theme } = this.props;
@@ -89,7 +95,7 @@ class FileListOpenEntry extends React.PureComponent<Props, State> {
 
     return (
       <li
-        ref={c => (this._item = c)}
+        ref={this._item}
         tabIndex={-1}
         className={css(
           styles.item,
@@ -110,7 +116,7 @@ class FileListOpenEntry extends React.PureComponent<Props, State> {
           <span className={css(styles.label)}>{displayName}</span>
         </div>
         <ContextMenu
-          ref={c => (this._menu = ReactDOM.findDOMNode(c) as any)}
+          ref={this._menu}
           visible={Boolean(this.state.menu)}
           position={this.state.menu}
           actions={[

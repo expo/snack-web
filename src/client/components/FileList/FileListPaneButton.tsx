@@ -2,14 +2,17 @@ import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 
 type Props = {
+  innerRef?: React.Ref<HTMLButtonElement>;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   children?: React.ReactNode;
 };
 
-export default class FileListPaneButton extends React.PureComponent<Props> {
+class FileListPaneButton extends React.PureComponent<Props> {
   render() {
+    const { innerRef, ...rest } = this.props;
+
     return (
-      <button {...this.props} className={css(styles.button)}>
+      <button {...rest} className={css(styles.button)} ref={innerRef}>
         <svg className={css(styles.icon)} viewBox="0 0 16 16">
           {this.props.children}
         </svg>
@@ -17,6 +20,10 @@ export default class FileListPaneButton extends React.PureComponent<Props> {
     );
   }
 }
+
+export default React.forwardRef((props: Props, ref: React.Ref<HTMLButtonElement>) => (
+  <FileListPaneButton {...props} innerRef={ref} />
+));
 
 const styles = StyleSheet.create({
   button: {

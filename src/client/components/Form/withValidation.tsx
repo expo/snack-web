@@ -41,7 +41,7 @@ export default function withValidation<P extends InjectedProps>(
     };
 
     _key: number = 0;
-    _root: any;
+    _root = React.createRef<any>();
 
     componentDidMount() {
       this._key = this.props.validation.register({
@@ -63,7 +63,7 @@ export default function withValidation<P extends InjectedProps>(
     _validate = () => this.props.validate(this.props.value);
 
     _focus = () => {
-      this._root.focus && this._root.focus();
+      this._root.current.focus && this._root.current.focus();
 
       if (this.state.initial) {
         this.setState({
@@ -75,7 +75,7 @@ export default function withValidation<P extends InjectedProps>(
 
     render() {
       // @ts-ignore
-      return <Comp ref={c => (this._root = c)} error={this.state.error} {...this.props} />;
+      return <Comp ref={this._root} error={this.state.error} {...this.props} />;
     }
   }
 

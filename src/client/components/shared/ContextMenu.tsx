@@ -13,7 +13,7 @@ export type Action = {
 };
 
 type Props = {
-  ref?: (c: HTMLUListElement) => void;
+  innerRef?: React.Ref<HTMLUListElement>;
   visible: boolean;
   actions: Array<Action | undefined>;
   position?: {
@@ -30,7 +30,16 @@ const MENU_ITEM_HEIGHT = 28;
 
 class ContextMenu extends React.PureComponent<Props> {
   render() {
-    const { visible, position, actions, theme, onHide, className } = this.props;
+    const {
+      visible,
+      position,
+      actions,
+      theme,
+      onHide,
+      className,
+      // @ts-ignore
+      innerRef,
+    } = this.props;
 
     if (!visible) {
       return null;
@@ -40,6 +49,7 @@ class ContextMenu extends React.PureComponent<Props> {
 
     return (
       <ul
+        ref={innerRef}
         className={classnames(
           css(styles.menu, theme === 'dark' ? styles.menuDark : styles.menuLight),
           className
@@ -80,7 +90,11 @@ class ContextMenu extends React.PureComponent<Props> {
   }
 }
 
-export default withThemeName(ContextMenu);
+export default withThemeName(
+  React.forwardRef((props: Props, ref: React.Ref<HTMLUListElement>) => (
+    <ContextMenu {...props} innerRef={ref} />
+  ))
+);
 
 const fadeIn = {
   from: { opacity: 0 },

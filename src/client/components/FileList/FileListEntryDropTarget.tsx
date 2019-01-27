@@ -17,21 +17,25 @@ type Props = {
 
 class FileListEntryDropTarget extends React.PureComponent<Props> {
   componentDidMount() {
-    if (this._container) {
+    const container = this._container.current;
+
+    if (container) {
       // We don't use react's event system since we need to stop the events from bubbling up
-      this._container.addEventListener('dragover', this._handleDragOver);
-      this._container.addEventListener('dragleave', this._handleDragLeave);
-      this._container.addEventListener('dragend', this._handleDragLeave);
-      this._container.addEventListener('drop', this._handleDrop);
+      container.addEventListener('dragover', this._handleDragOver);
+      container.addEventListener('dragleave', this._handleDragLeave);
+      container.addEventListener('dragend', this._handleDragLeave);
+      container.addEventListener('drop', this._handleDrop);
     }
   }
 
   componentWillUnmount() {
-    if (this._container) {
-      this._container.removeEventListener('dragover', this._handleDragOver);
-      this._container.removeEventListener('dragleave', this._handleDragLeave);
-      this._container.removeEventListener('dragend', this._handleDragLeave);
-      this._container.removeEventListener('drop', this._handleDrop);
+    const container = this._container.current;
+
+    if (container) {
+      container.removeEventListener('dragover', this._handleDragOver);
+      container.removeEventListener('dragleave', this._handleDragLeave);
+      container.removeEventListener('dragend', this._handleDragLeave);
+      container.removeEventListener('drop', this._handleDrop);
     }
   }
 
@@ -133,13 +137,13 @@ class FileListEntryDropTarget extends React.PureComponent<Props> {
     }
   };
 
-  _container: HTMLDivElement | null = null;
+  _container = React.createRef<HTMLDivElement>();
 
   render() {
     // eslint-disable-next-line no-unused-vars
     const { entry, rest, onExpand, onRename, theme, ...restProps } = this.props;
 
-    return <div {...restProps} ref={c => (this._container = c)} />;
+    return <div {...restProps} ref={this._container} />;
   }
 }
 

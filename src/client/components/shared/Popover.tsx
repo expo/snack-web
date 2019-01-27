@@ -38,9 +38,9 @@ class Popover extends React.PureComponent<Props, State> {
   _handleDocumentClick = (e: MouseEvent) => {
     if (
       this.state.visible &&
-      (e.target === this._anchor ||
-        e.target === this._popover ||
-        (this._popover && this._popover.contains(e.target as Node)))
+      (e.target === this._anchor.current ||
+        e.target === this._popover.current ||
+        (this._popover.current && this._popover.current.contains(e.target as Node)))
     ) {
       return;
     }
@@ -50,20 +50,22 @@ class Popover extends React.PureComponent<Props, State> {
 
   _togglePopover = () => {
     if (!this.state.visible) {
-      const popover = (this._popover && this._popover.getBoundingClientRect()) || {};
-      const anchor = (this._anchor && this._anchor.getBoundingClientRect()) || {};
+      const popover =
+        (this._popover.current && this._popover.current.getBoundingClientRect()) || {};
+      const anchor = (this._anchor.current && this._anchor.current.getBoundingClientRect()) || {};
 
       // @ts-ignore
       const diff = (popover.width - 10) / 2 - anchor.left;
 
-      if (this._popover && this._arrow) {
+      if (this._popover.current && this._arrow.current) {
         if (diff > 0) {
-          this._popover.style.left = `${diff + 5}px`;
-          // @ts-ignore
-          this._arrow.style.left = `${anchor.left - anchor.width / 2 + 10}px`;
+          this._popover.current.style.left = `${diff + 5}px`;
+          this._arrow.current.style.left =
+            // @ts-ignore
+            `${anchor.left - anchor.width / 2 + 10}px`;
         } else {
-          this._popover.style.left = '5px';
-          this._arrow.style.left = '50%';
+          this._popover.current.style.left = '5px';
+          this._arrow.current.style.left = '50%';
         }
       }
     }
@@ -73,11 +75,9 @@ class Popover extends React.PureComponent<Props, State> {
 
   _hidePopover = () => this.setState({ visible: false });
 
-  _setRef = (c: HTMLElement | null) => (this._anchor = c);
-
-  _anchor: HTMLElement | null = null;
-  _arrow: HTMLSpanElement | null = null;
-  _popover: HTMLDivElement | null = null;
+  _anchor = React.createRef<HTMLElement>();
+  _arrow = React.createRef<HTMLSpanElement>();
+  _popover = React.createRef<HTMLDivElement>();
 
   render() {
     const { children, content, theme } = this.props;
@@ -88,19 +88,19 @@ class Popover extends React.PureComponent<Props, State> {
           // @ts-ignore
           React.Children.only(children),
           {
-            ref: this._setRef,
+            ref: this._anchor,
             onClick: this._togglePopover,
           }
         )}
         <div
-          ref={c => (this._popover = c)}
+          ref={this._popover}
           className={css(
             styles.popover,
             theme === 'dark' ? styles.popoverDark : styles.popoverLight,
             this.state.visible ? styles.visible : styles.hidden
           )}>
           <span
-            ref={c => (this._arrow = c)}
+            ref={this._arrow}
             className={css(styles.arrow, theme === 'dark' ? styles.arrowDark : styles.arrowLight)}
           />
           {content}

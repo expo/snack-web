@@ -19,23 +19,22 @@ export default function withThemeName<P extends InjectedProps>(
 
     render() {
       // @ts-ignore
-      const { forwardedRef, ...rest } = this.props;
+      const { __forwardedRef, ...rest } = this.props;
 
       return (
         <PreferencesContext.Consumer>
           {props => {
             // @ts-ignore
-            return <Comp ref={forwardedRef} theme={props.preferences.theme} {...rest} />;
+            return <Comp ref={__forwardedRef} theme={props.preferences.theme} {...rest} />;
           }}
         </PreferencesContext.Consumer>
       );
     }
   }
 
-  /* $FlowIssue: Flow doesn't know about forwardRef yet */
   const Result = React.forwardRef((props, ref) => (
     // @ts-ignore
-    <ThemedComponent {...props} forwardedRef={ref} />
+    <ThemedComponent {...props} __forwardedRef={ref} />
   ));
 
   hoistNonReactStatics(Result, Comp);

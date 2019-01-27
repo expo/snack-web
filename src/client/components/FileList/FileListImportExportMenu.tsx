@@ -1,5 +1,4 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom';
 import FileListPaneButton from './FileListPaneButton';
 import ContextMenu from '../shared/ContextMenu';
 import { SaveStatus } from '../../types';
@@ -51,7 +50,11 @@ export default class FileListImportExportMenu extends React.PureComponent<Props,
 
   _handleDocumentClick = (e: MouseEvent) => {
     if (this.state.menu) {
-      if (this._button && (e.target !== this._button && !this._button.contains(e.target))) {
+      if (
+        this._button.current &&
+        (e.target !== this._button.current &&
+          !this._button.current.contains(e.target as HTMLElement))
+      ) {
         this._hideContextMenu();
       }
     }
@@ -65,8 +68,7 @@ export default class FileListImportExportMenu extends React.PureComponent<Props,
     }
   };
 
-  _menu: any;
-  _button: any;
+  _button = React.createRef<HTMLButtonElement>();
 
   render() {
     const isSaved =
@@ -74,10 +76,7 @@ export default class FileListImportExportMenu extends React.PureComponent<Props,
 
     return (
       <div>
-        <FileListPaneButton
-          // @ts-ignore
-          ref={c => (this._button = ReactDOM.findDOMNode(c))}
-          onClick={this._toggleContextMenu}>
+        <FileListPaneButton ref={this._button} onClick={this._toggleContextMenu}>
           <g fillOpacity="0.7">
             <circle cy="3" cx="8" r="1.5" />
             <circle cy="8" cx="8" r="1.5" />
@@ -85,7 +84,6 @@ export default class FileListImportExportMenu extends React.PureComponent<Props,
           </g>
         </FileListPaneButton>
         <ContextMenu
-          ref={c => (this._menu = ReactDOM.findDOMNode(c))}
           visible={Boolean(this.state.menu)}
           position={this.state.menu}
           actions={[
