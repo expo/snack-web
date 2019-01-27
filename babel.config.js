@@ -17,6 +17,7 @@ module.exports = api => {
                   'not samsung <= 4',
                 ],
               },
+              exclude: ["transform-typeof-symbol"],
               useBuiltIns: 'usage',
               modules: false,
             }

@@ -3,7 +3,7 @@ import constructAppetizeURL from '../constructAppetizeURL';
 it('constructs appetize URL', () => {
   expect(
     constructAppetizeURL({
-      sdkVersion: '25.0.0',
+      sdkVersion: '26.0.0',
       channel: '456a768',
       platform: 'ios',
       host: 'snack.expo.io',
@@ -12,7 +12,7 @@ it('constructs appetize URL', () => {
   ).toMatchSnapshot();
   expect(
     constructAppetizeURL({
-      sdkVersion: '25.0.0',
+      sdkVersion: '26.0.0',
       channel: '456a768',
       platform: 'android',
       autoplay: true,

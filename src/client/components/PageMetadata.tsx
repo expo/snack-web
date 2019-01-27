@@ -24,8 +24,8 @@ export default function PageMetadata({ name, description, params }: Props) {
           property: 'og:image',
           content: 'https://s3.amazonaws.com/exp-brand-assets/ExpoIcon_200.png',
         },
-        { property: 'og:image:width', content: 200 },
-        { property: 'og:image:height', content: 200 },
+        { property: 'og:image:width', content: '200' },
+        { property: 'og:image:height', content: '200' },
       ]}
     />
   );

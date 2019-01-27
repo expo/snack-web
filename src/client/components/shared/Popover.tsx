@@ -4,8 +4,6 @@ import { StyleSheet, css } from 'aphrodite';
 import withThemeName, { ThemeName } from '../Preferences/withThemeName';
 import colors from '../../configs/colors';
 
-const { PureComponent, Children, cloneElement } = React;
-
 type Props = {
   children: React.ReactNode;
   content: React.ReactNode;
@@ -16,7 +14,7 @@ type State = {
   visible: boolean;
 };
 
-class Popover extends PureComponent<Props, State> {
+class Popover extends React.PureComponent<Props, State> {
   state = {
     visible: false,
   };
@@ -86,10 +84,14 @@ class Popover extends PureComponent<Props, State> {
 
     return (
       <div className={css(styles.container)}>
-        {cloneElement(Children.only(children), {
-          ref: this._setRef,
-          onClick: this._togglePopover,
-        })}
+        {React.cloneElement(
+          // @ts-ignore
+          React.Children.only(children),
+          {
+            ref: this._setRef,
+            onClick: this._togglePopover,
+          }
+        )}
         <div
           ref={c => (this._popover = c)}
           className={css(

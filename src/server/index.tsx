@@ -10,6 +10,7 @@ import stoppable from 'stoppable';
 import nullthrows from 'nullthrows';
 import sw from './sw';
 import routes from './routes';
+import { AddressInfo } from 'net';
 
 type ShutdownSignal = 'SIGHUP' | 'SIGINT' | 'SIGTERM' | 'SIGUSR2';
 
@@ -76,7 +77,7 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
 app.use(routes());
 
 const httpServer = app.listen(port, host, backlog, () => {
-  const { address, port } = server.address();
+  const { address, port } = server.address() as AddressInfo;
 
   console.log(`The Snack web server is listening on http://${address}:${port}`);
 });

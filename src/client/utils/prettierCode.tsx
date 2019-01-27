@@ -8,7 +8,7 @@ export default async function prettierCode(path: string, code: string): Promise<
 
   switch (language) {
     case 'javascript':
-      parser = 'babylon';
+      parser = 'babel';
       plugins = [await import('prettier/parser-babylon')];
       break;
     case 'typescript':

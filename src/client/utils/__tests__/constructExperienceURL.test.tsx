@@ -3,7 +3,7 @@ import constructExperienceURL from '../constructExperienceURL';
 it('constructs experience URL', () => {
   expect(
     constructExperienceURL({
-      sdkVersion: '25.0.0',
+      sdkVersion: '26.0.0',
       snackId: 'cdef5abc',
       channel: '456a768',
       host: 'snack.expo.io',
@@ -11,7 +11,7 @@ it('constructs experience URL', () => {
   ).toBe('exp://expo.io/@snack/cdef5abc+456a768');
   expect(
     constructExperienceURL({
-      sdkVersion: '25.0.0',
+      sdkVersion: '26.0.0',
       snackId: 'cdef5abc',
       channel: '456a768',
       host: 'snack.expo.test',
