@@ -16,45 +16,14 @@ import DeviceInstructionsModal, {
 import SimpleEditor from './Editor/SimpleEditor';
 import colors from '../configs/colors';
 import { isMobile } from '../utils/detectPlatform';
-import { TextFileEntry, FileSystemEntry, QueryParams } from '../types';
-import { SDKVersion } from '../configs/sdk';
 import withThemeName, { ThemeName } from './Preferences/withThemeName';
+import withPreferences from './Preferences/withPreferences';
+import { Props as EditorProps } from './EditorView';
 
 const SESSION_ID = `snack-session-${shortid()}`;
 
-type Props = {
-  entry: TextFileEntry;
-  name: string;
-  description: string;
-  params: {
-    id?: string;
-  };
-  channel: string;
-  isResolving: boolean;
-  loadingMessage?: string;
-  fileEntries: FileSystemEntry[];
-  dependencyQueryParam: string | undefined;
-  initialSdkVersion: SDKVersion;
-  sdkVersion: SDKVersion;
-  onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<void>;
-  onChangeCode: (code: string) => void;
-  query: QueryParams;
-  dependencies: {
-    [name: string]: {
-      version: string;
-    };
-  };
-  syncDependenciesAsync: (
-    modules: {
-      [name: string]: string | undefined;
-    },
-    onError: (name: string, e: Error) => void
-  ) => Promise<void>;
-  setDeviceId: (deviceId: string) => Promise<void>;
-  deviceId: string | undefined;
-  wasUpgraded: boolean;
+type Props = EditorProps & {
   testConnectionMethod?: ConnectionMethod;
-  userAgent: string;
   theme: ThemeName;
 };
 
@@ -92,13 +61,15 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
 
   _handleOpenFullView = () => {
     try {
-      localStorage.setItem(
-        SESSION_ID,
-        JSON.stringify({
-          code: this.props.entry.item.content,
-          platform: this.props.query.platform,
-        })
-      );
+      if (this.props.entry && 'content' in this.props.entry.item) {
+        localStorage.setItem(
+          SESSION_ID,
+          JSON.stringify({
+            code: this.props.entry.item.content,
+            platform: this.props.query.platform,
+          })
+        );
+      }
     } catch (e) {
       // probably localStorage is full
       // or we are in incognito in Safari
@@ -165,7 +136,9 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
         </EmbeddedToolbarShell>
         <div className={css(styles.editorArea)}>
           <SimpleEditor
+            // @ts-ignore
             path={entry.item.path}
+            // @ts-ignore
             value={entry.item.content}
             onValueChange={this.props.onChangeCode}
             lineNumbers="off"
@@ -173,7 +146,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
           {devicePreviewShown ? (
             <LazyLoad load={() => import(/* webpackPreload: true */ './DevicePreview')}>
               {({ loaded, data: Comp }) => {
-                if (!loaded) {
+                if (!(loaded && Comp)) {
                   return null;
                 }
 
@@ -246,9 +219,11 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
 }
 
 export default withThemeName(
-  connect((state: any) => ({
-    testConnectionMethod: state.splitTestSettings.defaultConnectionMethod,
-  }))(EmbeddedEditorView)
+  withPreferences(
+    connect((state: any) => ({
+      testConnectionMethod: state.splitTestSettings.defaultConnectionMethod,
+    }))(EmbeddedEditorView)
+  )
 );
 
 const styles = StyleSheet.create({

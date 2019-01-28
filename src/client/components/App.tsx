@@ -34,6 +34,7 @@ import {
   SaveStatus,
   SaveHistory,
 } from '../types';
+import { DEFAULT_DESCRIPTION } from '../configs/defaults';
 
 const Auth = new AuthManager();
 
@@ -182,12 +183,7 @@ type Params = {
 type Props = AuthProps & {
   snack?: Snack;
   history: {
-    push: (
-      props: {
-        pathname: string;
-        search: string;
-      }
-    ) => void;
+    push: (props: { pathname: string; search: string }) => void;
   };
   match: {
     params: Params;
@@ -202,7 +198,7 @@ type Props = AuthProps & {
 
 type SnackSessionState = {
   name: string;
-  description: string | undefined;
+  description: string;
   files: ExpoSnackFiles;
   dependencies: { [key: string]: { version: string } };
   sdkVersion: SDKVersion;
@@ -240,11 +236,9 @@ type SnackSessionProxy = {
     snackagerCloudfrontUrl: string;
     host: string;
     startAsync: () => Promise<void>;
-    saveAsync: (
-      options: {
-        isDraft?: boolean;
-      }
-    ) => Promise<{
+    saveAsync: (options: {
+      isDraft?: boolean;
+    }) => Promise<{
       id: string;
     }>;
     uploadAssetAsync: (asset: File) => Promise<string>;
@@ -256,11 +250,7 @@ type SnackSessionProxy = {
     ) => Promise<void>;
     sendCodeAsync: (payload: ExpoSnackFiles) => Promise<void>;
     setSdkVersion: (version: SDKVersion) => Promise<void>;
-    setUser: (
-      user: {
-        sessionSecret: string | undefined;
-      }
-    ) => Promise<void>;
+    setUser: (user: { sessionSecret: string | undefined }) => Promise<void>;
     setName: (name: string) => Promise<void>;
     setDescription: (description: string) => Promise<void>;
     setDeviceId: (id: string) => Promise<void>;
@@ -292,7 +282,7 @@ class App extends React.Component<Props, State> {
       props.snack && props.snack.code ? props.snack.code : INITIAL_CODE;
 
     let name = getSnackName();
-    let description;
+    let description = DEFAULT_DESCRIPTION;
     // TODO(satya164): is this correct? we don't match for sdkVersion in the router
     let sdkVersion = props.match.params.sdkVersion || DEFAULT_SDK_VERSION;
     let dependencies = usingDefaultCode ? INITIAL_DEPENDENCIES : {};
@@ -742,14 +732,13 @@ class App extends React.Component<Props, State> {
           isPackageJson(nextFocusedEntry.item.path) &&
           (previousFocusedEntry ? !isPackageJson(previousFocusedEntry.item.path) : true)
         ) {
-          fileEntries = fileEntries.map(
-            entry =>
-              isPackageJson(entry.item.path)
-                ? updateEntry(this._getPackageJson(state.snackSessionState), {
-                    // @ts-ignore
-                    state: entry.state,
-                  })
-                : entry
+          fileEntries = fileEntries.map(entry =>
+            isPackageJson(entry.item.path)
+              ? updateEntry(this._getPackageJson(state.snackSessionState), {
+                  // @ts-ignore
+                  state: entry.state,
+                })
+              : entry
           );
         }
 
@@ -892,15 +881,15 @@ class App extends React.Component<Props, State> {
   _uploadAssetAsync = (asset: File) => this._snack.session.uploadAssetAsync(asset);
 
   _syncDependenciesAsync = async (
-    dependencies: { [key: string]: string },
-    callback: () => void
+    dependencies: { [key: string]: string | undefined },
+    onError: (name: string, e: Error) => void
   ) => {
     const didDependeciesChange = !isEqual(
       mapValues(this.state.snackSessionState.dependencies, o => o.version),
       dependencies
     );
 
-    const errorListener = persist(callback);
+    const errorListener = persist(onError);
 
     try {
       await this._snack.session.syncDependenciesAsync(dependencies, errorListener);
@@ -940,7 +929,7 @@ class App extends React.Component<Props, State> {
             }
           }}>
           {({ loaded, data: Comp }) =>
-            loaded && this.state.snackSessionReady ? (
+            loaded && Comp && this.state.snackSessionReady ? (
               <Comp
                 snack={this.props.snack}
                 createdAt={this.props.snack ? this.props.snack.created : undefined}
@@ -978,7 +967,7 @@ class App extends React.Component<Props, State> {
                 sessionID={this.props.query.session_id}
                 query={this.props.query}
                 wasUpgraded={this.state.wasUpgraded}
-                viewer={this.props.viewer}
+                userAgent={this.props.userAgent}
               />
             ) : this.props.isEmbedded ? (
               <EmbeddedShell />

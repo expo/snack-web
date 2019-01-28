@@ -68,7 +68,7 @@ export default class Searchbar extends React.Component<{}, State> {
           <div className={css(styles.results)}>
             <LazyLoad load={() => import('./SearchResults')}>
               {({ loaded, data: SearchResults }) => {
-                if (loaded) {
+                if (loaded && SearchResults) {
                   return <SearchResults query={this.state.query} />;
                 }
 

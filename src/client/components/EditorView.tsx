@@ -48,6 +48,7 @@ import {
   SaveStatus,
   SaveHistory,
   Snack,
+  QueryParams,
 } from '../types';
 
 const EDITOR_LOAD_FALLBACK_TIMEOUT = 3000;
@@ -67,9 +68,8 @@ type DeviceLog = {
   payload: any[];
 };
 
-type Props = PreferencesContextType & {
+export type EditorProps = {
   snack?: Snack;
-  viewer?: Viewer;
   createdAt: string | undefined;
   saveHistory: SaveHistory;
   saveStatus: SaveStatus;
@@ -97,22 +97,18 @@ type Props = PreferencesContextType & {
   dependencyQueryParam: string | undefined;
   initialSdkVersion: SDKVersion;
   sdkVersion: SDKVersion;
-  onClearDeviceLogs: () => undefined;
-  onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<undefined>;
-  onChangeCode: (code: string) => undefined;
+  onClearDeviceLogs: () => void;
+  onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<void>;
+  onChangeCode: (code: string) => void;
   onSubmitMetadata: (
     details: {
       name: string;
       description: string;
     },
     draft?: boolean
-  ) => Promise<undefined>;
-  onChangeSDKVersion: (sdkVersion: SDKVersion) => undefined;
-  onPublishAsync: (
-    options: {
-      allowedOnProfile?: boolean;
-    }
   ) => Promise<void>;
+  onChangeSDKVersion: (sdkVersion: SDKVersion) => void;
+  onPublishAsync: (options: { allowedOnProfile?: boolean }) => Promise<void>;
   onDownloadAsync: () => Promise<void>;
   onSignIn: () => Promise<void>;
   uploadFileAsync: (file: File) => Promise<string>;
@@ -122,13 +118,19 @@ type Props = PreferencesContextType & {
     },
     onError: (name: string, e: Error) => void
   ) => Promise<void>;
-  setDeviceId: (deviceId: string) => Promise<void>;
+  setDeviceId: (deviceId: string) => void;
   deviceId: string | undefined;
-  theme: ThemeName;
-  previewQueue: 'standard' | 'test';
   wasUpgraded: boolean;
   autosaveEnabled: boolean;
+  query: QueryParams;
+  userAgent: string;
 };
+
+export type Props = PreferencesContextType &
+  EditorProps & {
+    viewer?: Viewer;
+    theme: ThemeName;
+  };
 
 type ModalName =
   | PublishModals
@@ -567,8 +569,8 @@ class EditorView extends React.Component<Props, State> {
                         saveStatus === 'published'
                           ? null
                           : this.props.isResolving
-                            ? null
-                            : onPublishAsync,
+                          ? null
+                          : onPublishAsync,
                       tree: this._toggleFileTree,
                       panels: this._togglePanels,
                       format: this._prettier,
@@ -623,7 +625,7 @@ class EditorView extends React.Component<Props, State> {
                       />
                       {/* Don't load it conditionally since we need the _EditorComponent object to be available */}
                       <LazyLoad
-                        load={() => {
+                        load={(): Promise<typeof import('./Editor/MonacoEditor')> => {
                           let timeout: any;
 
                           const MonacoEditorPromise = import(/* webpackPreload: true */ './Editor/MonacoEditor').then(
@@ -666,7 +668,7 @@ class EditorView extends React.Component<Props, State> {
                                 <React.Fragment>
                                   <LazyLoad load={() => import('./Markdown/MarkdownPreview')}>
                                     {({ loaded: mdLoaded, data: MarkdownPreview }) => {
-                                      if (mdLoaded) {
+                                      if (mdLoaded && MarkdownPreview) {
                                         return <MarkdownPreview source={content} />;
                                       }
 
@@ -692,7 +694,7 @@ class EditorView extends React.Component<Props, State> {
                               );
                             }
 
-                            if (loaded) {
+                            if (loaded && Comp) {
                               return (
                                 <React.Fragment>
                                   <Comp

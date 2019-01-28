@@ -21,7 +21,7 @@ type Props = {
   onSignIn?: () => Promise<void>;
   onChangeMethod: (method: ConnectionMethod) => void;
   onDismiss: () => void;
-  setDeviceId: (deviceId: string) => Promise<void>;
+  setDeviceId: (deviceId: string) => void;
   wasUpgraded?: boolean;
   deviceId: string | undefined;
   visible: boolean;

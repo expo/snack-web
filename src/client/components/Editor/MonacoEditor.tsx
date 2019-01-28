@@ -134,7 +134,7 @@ type Props = {
   onValueChange: (value: string) => void;
   annotations: Annotation[];
   lineNumbers?: 'on' | 'off' | 'relative' | 'interval';
-  wordWrap: 'off' | 'on' | 'wordWrapColumn' | 'bounded';
+  wordWrap?: 'off' | 'on' | 'wordWrapColumn' | 'bounded';
   scrollBeyondLastLine?: boolean;
   minimap?: {
     enabled?: boolean;

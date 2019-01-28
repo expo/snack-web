@@ -1,21 +1,16 @@
 import * as React from 'react';
 
-type Props = {
-  load: () => Promise<any>;
-  children: (
-    x0: {
-      loaded: boolean;
-      data: any;
-    }
-  ) => any;
+type Props<T> = {
+  load: () => Promise<{ default: T }>;
+  children: (props: { loaded: false; data: null } | { loaded: true; data: T }) => any;
 };
 
-type State = {
-  data: any | undefined;
+type State<T> = {
+  data: T | null;
 };
 
-export default class LazyLoad extends React.Component<Props, State> {
-  state = {
+export default class LazyLoad<T> extends React.Component<Props<T>, State<T>> {
+  state: State<T> = {
     data: null,
   };
 
@@ -24,7 +19,7 @@ export default class LazyLoad extends React.Component<Props, State> {
   }
 
   _load = async () => {
-    let data = await this.props.load();
+    let data: any = await this.props.load();
 
     if (data.__esModule) {
       data = data.default;

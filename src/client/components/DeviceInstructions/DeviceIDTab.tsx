@@ -6,7 +6,7 @@ import Banner from '../shared/Banner';
 
 type Props = {
   deviceId: string | undefined;
-  setDeviceId: (deviceId: string) => Promise<void>;
+  setDeviceId: (deviceId: string) => void;
 };
 
 type State = {

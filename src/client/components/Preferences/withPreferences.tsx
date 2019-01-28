@@ -8,16 +8,12 @@ export type PreferencesContextType = {
   preferences: PreferencesType;
 };
 
-type InjectedProps = {
-  preferences: PreferencesType;
-};
-
 // react-redux doesn't work with forwardRef: https://github.com/reduxjs/react-redux/issues/914
 // so this HOC always needs wrap a connect call, and a connect call cannot wrap this
-export default function withPreferences<P extends InjectedProps>(
+export default function withPreferences<P extends PreferencesContextType>(
   Comp: React.ComponentType<P>
-): React.ComponentType<$Subtract<P, InjectedProps>> {
-  class PreferenceConsumerComponent extends React.Component<$Subtract<P, InjectedProps>> {
+): React.ComponentType<$Subtract<P, PreferencesContextType>> {
+  class PreferenceConsumerComponent extends React.Component<$Subtract<P, PreferencesContextType>> {
     static displayName = `withPreferences(${Comp.displayName || Comp.name})`;
 
     render() {
