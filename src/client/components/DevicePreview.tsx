@@ -118,7 +118,9 @@ class DevicePreview extends React.PureComponent<Props, State> {
     this._mql = window.matchMedia('(min-width: 480px)');
     this._mql.addListener(this._handleMediaQuery);
     this._handleMediaQuery(this._mql);
+
     window.addEventListener('message', this._handlePostMessage);
+    window.addEventListener('unload', this._endSession);
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -139,8 +141,13 @@ class DevicePreview extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
+    this._endSession();
+
     clearInterval(this._popupInterval);
+
     window.removeEventListener('message', this._handlePostMessage);
+    window.removeEventListener('unload', this._endSession);
+
     this._mql && this._mql.removeListener(this._handleMediaQuery);
 
     if (this._popup) {
@@ -361,6 +368,12 @@ class DevicePreview extends React.PureComponent<Props, State> {
   _requestSession = () => {
     if (this._iframe && this._iframe.contentWindow) {
       this._iframe.contentWindow.postMessage('requestSession', '*');
+    }
+  };
+
+  _endSession = () => {
+    if (this._iframe && this._iframe.contentWindow) {
+      this._iframe.contentWindow.postMessage('endSession', '*');
     }
   };
 
