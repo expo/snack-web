@@ -304,7 +304,7 @@ class MonacoEditor extends React.Component<Props> {
     // Completion provider to provide autocomplete for files and dependencies
     const completionProvider: monaco.languages.CompletionItemProvider = {
       triggerCharacters: ["'", '"', '.', '/'],
-      provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position): any => {
+      provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => {
         // Get editor content before the pointer
         const textUntilPosition = model.getValueInRange({
           startLineNumber: 1,
@@ -313,8 +313,10 @@ class MonacoEditor extends React.Component<Props> {
           endColumn: position.column,
         });
 
-        if (/(([\s|\n]+from\s+)|(\brequire\b\s*\())["|'][^'^"]*$/.test(textUntilPosition)) {
-          // It's probably a `import` statement or `require` call
+        if (
+          // Match `import "`, `from "`, `require("`
+          /(([\s|\n]+(import|from)\s+)|(\brequire\b\s*\())["|'][^'^"]*$/.test(textUntilPosition)
+        ) {
           if (textUntilPosition.endsWith('.') || textUntilPosition.endsWith('/')) {
             // User is trying to import a file
 
@@ -327,33 +329,35 @@ class MonacoEditor extends React.Component<Props> {
 
             const suggestions = this.props.entries
               .filter(({ item }) => item.path !== this.props.path && !item.virtual)
-              .map(({ item }) => {
-                let file = getRelativePath(this.props.path, item.path);
+              .map(
+                ({ item }): monaco.languages.CompletionItem | null => {
+                  let file = getRelativePath(this.props.path, item.path);
 
-                if (
-                  // Only show files that match the prefix typed by user
-                  file.startsWith(prefix) &&
-                  // Only show files in the same directory as the prefix
-                  file.split('/').length <= prefix.split('/').length
-                ) {
-                  // Remove typed text from the path so that don't insert it twice
-                  file = file.slice(typed.length);
+                  if (
+                    // Only show files that match the prefix typed by user
+                    file.startsWith(prefix) &&
+                    // Only show files in the same directory as the prefix
+                    file.split('/').length <= prefix.split('/').length
+                  ) {
+                    // Remove typed text from the path so that don't insert it twice
+                    file = file.slice(typed.length);
 
-                  return {
-                    // Show only the file name for label
-                    label: file.split('/').pop(),
-                    // Don't keep extension for JS files
-                    insertText: item.type === 'file' ? file.replace(/\.(js|tsx?)$/, '') : file,
-                    kind:
-                      item.type === 'folder'
-                        ? monaco.languages.CompletionItemKind.Folder
-                        : monaco.languages.CompletionItemKind.File,
-                  };
+                    return {
+                      // Show only the file name for label
+                      label: file.split('/').pop() as string,
+                      // Don't keep extension for JS files
+                      insertText: item.type === 'file' ? file.replace(/\.(js|tsx?)$/, '') : file,
+                      kind:
+                        item.type === 'folder'
+                          ? monaco.languages.CompletionItemKind.Folder
+                          : monaco.languages.CompletionItemKind.File,
+                    };
+                  }
+
+                  return null;
                 }
-
-                return null;
-              })
-              .filter(Boolean);
+              )
+              .filter(Boolean) as monaco.languages.CompletionItem[];
 
             return { suggestions };
           } else {
@@ -363,12 +367,15 @@ class MonacoEditor extends React.Component<Props> {
               // User is trying to import a dependency
               suggestions: Object.keys(deps).map(name => ({
                 label: name,
+                insertText: name,
                 detail: deps[name].version,
                 kind: monaco.languages.CompletionItemKind.Module,
               })),
             };
           }
         }
+
+        return undefined;
       },
     };
 
