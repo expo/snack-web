@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import mapKeys from 'lodash/mapKeys';
-import withThemeName, { ThemeName } from './Preferences/withThemeName';
+import usePreferences from './Preferences/usePreferences';
 
 type Colors = typeof light;
 
@@ -51,25 +51,24 @@ export const dark: Colors = {
 export const c = (name: keyof typeof light) => `var(--color-${name})`;
 
 type Props = {
-  theme: ThemeName;
   children: React.ReactNode;
 };
 
-function ColorsProvider({ theme, children }: Props) {
+export default function ColorsProvider({ children }: Props) {
+  const [prefs] = usePreferences();
+
   return (
-    <div
-      className={css(styles.container)}
-      style={mapKeys(theme === 'dark' ? dark : light, (_, key) => `--color-${key}`)}>
+    <div className={css(styles.container, prefs.theme === 'dark' ? styles.dark : styles.light)}>
       {children}
     </div>
   );
 }
-
-export default withThemeName(ColorsProvider);
 
 const styles = StyleSheet.create({
   container: {
     height: '100%',
     width: '100%',
   },
+  light: mapKeys(light, (_, key) => `--color-${key}`),
+  dark: mapKeys(dark, (_, key) => `--color-${key}`),
 });

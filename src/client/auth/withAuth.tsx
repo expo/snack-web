@@ -12,12 +12,7 @@ export type AuthProps = {
   getToken: () => string;
   setMetadata: (metadata: { appetizeCode: string }) => Promise<void>;
   viewer?: Viewer | undefined;
-  dispatch: (
-    action: {
-      type: 'UPDATE_VIEWER';
-      viewer: Viewer | null | undefined;
-    }
-  ) => void;
+  dispatch: (action: { type: 'UPDATE_VIEWER'; viewer: Viewer | null | undefined }) => void;
 };
 
 const Auth = new AuthManager();

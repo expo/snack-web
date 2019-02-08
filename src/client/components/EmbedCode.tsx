@@ -118,7 +118,6 @@ class EmbedCode extends React.PureComponent<Props, State> {
           <h3 className={css(styles.header)}>Embed Preview</h3>
           <div className={css(styles.row, styles.options)}>
             <ToggleButtons
-              light={this.props.theme !== 'light'}
               options={[{ label: 'iOS', value: 'ios' }, { label: 'Android', value: 'android' }]}
               value={platform}
               onValueChange={this._handleChangePlatform}
@@ -126,13 +125,11 @@ class EmbedCode extends React.PureComponent<Props, State> {
               className={css(styles.last)}
             />
             <ToggleSwitch
-              light={this.props.theme !== 'light'}
               checked={preview}
               label="Device Preview"
               onChange={this._handleTogglePreview}
             />
             <ToggleSwitch
-              light={this.props.theme !== 'light'}
               checked={theme !== 'light'}
               label="Dark theme"
               onChange={this._handleToggleTheme}
@@ -145,10 +142,7 @@ class EmbedCode extends React.PureComponent<Props, State> {
           <div className={css(styles.inputContainer)}>
             <input
               readOnly
-              className={css(
-                styles.code,
-                this.props.theme === 'light' ? styles.inputLight : styles.inputDark
-              )}
+              className={css(styles.code, theme === 'light' ? styles.inputLight : styles.inputDark)}
               onClick={handleClick}
               value={code}
             />

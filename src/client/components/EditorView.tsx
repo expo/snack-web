@@ -35,7 +35,6 @@ import lintEntry from '../utils/lintEntry';
 import prettierCode from '../utils/prettierCode';
 import { isIntentionallyNamed } from '../utils/projectNames';
 import withPreferences, { PreferencesContextType } from './Preferences/withPreferences';
-import withThemeName, { ThemeName } from './Preferences/withThemeName';
 import { c } from './ColorsProvider';
 import { Error as DeviceError, Annotation } from '../utils/convertErrorToAnnotation';
 import { SDKVersion } from '../configs/sdk';
@@ -129,7 +128,6 @@ export type EditorProps = {
 export type Props = PreferencesContextType &
   EditorProps & {
     viewer?: Viewer;
-    theme: ThemeName;
   };
 
 type ModalName =
@@ -751,11 +749,11 @@ class EditorView extends React.Component<Props, State> {
                   </div>
                   {preferences.devicePreviewShown ? (
                     <DevicePreview
-                      detachable
                       channel={channel}
                       snackId={params.id}
                       sdkVersion={sdkVersion}
                       platform={preferences.devicePreviewPlatform}
+                      onChangePlatform={this._changeDevicePreviewPlatform}
                       onClickRunOnPhone={this._handleShowDeviceInstructions}
                       wasUpgraded={this.props.wasUpgraded}
                       previewQueue="main"
@@ -770,7 +768,6 @@ class EditorView extends React.Component<Props, State> {
                   fileTreeShown={preferences.fileTreeShown}
                   devicePreviewShown={preferences.devicePreviewShown}
                   editorMode={preferences.editorMode}
-                  devicePreviewPlatform={preferences.devicePreviewPlatform}
                   sdkVersion={sdkVersion}
                   onToggleTheme={this._toggleTheme}
                   onTogglePanels={this._togglePanels}
@@ -779,9 +776,9 @@ class EditorView extends React.Component<Props, State> {
                   onToggleVimMode={
                     this.state.loadedEditor === 'monaco' ? this._toggleEditorMode : undefined
                   }
-                  onChangeDevicePreviewPlatform={this._changeDevicePreviewPlatform}
                   onChangeSDKVersion={this.props.onChangeSDKVersion}
                   onPrettifyCode={this._prettier}
+                  theme={this.props.preferences.theme}
                 />
                 <DeviceInstructionsModal
                   visible={currentModal === 'device-instructions'}
@@ -861,12 +858,10 @@ class EditorView extends React.Component<Props, State> {
   }
 }
 
-export default withThemeName(
-  withPreferences(
-    connect((state: any) => ({
-      viewer: state.viewer,
-    }))(EditorView)
-  )
+export default withPreferences(
+  connect((state: any) => ({
+    viewer: state.viewer,
+  }))(EditorView)
 );
 
 const styles = StyleSheet.create({

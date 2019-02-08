@@ -1,10 +1,10 @@
 import * as React from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import { PreferencesContext, PreferencesType } from './PreferencesProvider';
+import { PreferencesContext, PreferencesType, SetPreferencesType } from './PreferencesProvider';
 import { $Subtract } from '../../types';
 
 export type PreferencesContextType = {
-  setPreferences: (overrides: Partial<PreferencesType>) => void;
+  setPreferences: SetPreferencesType;
   preferences: PreferencesType;
 };
 

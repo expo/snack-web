@@ -2,7 +2,6 @@ import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 import classnames from 'classnames';
 import isEqual from 'lodash/isEqual';
-import Spinner from './shared/Spinner';
 import ButtonLink from './shared/ButtonLink';
 import Button from './shared/Button';
 import ModalAuthentication from './Auth/ModalAuthentication';
@@ -14,12 +13,13 @@ import constants from '../configs/constants';
 import withAuth, { AuthProps } from '../auth/withAuth';
 import withThemeName, { ThemeName } from './Preferences/withThemeName';
 import { Viewer } from '../types';
+import ToggleButtons from './shared/ToggleButtons';
 
 type Props = AuthProps & {
-  detachable?: boolean;
   sdkVersion: SDKVersion;
   channel: string;
   platform: 'ios' | 'android';
+  onChangePlatform: (platform: 'android' | 'ios') => void;
   canUserAuthenticate: boolean;
   wasUpgraded: boolean;
   previewQueue: 'main' | 'secondary';
@@ -372,8 +372,8 @@ class DevicePreview extends React.PureComponent<Props, State> {
   };
 
   _endSession = () => {
-    if (this._iframe && this._iframe.contentWindow) {
-      this._iframe.contentWindow.postMessage('endSession', '*');
+    if (this._iframe.current && this._iframe.current.contentWindow) {
+      this._iframe.current.contentWindow.postMessage('endSession', '*');
     }
   };
 
@@ -381,7 +381,14 @@ class DevicePreview extends React.PureComponent<Props, State> {
     return (
       <div
         className={
-          this.props.screenOnly ? css(styles.buttonContainerEmbedded) : css(styles.buttonContainer)
+          this.props.screenOnly
+            ? css(styles.buttonContainerEmbedded)
+            : css(
+                styles.buttonContainer,
+                this.props.platform === 'ios'
+                  ? styles.buttonContainerIOS
+                  : styles.buttonContainerAndroid
+              )
         }>
         {this.props.wasUpgraded ? (
           <div style={{ top: 90 }} className={css(styles.warningText)}>
@@ -413,47 +420,41 @@ class DevicePreview extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const { detachable, platform, screenOnly, theme } = this.props;
+    const { platform, screenOnly, onChangePlatform, theme } = this.props;
 
     const url = this._getAppetizeURL();
 
     return (
       <div
         className={classnames(
-          css(screenOnly ? styles.centered : styles.container, styles.wrapper),
+          css(screenOnly ? styles.centered : styles.container),
           this.props.className
         )}>
-        {detachable ? (
-          <button
-            className={css(
-              styles.popupButton,
-              theme === 'dark' ? styles.popupButtonDark : styles.popupButtonLight
-            )}
-            onClick={this._handlePopup}
-          />
-        ) : null}
+        {screenOnly ? null : (
+          <div className={css(styles.header)}>
+            <ToggleButtons
+              options={[{ label: 'Android', value: 'android' }, { label: 'iOS', value: 'ios' }]}
+              value={platform}
+              onValueChange={onChangePlatform}
+            />
+            <button
+              className={css(
+                styles.popupButton,
+                theme === 'dark' ? styles.popupButtonDark : styles.popupButtonLight
+              )}
+              onClick={this._handlePopup}
+            />
+          </div>
+        )}
         <div className={css(screenOnly ? styles.screen : styles.device)}>
           <iframe
             ref={this._iframe}
             key={url + this.props.sdkVersion}
             src={url}
-            className={css(
-              styles.frame,
-              !screenOnly ? (platform === 'android' ? styles.android : styles.ios) : undefined
-            )}
+            className={css(styles.frame)}
           />
-
           {this.state.appetizeStatus.type === 'unknown' ? this._renderButtons() : null}
         </div>
-        {this.state.appetizeStatus.type === 'unknown' ? (
-          <div className={css(styles.centered, styles.loading)}>
-            <Spinner
-              segmentLength={6}
-              spacing={4}
-              color={{ red: 255, green: 255, blue: 255, alpha: 0.5 }}
-            />
-          </div>
-        ) : null}
         {this.state.appetizeStatus.type === 'queued' ? (
           <div className={css(styles.queueModal, styles.centered)}>
             <div className={css(styles.queueModalContent)}>
@@ -519,21 +520,20 @@ export default withThemeName(withAuth(DevicePreview));
 
 const styles = StyleSheet.create({
   container: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '2em 0',
-    width: '24em',
+    position: 'relative',
+    padding: '0 16px',
     maxWidth: '50%',
     overflow: 'auto',
   },
-  wrapper: {
-    position: 'relative',
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '16px 0',
   },
   popupButton: {
     position: 'absolute',
     right: 0,
-    top: 0,
     zIndex: 2,
     appearance: 'none',
     height: 48,
@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
   },
   device: {
     position: 'relative',
-    height: 658,
+    height: 653,
     width: 324,
     overflow: 'hidden',
     margin: 'auto',
@@ -595,12 +595,6 @@ const styles = StyleSheet.create({
     border: 0,
     overflow: 'hidden',
   },
-  android: {
-    margin: '26px 14px',
-  },
-  ios: {
-    margin: '6px 13px',
-  },
   queueModal: {
     color: 'white',
     backgroundColor: 'rgba(36, 43, 56, 0.8)',
@@ -610,13 +604,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    padding: '2em',
+    padding: 28,
   },
   queueModalContent: {
     textAlign: 'center',
   },
   qrcode: {
-    margin: '1.5em 0.5em',
+    margin: '21px 7px',
     height: 208,
     width: 208,
     backgroundColor: '#fff',
@@ -653,8 +647,8 @@ const styles = StyleSheet.create({
   playstore: {
     backgroundImage: `url(${require('../assets/play-store-icon.png')})`,
     backgroundSize: '20px 23px',
-    paddingLeft: '1.5em',
-    paddingRight: '.5em',
+    paddingLeft: 21,
+    paddingRight: 7,
   },
   appstore: {
     backgroundImage: `url(${require('../assets/app-store-icon.png')})`,
@@ -667,17 +661,17 @@ const styles = StyleSheet.create({
   },
   payerCodeInput: {
     fontFamily: 'var(--font-monospace)',
-    padding: '.5em',
+    padding: 7,
     marginRight: -1,
     borderTopLeftRadius: 3,
     borderBottomLeftRadius: 3,
-    width: '9.5em',
+    width: 133,
     border: `1px solid ${colors.border}`,
     color: colors.text.light,
   },
   payerCodeSubmitted: {
     margin: '0 auto',
-    padding: '1em',
+    padding: 14,
     textAlign: 'center',
     color: colors.success,
   },
@@ -685,8 +679,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    right: 0,
     bottom: 0,
+  },
+  buttonContainerAndroid: {
+    right: 24,
+  },
+  buttonContainerIOS: {
+    right: 12,
   },
   buttonContainerEmbedded: {
     position: 'absolute',
@@ -707,7 +706,7 @@ const styles = StyleSheet.create({
   },
   buttonLink: {
     position: 'absolute',
-    left: 10,
+    left: 0,
     right: 0,
     display: 'flex',
     alignItems: 'center',

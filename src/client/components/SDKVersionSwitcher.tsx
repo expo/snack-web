@@ -3,14 +3,16 @@ import { StyleSheet, css } from 'aphrodite';
 import colors from '../configs/colors';
 import { versions } from '../configs/sdk';
 import { SDKVersion } from '../configs/sdk';
+import usePreferences from './Preferences/usePreferences';
 
 type Props = {
-  light?: boolean;
   sdkVersion: SDKVersion;
   onChange: (sdkVersion: SDKVersion) => void;
 };
 
-export default function SDKVersionSwitcher({ sdkVersion, onChange, light }: Props) {
+export default function SDKVersionSwitcher({ sdkVersion, onChange }: Props) {
+  const [prefs] = usePreferences();
+
   return (
     <div className={css(styles.container)}>
       <span className={css(styles.label)}>Expo</span>
@@ -18,7 +20,7 @@ export default function SDKVersionSwitcher({ sdkVersion, onChange, light }: Prop
         <select
           value={sdkVersion}
           onChange={e => onChange(e.target.value as any)}
-          className={css(styles.select, light && styles.light)}>
+          className={css(styles.select, prefs.theme === 'dark' ? styles.dark : styles.light)}>
           {Object.keys(versions).map(v => (
             <option key={v} value={v}>
               v{v}
@@ -35,7 +37,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     whiteSpace: 'nowrap',
-    margin: '0 .5em',
+    marginRight: '.5em',
   },
   switcher: {
     position: 'relative',
@@ -59,10 +61,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     padding: '0 2em 0 1em',
     borderRadius: 12,
-    border: `1px solid ${colors.border}`,
     outline: 0,
   },
   light: {
-    border: '1px solid rgba(255, 255, 255, .2)',
+    border: `1px solid ${colors.border}`,
   },
+  dark: {
+    border: '1px solid rgba(255, 255, 255, .2)',
+  }
 });

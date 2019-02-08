@@ -107,5 +107,8 @@ module.exports = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+    alias: {
+      aphrodite: 'aphrodite/no-important',
+    },
   },
 };

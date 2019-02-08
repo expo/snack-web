@@ -126,6 +126,7 @@ export default class Document extends React.Component<Props> {
                 body {
                   height: 100%;
                   width: 100%;
+                  overflow: hidden;
                 }
 
                 body {

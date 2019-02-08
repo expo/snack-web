@@ -18,6 +18,8 @@ export type PreferencesType = {
   theme: ThemeName;
 };
 
+export type SetPreferencesType = (overrides: Partial<PreferencesType>) => void;
+
 type Props = {
   testConnectionMethod?: ConnectionMethod;
   testPreviewPlatform?: 'android' | 'ios';

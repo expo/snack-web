@@ -4,7 +4,6 @@ import ToggleSwitch from './shared/ToggleSwitch';
 import ToggleButtons from './shared/ToggleButtons';
 import LoadingText from './shared/LoadingText';
 import EmbeddedFooterShell from './Shell/EmbeddedFooterShell';
-import withThemeName, { ThemeName } from './Preferences/withThemeName';
 
 type Props = {
   isResolving: boolean;
@@ -13,10 +12,9 @@ type Props = {
   devicePreviewPlatform: 'android' | 'ios';
   onToggleDevicePreview: () => void;
   onChangeDevicePreviewPlatform: (platform: 'android' | 'ios') => void;
-  theme: ThemeName;
 };
 
-class EmbeddedEditorFooter extends React.PureComponent<Props> {
+export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
   render() {
     const {
       isResolving,
@@ -25,7 +23,6 @@ class EmbeddedEditorFooter extends React.PureComponent<Props> {
       devicePreviewPlatform,
       onToggleDevicePreview,
       onChangeDevicePreviewPlatform,
-      theme,
     } = this.props;
 
     return (
@@ -33,13 +30,11 @@ class EmbeddedEditorFooter extends React.PureComponent<Props> {
         <div>{isResolving ? <LoadingText>{loadingMessage}</LoadingText> : null}</div>
         <div className={css(styles.right)}>
           <ToggleSwitch
-            light={theme !== 'light'}
             checked={devicePreviewShown}
             onChange={onToggleDevicePreview}
             label="Preview"
           />
           <ToggleButtons
-            light={theme !== 'light'}
             disabled={!devicePreviewShown}
             options={[{ label: 'Android', value: 'android' }, { label: 'iOS', value: 'ios' }]}
             value={devicePreviewPlatform}
@@ -51,8 +46,6 @@ class EmbeddedEditorFooter extends React.PureComponent<Props> {
     );
   }
 }
-
-export default withThemeName(EmbeddedEditorFooter);
 
 const styles = StyleSheet.create({
   loadingText: {

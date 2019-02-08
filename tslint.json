@@ -1,5 +1,5 @@
 {
-  "extends": ["tslint:recommended", "tslint-config-prettier"],
+  "extends": ["tslint:recommended", "tslint-config-prettier", "tslint-react-hooks"],
   "rulesDirectory": ["tslint-plugin-prettier", "tslint-microsoft-contrib"],
   "rules": {
     "prettier": true,
@@ -42,12 +42,11 @@
     "no-unnecessary-override": true,
     "no-with-statement": true,
     "non-literal-require": true,
-    "promise-must-complete": true
+    "promise-must-complete": true,
+
+    "react-hooks-nesting": "error"
   },
   "linterOptions": {
-    "exclude": [
-      "*.json",
-      "**/*.json"
-    ]
+    "exclude": ["*.json", "**/*.json"]
   }
 }

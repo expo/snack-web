@@ -2,9 +2,9 @@ import * as React from 'react';
 import classnames from 'classnames';
 import { StyleSheet, css } from 'aphrodite';
 import colors from '../../configs/colors';
+import usePreferences from '../Preferences/usePreferences';
 
 type Props = {
-  light?: boolean;
   checked: boolean;
   label: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -12,6 +12,8 @@ type Props = {
 };
 
 export default function ToggleSwitch(props: Props) {
+  const [prefs] = usePreferences();
+
   return (
     <label className={classnames(css(styles.container), props.className)}>
       <span className={css(styles.label)}>{props.label}</span>
@@ -19,14 +21,14 @@ export default function ToggleSwitch(props: Props) {
         className={css(
           styles.switch,
           props.checked ? styles.active : styles.inactive,
-          props.light ? styles.light : styles.dark,
-          props.light
+          prefs.theme === 'dark' ? styles.dark : styles.light,
+          prefs.theme === 'dark'
             ? props.checked
-              ? styles.lightActive
-              : styles.lightInactive
-            : props.checked
               ? styles.darkActive
               : styles.darkInactive
+            : props.checked
+            ? styles.lightActive
+            : styles.lightInactive
         )}
       />
       <input
@@ -43,8 +45,7 @@ const styles = StyleSheet.create({
   container: {
     display: 'flex',
     alignItems: 'center',
-    padding: 0,
-    margin: '0 .5em',
+    margin: 8,
     cursor: 'pointer',
     whiteSpace: 'nowrap',
   },
@@ -76,28 +77,28 @@ const styles = StyleSheet.create({
       transform: 'translateX(16px)',
     },
   },
-  dark: {
+  light: {
     border: `1px solid ${colors.border}`,
   },
-  darkInactive: {
+  lightInactive: {
     ':before': {
       backgroundColor: 'currentColor',
     },
   },
-  darkActive: {
+  lightActive: {
     ':before': {
       backgroundColor: colors.primary,
     },
   },
-  light: {
+  dark: {
     border: '1px solid rgba(255, 255, 255, .2)',
   },
-  lightInactive: {
+  darkInactive: {
     ':before': {
       backgroundColor: 'rgba(255, 255, 255, .5)',
     },
   },
-  lightActive: {
+  darkActive: {
     ':before': {
       backgroundColor: colors.content.light,
     },

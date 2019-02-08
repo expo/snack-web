@@ -157,6 +157,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
                     snackId={params.id}
                     sdkVersion={this.props.sdkVersion}
                     platform={devicePreviewPlatform}
+                    onChangePlatform={this._changeDevicePreviewPlatform}
                     className={css(styles.preview)}
                     payerCode={this.props.query.appetizePayerCode}
                     onClickRunOnPhone={this._handleShowDeviceInstructions}

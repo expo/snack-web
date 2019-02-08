@@ -23,8 +23,8 @@ const render = async (ctx: Context) => {
     ? ctx.params.id
       ? ctx.params.id
       : ctx.params.username && ctx.params.projectName
-        ? `@${ctx.params.username}/${ctx.params.projectName}`
-        : null
+      ? `@${ctx.params.username}/${ctx.params.projectName}`
+      : null
     : null;
   const splitTestSettings = await getSplitTests(ctx);
 
