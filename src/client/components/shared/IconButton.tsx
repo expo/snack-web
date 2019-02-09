@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     opacity: 0,
+    zIndex: 1,
 
     ':hover': {
       opacity: 1,

@@ -100,6 +100,7 @@ export type EditorViewProps = {
   sdkVersion: SDKVersion;
   sendCodeOnChangeEnabled: boolean;
   onSendCode: () => void;
+  onReloadSnack: () => void;
   onToggleSendCode: () => void;
   onClearDeviceLogs: () => void;
   onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<void>;
@@ -509,6 +510,7 @@ class EditorView extends React.Component<Props, State> {
       deviceLogs,
       deviceError,
       onSendCode,
+      onReloadSnack,
       onClearDeviceLogs,
       onToggleSendCode,
       uploadFileAsync,
@@ -789,6 +791,7 @@ class EditorView extends React.Component<Props, State> {
                   sendCodeOnChangeEnabled={sendCodeOnChangeEnabled}
                   sdkVersion={sdkVersion}
                   onSendCode={onSendCode}
+                  onReloadSnack={onReloadSnack}
                   onToggleTheme={this._toggleTheme}
                   onTogglePanels={this._togglePanels}
                   onToggleFileTree={this._toggleFileTree}

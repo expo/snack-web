@@ -13,16 +13,14 @@ import { SDKVersion } from '../configs/sdk';
 import { c } from './ColorsProvider';
 import { Shortcuts } from './KeyboardShortcuts';
 import ShortcutLabel from './shared/ShortcutLabel';
+import FeatureFlags from '../utils/FeatureFlags';
 import { VISIBILITY_MEDIA_QUERY } from './DevicePreview';
+import { Device } from '../types';
 
 type Props = {
   loadingMessage: string | undefined;
   annotations: Annotation[];
-  connectedDevices: Array<{
-    name: string;
-    id: string;
-    platform: string;
-  }>;
+  connectedDevices: Device[];
   fileTreeShown: boolean;
   editorMode: 'vim' | 'normal';
   devicePreviewShown: boolean;
@@ -39,6 +37,7 @@ type Props = {
   onShowShortcuts: () => void;
   onPrettifyCode: () => void;
   onSendCode: () => void;
+  onReloadSnack: () => void;
   theme: string;
 };
 
@@ -54,6 +53,7 @@ export default function Footer(props: Props) {
     editorMode,
     sdkVersion,
     onSendCode,
+    onReloadSnack,
     onToggleTheme,
     onTogglePanels,
     onToggleFileTree,
@@ -68,6 +68,9 @@ export default function Footer(props: Props) {
 
   const isErrorFatal = annotations.some(a => a.severity > 3);
   const isLoading = Boolean(loadingMessage);
+
+  const appText = connectedDevices.length > 1 ? 'apps' : 'app';
+  const deviceText = connectedDevices.length > 1 ? 'devices' : 'device';
 
   return (
     <FooterShell type={isErrorFatal && !isLoading ? 'error' : isLoading ? 'loading' : null}>
@@ -146,7 +149,7 @@ export default function Footer(props: Props) {
                 </div>
                 <div className={css(styles.buttonItem, styles.buttonItemDevicePane)}>
                   <IconButton
-                    title="Update changes on device"
+                    title={`Update changes on connected ${deviceText}`}
                     label="Update now"
                     onClick={onSendCode}>
                     <svg width="14px" height="17px" viewBox="0 0 14 17">
@@ -158,6 +161,18 @@ export default function Footer(props: Props) {
                   </IconButton>
                   <ShortcutLabel combo={Shortcuts.update.combo} />
                 </div>
+                {FeatureFlags.isAvailable('RELOAD_SNACK', sdkVersion) ? (
+                  <div className={css(styles.buttonItem, styles.buttonItemDevicePane)}>
+                    <IconButton
+                      title={`Reload ${appText} on connected ${deviceText}`}
+                      label={`Reload ${appText}`}
+                      onClick={onReloadSnack}>
+                      <svg width="16px" height="20px" viewBox="0 0 16 20">
+                        <path d="M8,3.5 L8,0 L3,5 L8,10 L8,5.5 C11.314,5.5 14,8.186 14,11.5 C14,14.814 11.314,17.5 8,17.5 C4.686,17.5 2,14.814 2,11.5 L0,11.5 C0,15.918 3.582,19.5 8,19.5 C12.418,19.5 16,15.918 16,11.5 C16,7.082 12.418,3.5 8,3.5" />
+                      </svg>
+                    </IconButton>
+                  </div>
+                ) : null}
                 <h4 className={css(styles.title)}>Connected devices</h4>
                 {connectedDevices.map(device => (
                   <div key={device.id} className={css(styles.deviceLabel)}>

@@ -87,6 +87,12 @@ export type Viewer = {
   };
 };
 
+export type Device = {
+  name: string;
+  id: string;
+  platform: string;
+};
+
 export type QueryParams = {
   session_id?: string;
   local_snackager?: 'true' | 'false';

@@ -33,6 +33,7 @@ import {
   QueryParams,
   SaveStatus,
   SaveHistory,
+  Device,
 } from '../types';
 import { DEFAULT_DESCRIPTION } from '../configs/defaults';
 
@@ -153,12 +154,6 @@ const INITIAL_DEPENDENCIES = {
 
 const BROADCAST_CHANNEL_NAME = 'SNACK_BROADCAST_CHANNEL';
 
-type Device = {
-  name: string;
-  id: string;
-  platform: string;
-};
-
 type DeviceError = {
   loc?: [number, number];
   line?: number;
@@ -250,6 +245,7 @@ type SnackSessionProxy = {
       callback: Listener
     ) => Promise<void>;
     sendCodeAsync: (payload: ExpoSnackFiles) => Promise<void>;
+    reloadSnack: () => Promise<void>;
     setSdkVersion: (version: SDKVersion) => Promise<void>;
     setUser: (user: { sessionSecret: string | undefined }) => Promise<void>;
     setName: (name: string) => Promise<void>;
@@ -672,6 +668,8 @@ class App extends React.Component<Props, State> {
 
   _sendCode = debounce(this._sendCodeNotDebounced, 1000);
 
+  _reloadSnack = () => this._snack.session.reloadSnack();
+
   _getPackageJson = (snackSessionState: SnackSessionState): TextFileEntry => ({
     item: {
       path: 'package.json',
@@ -958,6 +956,7 @@ class App extends React.Component<Props, State> {
                 loadingMessage={this.state.snackSessionState.loadingMessage}
                 dependencies={this.state.snackSessionState.dependencies}
                 params={this.state.params}
+                onReloadSnack={this._reloadSnack}
                 onSendCode={this._sendCodeNotDebounced}
                 onFileEntriesChange={this._handleFileEntriesChange}
                 onChangeCode={this._handleChangeCode}
