@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
     backgroundColor: c('content'),
     borderColor: c('editor-border'),
     boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.16)',
+    color: c('text'),
     zIndex: -1,
   },
 });

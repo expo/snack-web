@@ -3,6 +3,7 @@ import { StyleSheet, css } from 'aphrodite';
 
 import withThemeName, { ThemeName } from '../Preferences/withThemeName';
 import colors from '../../configs/colors';
+import { c } from '../ColorsProvider';
 
 type Props = {
   type?: 'submit' | 'button';
@@ -137,5 +138,6 @@ const styles = StyleSheet.create({
 
   label: {
     margin: '0 12px',
+    color: c('text'),
   },
 });

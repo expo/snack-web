@@ -212,6 +212,7 @@ type State = {
   snackSessionReady: boolean;
   channel: string;
   deviceId: string;
+  sendCodeOnChangeEnabled: boolean;
   autosaveEnabled: boolean;
   isSavedOnce: boolean;
   saveHistory: SaveHistory;
@@ -355,6 +356,7 @@ class App extends React.Component<Props, State> {
     this.state = {
       snackSessionState,
       snackSessionReady: false,
+      sendCodeOnChangeEnabled: true,
       // We don't have any UI for autosave in embed
       // In addition, enabling autosave in embed will disable autosave in editor when embed dialog is open
       autosaveEnabled: !this.props.isEmbedded,
@@ -477,7 +479,10 @@ class App extends React.Component<Props, State> {
     }
 
     if (didFilesChange) {
-      this._sendCode();
+      if (this.state.sendCodeOnChangeEnabled) {
+        this._sendCode();
+      }
+
       this._handleSaveDraft();
     }
   }
@@ -592,6 +597,9 @@ class App extends React.Component<Props, State> {
   _broadcastChannel: BroadcastChannel = undefined as any;
 
   _handleSnackDependencyError = (error: string) => Raven.captureMessage(error);
+
+  _handleToggleSendCode = () =>
+    this.setState(state => ({ sendCodeOnChangeEnabled: !state.sendCodeOnChangeEnabled }));
 
   _handleSnackSessionLog = (payload: {
     device: Device;
@@ -934,6 +942,7 @@ class App extends React.Component<Props, State> {
                 snack={this.props.snack}
                 createdAt={this.props.snack ? this.props.snack.created : undefined}
                 autosaveEnabled={this.state.autosaveEnabled}
+                sendCodeOnChangeEnabled={this.state.sendCodeOnChangeEnabled}
                 saveHistory={this.state.saveHistory}
                 saveStatus={this.state.saveStatus}
                 creatorUsername={this.state.params.username}
@@ -949,6 +958,7 @@ class App extends React.Component<Props, State> {
                 loadingMessage={this.state.snackSessionState.loadingMessage}
                 dependencies={this.state.snackSessionState.dependencies}
                 params={this.state.params}
+                onSendCode={this._sendCodeNotDebounced}
                 onFileEntriesChange={this._handleFileEntriesChange}
                 onChangeCode={this._handleChangeCode}
                 onSubmitMetadata={this._handleSubmitMetadata}
@@ -957,6 +967,7 @@ class App extends React.Component<Props, State> {
                 onPublishAsync={this._handlePublishAsync}
                 onSignIn={this._updateUser}
                 onDownloadAsync={this._handleDownloadAsync}
+                onToggleSendCode={this._handleToggleSendCode}
                 uploadFileAsync={this._uploadAssetAsync}
                 syncDependenciesAsync={this._syncDependenciesAsync}
                 setDeviceId={this._setDeviceId}

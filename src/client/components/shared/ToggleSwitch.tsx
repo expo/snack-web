@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
   lightInactive: {
     ':before': {
-      backgroundColor: 'currentColor',
+      backgroundColor: 'rgba(0, 0, 0, .5)',
     },
   },
   lightActive: {

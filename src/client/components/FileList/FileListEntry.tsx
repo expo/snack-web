@@ -245,7 +245,7 @@ export default class FileListEntry extends React.Component<Props, State> {
       : undefined,
     isEntryPoint(this.props.entry.item.path) &&
     (!this.props.entry.item.path.endsWith('.js') ||
-      FeatureFlags.isAvailable('TYPESCRIPT_ENTRY', this.props.sdkVersion))
+      FeatureFlags.isAvailable('TYPESCRIPT', this.props.sdkVersion))
       ? {
           label: `Rename to ${toggleTSExt(this.props.entry.item.path)}`,
           handler: this._handleToggleTSExt,

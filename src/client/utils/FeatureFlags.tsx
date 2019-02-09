@@ -11,8 +11,13 @@ const FLAGS = {
     enabled: true,
   },
   // Whether App.tsx and App.ts are supported as entry files
-  TYPESCRIPT_ENTRY: {
+  TYPESCRIPT: {
     sdk: '31.0.0',
+    enabled: true,
+  },
+  // Whether it's possible to reload the snack on the app
+  RELOAD_SNACK: {
+    sdk: '32.0.0',
     enabled: true,
   },
 };

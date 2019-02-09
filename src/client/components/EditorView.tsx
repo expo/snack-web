@@ -96,6 +96,9 @@ export type EditorProps = {
   dependencyQueryParam: string | undefined;
   initialSdkVersion: SDKVersion;
   sdkVersion: SDKVersion;
+  sendCodeOnChangeEnabled: boolean;
+  onSendCode: () => void;
+  onToggleSendCode: () => void;
   onClearDeviceLogs: () => void;
   onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<void>;
   onChangeCode: (code: string) => void;
@@ -497,11 +500,14 @@ class EditorView extends React.Component<Props, State> {
       saveStatus,
       viewer,
       loadingMessage,
+      sendCodeOnChangeEnabled,
       sdkVersion,
       connectedDevices,
       deviceLogs,
       deviceError,
+      onSendCode,
       onClearDeviceLogs,
+      onToggleSendCode,
       uploadFileAsync,
       preferences,
       name,
@@ -768,11 +774,14 @@ class EditorView extends React.Component<Props, State> {
                   fileTreeShown={preferences.fileTreeShown}
                   devicePreviewShown={preferences.devicePreviewShown}
                   editorMode={preferences.editorMode}
+                  sendCodeOnChangeEnabled={sendCodeOnChangeEnabled}
                   sdkVersion={sdkVersion}
+                  onSendCode={onSendCode}
                   onToggleTheme={this._toggleTheme}
                   onTogglePanels={this._togglePanels}
                   onToggleFileTree={this._toggleFileTree}
                   onToggleDevicePreview={this._toggleDevicePreview}
+                  onToggleSendCode={onToggleSendCode}
                   onToggleVimMode={
                     this.state.loadedEditor === 'monaco' ? this._toggleEditorMode : undefined
                   }
