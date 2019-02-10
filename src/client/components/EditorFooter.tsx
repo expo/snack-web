@@ -23,6 +23,7 @@ type Props = {
   fileTreeShown: boolean;
   editorMode: 'vim' | 'normal';
   devicePreviewShown: boolean;
+  panelsShown: boolean;
   sendCodeOnChangeEnabled: boolean;
   sdkVersion: SDKVersion;
   onToggleTheme: () => void;
@@ -44,6 +45,7 @@ export default function Footer(props: Props) {
     connectedDevices,
     fileTreeShown,
     devicePreviewShown,
+    panelsShown,
     sendCodeOnChangeEnabled,
     editorMode,
     sdkVersion,
@@ -94,9 +96,14 @@ export default function Footer(props: Props) {
         content={
           <React.Fragment>
             <ToggleSwitch checked={fileTreeShown} onChange={onToggleFileTree} label="Files" />
+            <ToggleSwitch checked={panelsShown} onChange={onTogglePanels} label="Panel" />
             <ToggleSwitch checked={theme !== 'light'} onChange={onToggleTheme} label="Dark theme" />
             {onToggleVimMode ? (
-              <ToggleSwitch checked={editorMode === 'vim'} onChange={onToggleVimMode} label="Vim" />
+              <ToggleSwitch
+                checked={editorMode === 'vim'}
+                onChange={onToggleVimMode}
+                label="Vim mode"
+              />
             ) : null}
           </React.Fragment>
         }
@@ -221,7 +228,7 @@ const styles = StyleSheet.create({
   devicesCount: {
     position: 'absolute',
     top: 4,
-    right: 4,
+    right: 6,
     height: 20,
     minWidth: 20,
     borderRadius: '50%',

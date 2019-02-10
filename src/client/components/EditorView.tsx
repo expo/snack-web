@@ -773,6 +773,7 @@ class EditorView extends React.Component<Props, State> {
                   connectedDevices={connectedDevices}
                   fileTreeShown={preferences.fileTreeShown}
                   devicePreviewShown={preferences.devicePreviewShown}
+                  panelsShown={preferences.panelsShown}
                   editorMode={preferences.editorMode}
                   sendCodeOnChangeEnabled={sendCodeOnChangeEnabled}
                   sdkVersion={sdkVersion}
