@@ -83,6 +83,17 @@ const render = async (ctx: Context) => {
 
   const store = createStore({ splitTestSettings });
   const context: { url?: string } = {};
+  const cookies = {
+    get: (key: string) => {
+      const result = ctx.cookies.get(key);
+
+      if (result) {
+        return decodeURIComponent(result);
+      }
+
+      return result;
+    },
+  };
 
   const index =
     '<!DOCTYPE html>' +
@@ -96,7 +107,7 @@ const render = async (ctx: Context) => {
             <React.Fragment>
               <ServiceWorkerManager />
               <Provider store={store}>
-                <PreferencesProvider>
+                <PreferencesProvider cookies={cookies} search={ctx.request.search}>
                   <ColorsProvider>
                     <StaticRouter location={ctx.request.url} context={context}>
                       <ClientRouter data={data} userAgent={ctx.userAgent} />

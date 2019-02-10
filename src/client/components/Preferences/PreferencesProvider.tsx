@@ -21,6 +21,11 @@ export type PreferencesType = {
 export type SetPreferencesType = (overrides: Partial<PreferencesType>) => void;
 
 type Props = {
+  search: string;
+  cookies: {
+    get: (key: string) => string | undefined;
+    set?: (key: string, value: string) => void;
+  };
   testConnectionMethod?: ConnectionMethod;
   testPreviewPlatform?: 'android' | 'ios';
   children: React.ReactNode;
@@ -30,7 +35,7 @@ type State = {
   preferences: PreferencesType;
 };
 
-const EDITOR_CONFIG_KEY = '__SNACK_EDITOR_CONFIG';
+const EDITOR_CONFIG_KEY = 'snack-editor-config';
 
 const defaults: PreferencesType = {
   deviceConnectionMethod: 'device-id',
@@ -43,37 +48,37 @@ const defaults: PreferencesType = {
   theme: 'light',
 };
 
-let overrides: Partial<PreferencesType> = {};
-
-try {
-  // Restore editor preferences from saved data
-  if ('localStorage' in window) {
-    overrides = JSON.parse(window.localStorage.getItem(EDITOR_CONFIG_KEY) || '') || {};
-  }
-} catch (e) {
-  // Ignore error
-}
-
-try {
-  // Set theme if passed in query params
-  const { theme, platform } = parse(window.location.search);
-
-  if (theme === 'light' || theme === 'dark') {
-    overrides.theme = theme;
-  }
-
-  if (platform === 'android' || platform === 'ios') {
-    overrides.devicePreviewPlatform = platform;
-  }
-} catch (e) {
-  // Ignore error
-}
-
 export const PreferencesContext = React.createContext<PreferencesContextType | null>(null);
 
 class PreferencesProvider extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
+
+    const { cookies, search } = this.props;
+
+    let overrides: Partial<PreferencesType> = {};
+
+    try {
+      // Restore editor preferences from saved data
+      overrides = JSON.parse(cookies.get(EDITOR_CONFIG_KEY) || '') || {};
+    } catch (e) {
+      // Ignore error
+    }
+
+    try {
+      // Set theme if passed in query params
+      const { theme, platform } = parse(search);
+
+      if (theme === 'light' || theme === 'dark') {
+        overrides.theme = theme;
+      }
+
+      if (platform === 'android' || platform === 'ios') {
+        overrides.devicePreviewPlatform = platform;
+      }
+    } catch (e) {
+      // Ignore error
+    }
 
     this.state = {
       preferences: {
@@ -94,8 +99,10 @@ class PreferencesProvider extends React.Component<Props, State> {
   }
 
   _persistPreferences = debounce(() => {
+    const { cookies } = this.props;
+
     try {
-      localStorage.setItem(EDITOR_CONFIG_KEY, JSON.stringify(this.state.preferences));
+      cookies.set && cookies.set(EDITOR_CONFIG_KEY, JSON.stringify(this.state.preferences));
     } catch (e) {
       // Ignore
     }

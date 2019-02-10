@@ -2,6 +2,7 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
+import cookies from 'js-cookie';
 import PreferencesProvider from './components/Preferences/PreferencesProvider';
 import ColorsProvider from './components/ColorsProvider';
 import ServiceWorkerManager from './components/ServiceWorkerManager';
@@ -23,7 +24,7 @@ class SnackEntry extends React.Component {
         <ServiceWorkerManager />
         <HelmetProvider>
           <Provider store={store}>
-            <PreferencesProvider>
+            <PreferencesProvider cookies={cookies} search={window.location.search}>
               <ColorsProvider>
                 <BrowserRouter>
                   <Router data={__INITIAL_DATA__.data} userAgent={navigator.userAgent} />
