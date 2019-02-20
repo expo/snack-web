@@ -8,41 +8,41 @@ type Props = {
   theme: ThemeName;
 };
 
-export const Shortcuts = [
-  {
-    type: 'save',
+export const Shortcuts = {
+  save: {
     description: 'Save changes',
     combo: [KeyMap.Meta, KeyMap.S],
   },
-  {
-    type: 'panels',
-    description: 'Toggle error and log panels',
-    combo: [KeyMap.Ctrl, KeyMap.Tilde],
+  update: {
+    type: 'update',
+    description: 'Update code on device',
+    combo: [KeyMap.Meta, KeyMap.U],
   },
-  {
-    type: 'tree',
+  tree: {
     description: 'Toggle sidebar',
     combo: [KeyMap.Meta, KeyMap.Backslash],
   },
-  {
-    type: 'format',
+  panels: {
+    description: 'Toggle error and log panels',
+    combo: [KeyMap.Ctrl, KeyMap.Tilde],
+  },
+  format: {
     description: 'Format code with prettier',
     combo: [KeyMap.Ctrl, KeyMap.Alt, KeyMap.F],
   },
-  {
-    type: 'shortcuts',
+  shortcuts: {
     description: 'Show keyboard shortcuts',
     combo: [KeyMap.Meta, KeyMap.Alt, KeyMap.Shift],
   },
-];
+};
 
 class KeyboardShortcuts extends React.PureComponent<Props> {
   render() {
     return (
       <table className={css(styles.shortcutList)}>
         <tbody>
-          {Shortcuts.map(binding => (
-            <tr key={binding.type}>
+          {Object.entries(Shortcuts).map(([type, binding]) => (
+            <tr key={type}>
               <td className={css(styles.shortcutCell, styles.shortcutLabelCell)}>
                 <kbd className={css(styles.shortcutLabel)}>
                   <ShortcutLabel combo={binding.combo} />

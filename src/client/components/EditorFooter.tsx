@@ -11,6 +11,8 @@ import colors from '../configs/colors';
 import { Annotation } from '../utils/convertErrorToAnnotation';
 import { SDKVersion } from '../configs/sdk';
 import { c } from './ColorsProvider';
+import { Shortcuts } from './KeyboardShortcuts';
+import ShortcutLabel from './shared/ShortcutLabel';
 
 type Props = {
   loadingMessage: string | undefined;
@@ -33,6 +35,7 @@ type Props = {
   onToggleSendCode: () => void;
   onToggleVimMode?: () => void;
   onChangeSDKVersion: (sdkVersion: SDKVersion) => void;
+  onShowShortcuts: () => void;
   onPrettifyCode: () => void;
   onSendCode: () => void;
   theme: string;
@@ -57,6 +60,7 @@ export default function Footer(props: Props) {
     onToggleSendCode,
     onToggleVimMode,
     onChangeSDKVersion,
+    onShowShortcuts,
     onPrettifyCode,
     theme,
   } = props;
@@ -95,6 +99,17 @@ export default function Footer(props: Props) {
         label={<span className={css(styles.buttonLabel)}>Editor</span>}
         content={
           <React.Fragment>
+            <div className={css(styles.buttonItem, styles.buttonItemEditorPane)}>
+              <IconButton
+                title="Show keyboard shortcuts"
+                label="Shortcuts"
+                onClick={onShowShortcuts}>
+                <svg width="18px" height="18px" viewBox="0 0 18 18">
+                  <path d="M3,0 L15,0 C16.6568542,-3.04359188e-16 18,1.34314575 18,3 L18,15 C18,16.6568542 16.6568542,18 15,18 L3,18 C1.34314575,18 -2.46162913e-15,16.6568542 -2.66453526e-15,15 L-1.77635684e-15,3 C-1.97926296e-15,1.34314575 1.34314575,-5.83819232e-16 3,-8.8817842e-16 Z M7.41949521,8.19170984 L7.41949521,5 L6,5 L6,13 L7.41949521,13 L7.41949521,9.68911917 L7.71192341,9.44041451 L11.0992167,13 L13,13 L8.7232376,8.62176166 L12.975631,5 L11.0809399,5 L7.41949521,8.19170984 Z" />
+                </svg>
+              </IconButton>
+              <ShortcutLabel combo={Shortcuts.shortcuts.combo} />
+            </div>
             <ToggleSwitch checked={fileTreeShown} onChange={onToggleFileTree} label="Files" />
             <ToggleSwitch checked={panelsShown} onChange={onTogglePanels} label="Panel" />
             <ToggleSwitch checked={theme !== 'light'} onChange={onToggleTheme} label="Dark theme" />
@@ -121,8 +136,18 @@ export default function Footer(props: Props) {
           <div className={css(styles.devicePane)}>
             {connectedDevices.length ? (
               <React.Fragment>
-                <div className={css(styles.buttons)}>
-                  <IconButton title="Update changes on device" label="Update" onClick={onSendCode}>
+                <div className={css(styles.devicePaneItem)}>
+                  <ToggleSwitch
+                    checked={sendCodeOnChangeEnabled}
+                    onChange={onToggleSendCode}
+                    label="Update as you type"
+                  />
+                </div>
+                <div className={css(styles.buttonItem, styles.buttonItemDevicePane)}>
+                  <IconButton
+                    title="Update changes on device"
+                    label="Update now"
+                    onClick={onSendCode}>
                     <svg width="14px" height="17px" viewBox="0 0 14 17">
                       <path
                         transform="translate(-5.000000, -3.000000)"
@@ -130,13 +155,7 @@ export default function Footer(props: Props) {
                       />
                     </svg>
                   </IconButton>
-                </div>
-                <div className={css(styles.devicePaneItem)}>
-                  <ToggleSwitch
-                    checked={sendCodeOnChangeEnabled}
-                    onChange={onToggleSendCode}
-                    label="Update as you type"
-                  />
+                  <ShortcutLabel combo={Shortcuts.update.combo} />
                 </div>
                 <h4 className={css(styles.title)}>Connected devices</h4>
                 {connectedDevices.map(device => (
@@ -272,9 +291,18 @@ const styles = StyleSheet.create({
     },
   },
 
-  buttons: {
+  buttonItem: {
     display: 'flex',
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  buttonItemEditorPane: {
+    margin: '-8px 12px 0 12px',
+  },
+
+  buttonItemDevicePane: {
     margin: -4,
   },
 

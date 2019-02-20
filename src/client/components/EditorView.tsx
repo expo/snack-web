@@ -567,7 +567,7 @@ class EditorView extends React.Component<Props, State> {
               <React.Fragment>
                 <KeybindingsManager
                   bindings={Shortcuts}
-                  onTrigger={({ type }: any) => {
+                  onTrigger={type => {
                     const commands: { [key: string]: (() => void) | null } = {
                       save:
                         saveStatus === 'published'
@@ -579,6 +579,7 @@ class EditorView extends React.Component<Props, State> {
                       panels: this._togglePanels,
                       format: this._prettier,
                       shortcuts: this._handleShowShortcuts,
+                      update: onSendCode,
                     };
 
                     const fn = commands[type];
@@ -787,6 +788,7 @@ class EditorView extends React.Component<Props, State> {
                     this.state.loadedEditor === 'monaco' ? this._toggleEditorMode : undefined
                   }
                   onChangeSDKVersion={this.props.onChangeSDKVersion}
+                  onShowShortcuts={this._handleShowShortcuts}
                   onPrettifyCode={this._prettier}
                   theme={this.props.preferences.theme}
                 />

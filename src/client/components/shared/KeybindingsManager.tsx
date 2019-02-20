@@ -1,13 +1,8 @@
 import * as React from 'react';
 
-type Binding = {
-  type: string;
-  combo: number[];
-};
-
-type Props = {
-  bindings: Binding[];
-  onTrigger: (binding: Binding) => void;
+type Props<T extends { combo: number[] }> = {
+  bindings: { [key: string]: T };
+  onTrigger: (type: string, binding: T) => void;
 };
 
 const isMac = 'navigator' in global && /Mac/i.test(navigator.platform);
@@ -17,6 +12,7 @@ export const KeyMap = {
   D: 68,
   F: 70,
   S: 83,
+  U: 85,
   V: 86,
   F2: 113,
   Delete: 8,
@@ -45,7 +41,9 @@ export const isKeyCombo = (e: KeyboardEvent, combo: number[]) =>
     }
   });
 
-export default class KeybindingsManager extends React.PureComponent<Props> {
+export default class KeybindingsManager<T extends { combo: number[] }> extends React.PureComponent<
+  Props<T>
+> {
   componentDidMount() {
     document.addEventListener('keydown', this._handleKeydown);
   }
@@ -55,13 +53,19 @@ export default class KeybindingsManager extends React.PureComponent<Props> {
   }
 
   _handleKeydown = (e: KeyboardEvent) => {
-    for (const binding of this.props.bindings) {
-      if (isKeyCombo(e, binding.combo)) {
-        e.preventDefault();
+    const { bindings, onTrigger } = this.props;
 
-        this.props.onTrigger(binding);
+    for (const type in bindings) {
+      if (bindings.hasOwnProperty(type)) {
+        const binding = bindings[type];
 
-        break;
+        if (isKeyCombo(e, binding.combo)) {
+          e.preventDefault();
+
+          onTrigger(type, binding);
+
+          break;
+        }
       }
     }
   };

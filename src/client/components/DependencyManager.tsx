@@ -45,11 +45,13 @@ type State = {
   dependencies: { [key: string]: DependencyStatus };
 };
 
-const installAll = {
-  type: 'installAll',
-  combo: [KeyMap.Meta, KeyMap.Enter],
+const shortcuts = {
+  installAll: {
+    combo: [KeyMap.Meta, KeyMap.Enter],
+  },
 };
-const cmdEnter = ShortcutLabel({ combo: installAll.combo });
+
+const cmdEnter = ShortcutLabel({ combo: shortcuts.installAll.combo });
 
 export default class DependencyManager extends React.Component<Props, State> {
   state: State = {
@@ -388,7 +390,7 @@ export default class DependencyManager extends React.Component<Props, State> {
 
     return (
       <div>
-        <KeybindingsManager bindings={[installAll]} onTrigger={this._handleAddAll} />
+        <KeybindingsManager bindings={shortcuts} onTrigger={this._handleAddAll} />
         {names.length && this.props.onOpenFullView ? (
           <Toast
             persistent
@@ -401,50 +403,49 @@ export default class DependencyManager extends React.Component<Props, State> {
             ]}
           />
         ) : (
-          names.map(
-            name =>
-              dependencies[name].status === 'error' ? (
-                <Toast
-                  key={name}
-                  persistent
-                  type="error"
-                  label={
-                    <span>
-                      An error occured when resolving{' '}
-                      <code>
-                        {name}
-                        {dependencies[name].version ? `@${dependencies[name].version}` : ''}
-                      </code>
-                    </span>
-                  }
-                  actions={[
-                    {
-                      label: `Retry ${cmdEnter}`,
-                      action: () => this._handleRetryDependency(name),
-                    },
-                    { label: 'Dismiss' },
-                  ]}
-                  onDismiss={() => this._handleDismissDependencyError(name)}
-                />
-              ) : (
-                <Toast
-                  key={name}
-                  persistent
-                  label={
-                    <span>
-                      Add <code>{name}</code> to package.json?
-                    </span>
-                  }
-                  actions={[
-                    {
-                      label: `Add ${cmdEnter}`,
-                      action: () => this._handleAddDependency(name),
-                    },
-                    { label: 'Cancel' },
-                  ]}
-                  onDismiss={() => this._handleDenyAdding(name)}
-                />
-              )
+          names.map(name =>
+            dependencies[name].status === 'error' ? (
+              <Toast
+                key={name}
+                persistent
+                type="error"
+                label={
+                  <span>
+                    An error occured when resolving{' '}
+                    <code>
+                      {name}
+                      {dependencies[name].version ? `@${dependencies[name].version}` : ''}
+                    </code>
+                  </span>
+                }
+                actions={[
+                  {
+                    label: `Retry ${cmdEnter}`,
+                    action: () => this._handleRetryDependency(name),
+                  },
+                  { label: 'Dismiss' },
+                ]}
+                onDismiss={() => this._handleDismissDependencyError(name)}
+              />
+            ) : (
+              <Toast
+                key={name}
+                persistent
+                label={
+                  <span>
+                    Add <code>{name}</code> to package.json?
+                  </span>
+                }
+                actions={[
+                  {
+                    label: `Add ${cmdEnter}`,
+                    action: () => this._handleAddDependency(name),
+                  },
+                  { label: 'Cancel' },
+                ]}
+                onDismiss={() => this._handleDenyAdding(name)}
+              />
+            )
           )
         )}
       </div>

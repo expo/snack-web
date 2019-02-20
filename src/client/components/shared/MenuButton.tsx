@@ -11,9 +11,24 @@ type Props = {
 
 export default function MenuButton({ icon, label, content }: Props) {
   const [active, setActive] = React.useState<boolean>(false);
+  const root = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const onClick = e => {
+      if (e.target === root.current || (root.current && root.current.contains(e.target as Node))) {
+        return;
+      }
+
+      setActive(false);
+    };
+
+    document.addEventListener('click', onClick);
+
+    return () => document.removeEventListener('click', onClick);
+  }, []);
 
   return (
-    <div className={css(styles.panelContainer)}>
+    <div ref={root} className={css(styles.panelContainer)}>
       <FooterButton icon={icon} active={active} onClick={() => setActive(value => !value)}>
         {label}
       </FooterButton>
