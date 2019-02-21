@@ -12,10 +12,11 @@ type Props = {
   theme: ThemeName;
   title: string;
   label?: string;
+  responsive?: boolean;
   children: React.ReactNode;
 };
 
-function IconButton({ title, label, children, theme, ...rest }: Props) {
+function IconButton({ title, label, responsive, children, theme, ...rest }: Props) {
   return (
     <button
       {...rest}
@@ -25,7 +26,9 @@ function IconButton({ title, label, children, theme, ...rest }: Props) {
         rest.disabled && styles.disabled
       )}>
       {children}
-      {label ? <span className={css(styles.label)}>{label}</span> : null}
+      {label ? (
+        <span className={css(styles.label, responsive && styles.responsive)}>{label}</span>
+      ) : null}
       <span className={css(styles.phantom)}>
         <span
           className={css(
@@ -86,7 +89,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     opacity: 0,
-    pointerEvents: 'none',
 
     ':hover': {
       opacity: 1,
@@ -104,6 +106,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     padding: '4px 8px',
     whiteSpace: 'nowrap',
+    pointerEvents: 'none',
 
     ':before': {
       content: '""',
@@ -139,5 +142,11 @@ const styles = StyleSheet.create({
   label: {
     margin: '0 12px',
     color: c('text'),
+  },
+
+  responsive: {
+    '@media (max-width: 960px)': {
+      display: 'none',
+    },
   },
 });

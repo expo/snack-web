@@ -16,8 +16,8 @@ import prettierCode from '../../utils/prettierCode';
 import getRelativePath from '../../utils/getRelativePath';
 import getFileLanguage from '../../utils/getFileLanguage';
 import { SDKVersion } from '../../configs/sdk';
-import { FileSystemEntry } from '../../types';
 import { Annotation } from '../../utils/convertErrorToAnnotation';
+import { EditorProps, EditorMode } from './EditorProps';
 
 /**
  * Monkeypatch to make 'Find All References' work across multiple files
@@ -117,35 +117,7 @@ monaco.languages.typescript.javascriptDefaults.setCompilerOptions(compilerOption
 
 type DependencyList = { [key: string]: { version: string } };
 
-type EditorMode = 'normal' | 'vim';
-
-type Props = {
-  entries: FileSystemEntry[];
-  dependencies: {
-    [name: string]: {
-      version: string;
-    };
-  };
-  sdkVersion: SDKVersion;
-  path: string;
-  value: string;
-  mode: EditorMode;
-  onOpenPath: (path: string) => void;
-  onValueChange: (value: string) => void;
-  annotations: Annotation[];
-  lineNumbers?: 'on' | 'off' | 'relative' | 'interval';
-  wordWrap?: 'off' | 'on' | 'wordWrapColumn' | 'bounded';
-  scrollBeyondLastLine?: boolean;
-  minimap?: {
-    enabled?: boolean;
-    maxColumn?: number;
-    renderCharacters?: boolean;
-    showSlider?: 'always' | 'mouseover';
-    side?: 'right' | 'left';
-  };
-  autoFocus?: boolean;
-  fontFamily?: string;
-  fontLigatures?: boolean;
+type Props = EditorProps & {
   theme: ThemeName;
 };
 

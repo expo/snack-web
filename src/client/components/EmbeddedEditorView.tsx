@@ -18,11 +18,11 @@ import colors from '../configs/colors';
 import { isMobile } from '../utils/detectPlatform';
 import withThemeName, { ThemeName } from './Preferences/withThemeName';
 import withPreferences from './Preferences/withPreferences';
-import { Props as EditorProps } from './EditorView';
+import { Props as EditorViewProps } from './EditorView';
 
 const SESSION_ID = `snack-session-${shortid()}`;
 
-type Props = EditorProps & {
+type Props = EditorViewProps & {
   testConnectionMethod?: ConnectionMethod;
   theme: ThemeName;
 };

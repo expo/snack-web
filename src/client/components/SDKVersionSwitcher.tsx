@@ -55,6 +55,10 @@ const styles = StyleSheet.create({
   label: {
     flex: 1,
     margin: '0 .5em',
+
+    '@media (max-width: 480px)': {
+      display: 'none',
+    },
   },
   select: {
     appearance: 'none',
@@ -68,5 +72,5 @@ const styles = StyleSheet.create({
   },
   dark: {
     border: '1px solid rgba(255, 255, 255, .2)',
-  }
+  },
 });

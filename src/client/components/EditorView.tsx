@@ -49,6 +49,8 @@ import {
   Snack,
   QueryParams,
 } from '../types';
+import { isMobile } from '../utils/detectPlatform';
+import { EditorProps } from './Editor/EditorProps';
 
 const EDITOR_LOAD_FALLBACK_TIMEOUT = 3000;
 const DEFAULT_METADATA_NAME = 'Snack';
@@ -67,7 +69,7 @@ type DeviceLog = {
   payload: any[];
 };
 
-export type EditorProps = {
+export type EditorViewProps = {
   snack?: Snack;
   createdAt: string | undefined;
   saveHistory: SaveHistory;
@@ -129,7 +131,7 @@ export type EditorProps = {
 };
 
 export type Props = PreferencesContextType &
-  EditorProps & {
+  EditorViewProps & {
     viewer?: Viewer;
   };
 
@@ -502,6 +504,7 @@ class EditorView extends React.Component<Props, State> {
       loadingMessage,
       sendCodeOnChangeEnabled,
       sdkVersion,
+      userAgent,
       connectedDevices,
       deviceLogs,
       deviceError,
@@ -630,7 +633,13 @@ class EditorView extends React.Component<Props, State> {
                       />
                       {/* Don't load it conditionally since we need the _EditorComponent object to be available */}
                       <LazyLoad
-                        load={(): Promise<typeof import('./Editor/MonacoEditor')> => {
+                        load={(): Promise<{ default: React.ComponentType<EditorProps> }> => {
+                          if (isMobile(userAgent)) {
+                            // Monaco doesn't work great on mobile`
+                            // Use simple editor for better experience
+                            return import('./Editor/SimpleEditor') as any;
+                          }
+
                           let timeout: any;
 
                           const MonacoEditorPromise = import(/* webpackPreload: true */ './Editor/MonacoEditor').then(
@@ -713,6 +722,7 @@ class EditorView extends React.Component<Props, State> {
                                     mode={preferences.editorMode}
                                     onValueChange={this.props.onChangeCode}
                                     onOpenPath={this._handleOpenPath}
+                                    lineNumbers={isMobile(userAgent) ? 'off' : undefined}
                                   />
                                   {isMarkdown ? (
                                     <button

@@ -13,6 +13,7 @@ import { SDKVersion } from '../configs/sdk';
 import { c } from './ColorsProvider';
 import { Shortcuts } from './KeyboardShortcuts';
 import ShortcutLabel from './shared/ShortcutLabel';
+import { VISIBILITY_MEDIA_QUERY } from './DevicePreview';
 
 type Props = {
   loadingMessage: string | undefined;
@@ -193,7 +194,13 @@ export default function Footer(props: Props) {
           </div>
         }
       />
-      <ToggleSwitch checked={devicePreviewShown} onChange={onToggleDevicePreview} label="Preview" />
+      <div className={css(styles.devicePreviewSwitch)}>
+        <ToggleSwitch
+          checked={devicePreviewShown}
+          onChange={onToggleDevicePreview}
+          label="Preview"
+        />
+      </div>
     </FooterShell>
   );
 }
@@ -308,5 +315,13 @@ const styles = StyleSheet.create({
 
   title: {
     margin: '16px 0 8px',
+  },
+
+  devicePreviewSwitch: {
+    display: 'none',
+
+    [`@media ${VISIBILITY_MEDIA_QUERY}`]: {
+      display: 'block',
+    },
   },
 });

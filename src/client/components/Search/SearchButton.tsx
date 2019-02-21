@@ -7,12 +7,16 @@ import ProgressIndicator from '../shared/ProgressIndicator';
 import SearchPlaceholder from './SearchPlaceholder';
 import colors from '../../configs/colors';
 
+type Props = {
+  responsive: boolean;
+};
+
 type State = {
   query: string;
   focused: boolean;
 };
 
-export default class Searchbar extends React.Component<{}, State> {
+export default class SearchButton extends React.Component<Props, State> {
   state = {
     query: '',
     focused: false,
@@ -40,6 +44,7 @@ export default class Searchbar extends React.Component<{}, State> {
     return (
       <React.Fragment>
         <IconButton
+          responsive={this.props.responsive}
           title="Search for Snacks"
           label="Search"
           onClick={this._handleClick}

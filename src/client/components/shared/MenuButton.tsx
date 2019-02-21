@@ -14,7 +14,7 @@ export default function MenuButton({ icon, label, content }: Props) {
   const root = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    const onClick = e => {
+    const onClick = (e: MouseEvent) => {
       if (e.target === root.current || (root.current && root.current.contains(e.target as Node))) {
         return;
       }

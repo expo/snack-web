@@ -15,6 +15,8 @@ import withThemeName, { ThemeName } from './Preferences/withThemeName';
 import { Viewer } from '../types';
 import ToggleButtons from './shared/ToggleButtons';
 
+export const VISIBILITY_MEDIA_QUERY = '(min-width: 700px)';
+
 type Props = AuthProps & {
   sdkVersion: SDKVersion;
   channel: string;
@@ -115,7 +117,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
   };
 
   componentDidMount() {
-    this._mql = window.matchMedia('(min-width: 480px)');
+    this._mql = window.matchMedia(VISIBILITY_MEDIA_QUERY);
     this._mql.addListener(this._handleMediaQuery);
     this._handleMediaQuery(this._mql);
 
@@ -524,6 +526,11 @@ const styles = StyleSheet.create({
     padding: '0 16px',
     maxWidth: '50%',
     overflow: 'auto',
+    display: 'none',
+
+    [`@media ${VISIBILITY_MEDIA_QUERY}`]: {
+      display: 'block',
+    },
   },
   header: {
     display: 'flex',
