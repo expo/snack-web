@@ -438,6 +438,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
               options={[{ label: 'Android', value: 'android' }, { label: 'iOS', value: 'ios' }]}
               value={platform}
               onValueChange={onChangePlatform}
+              className={css(styles.toggleButtons)}
             />
             <button
               className={css(
@@ -536,7 +537,10 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    margin: '16px 0',
+    margin: '8px 0',
+  },
+  toggleButtons: {
+    zIndex: 3,
   },
   popupButton: {
     position: 'absolute',

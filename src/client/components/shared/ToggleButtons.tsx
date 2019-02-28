@@ -10,7 +10,6 @@ type Props<T extends string> = {
     label: string;
     value: T;
   }>;
-  label?: string;
   value: T;
   onValueChange: (value: T) => void;
   disabled?: boolean;
@@ -27,7 +26,6 @@ export default function ToggleButtons<T extends string>(props: Props<T>) {
         css(styles.buttons, props.disabled && styles.disabled),
         props.className
       )}>
-      {props.label ? <span className={css(styles.label)}>{props.label}</span> : null}
       {props.options.map(o => (
         <button
           key={o.value}
@@ -56,23 +54,15 @@ const styles = StyleSheet.create({
     cursor: 'not-allowed',
   },
 
-  label: {
-    flex: 1,
-    margin: '0 .5em',
-  },
-
   buttons: {
     display: 'flex',
     alignItems: 'center',
     whiteSpace: 'nowrap',
-    margin: '0 .5em',
-    borderRadius: 10,
   },
 
   button: {
     appearance: 'none',
     outline: 0,
-    height: 20,
     margin: 0,
     border: `1px solid ${colors.border}`,
     backgroundColor: c('content'),
@@ -81,14 +71,14 @@ const styles = StyleSheet.create({
 
     ':first-of-type': {
       borderRightWidth: 0,
-      borderRadius: '10px 0 0 10px',
-      padding: '0 .5em 0 1em',
+      borderRadius: '3px 0 0 3px',
+      padding: '6px 12px 6px 12px',
     },
 
     ':last-of-type': {
       borderLeftWidth: 0,
-      borderRadius: '0 10px 10px 0',
-      padding: '0 1em 0 .5em',
+      borderRadius: '0 3px 3px 0',
+      padding: '6px 12px 6px 12px',
     },
   },
 
