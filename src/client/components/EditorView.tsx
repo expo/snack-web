@@ -863,7 +863,7 @@ class EditorView extends React.Component<Props, State> {
                   You need to save the Snack first to get an Embed code!
                 </Banner>
                 <Banner type="info" visible={currentBanner === 'export-unavailable'}>
-                  You need to save the Snack first to get export the code!
+                  You need to save the Snack first to export the code!
                 </Banner>
                 <DependencyManager
                   fileEntries={this.props.fileEntries}
