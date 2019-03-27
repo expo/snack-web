@@ -66,7 +66,7 @@ type Device = {
 type DeviceLog = {
   device: Device;
   method: 'log' | 'error' | 'warn';
-  payload: any[];
+  payload: Array<unknown>;
 };
 
 export type EditorViewProps = {

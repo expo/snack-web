@@ -164,7 +164,7 @@ type DeviceError = {
 type DeviceLog = {
   device: Device;
   method: 'log' | 'error' | 'warn';
-  payload: any[];
+  payload: Array<unknown>;
 };
 
 type Params = {
@@ -600,7 +600,7 @@ class App extends React.Component<Props, State> {
   _handleSnackSessionLog = (payload: {
     device: Device;
     method: 'log' | 'error' | 'warn';
-    arguments: any[];
+    arguments: Array<unknown>;
   }) => {
     const deviceLog = {
       device: payload.device,
