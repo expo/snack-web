@@ -7,7 +7,7 @@ import mapValues from 'lodash/mapValues';
 import Raven from 'raven-js';
 import debounce from 'lodash/debounce';
 import BroadcastChannel from 'broadcast-channel';
-import { SnackSessionOptions } from 'snack-sdk';
+import { SnackSessionOptions, SDKVersions } from 'snack-sdk';
 import Segment from '../utils/Segment';
 import withAuth, { AuthProps } from '../auth/withAuth';
 import AuthManager from '../auth/authManager';
@@ -41,11 +41,12 @@ const Auth = new AuthManager();
 
 const DEVICE_ID_KEY = '__SNACK_DEVICE_ID';
 
-const INITIAL_CODE: ExpoSnackFiles = {
+const INITIAL_CODE: (sdkVersion: string) => ExpoSnackFiles = function(sdkVersion) {
+  return {
   'App.js': {
     contents: `import * as React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
-import { Constants } from 'expo';
+${ SDKVersions.sdkSupportsFeature(sdkVersion, 'UNIMODULE_IMPORTS') ? 'import Constants from \'expo-constants\';' : 'import { Constants } from \'expo\';'  }
 
 // You can import from local files
 import AssetExample from './components/AssetExample';
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
 `,
     type: 'CODE',
   },
-  'assets/snack-icon.png': {
+    'assets/snack-icon.png': {
     contents:
       'https://snack-code-uploads.s3.us-west-1.amazonaws.com/~asset/2f7d32b1787708aba49b3586082d327b',
     type: 'ASSET',
@@ -146,10 +147,10 @@ Snack is Open Source. You can find the code on the [GitHub repo](https://github.
 `,
     type: 'CODE',
   },
-};
+}};
 
 const INITIAL_DEPENDENCIES = {
-  'react-native-paper': { version: '2.2.8', isUserSpecified: true },
+  'react-native-paper': { version: '2.15.2', isUserSpecified: true },
 };
 
 const BROADCAST_CHANNEL_NAME = 'SNACK_BROADCAST_CHANNEL';
@@ -275,14 +276,14 @@ class App extends React.Component<Props, State> {
       (props.query && props.query.code)
     );
 
-    let code: ExpoSnackFiles | string =
-      props.snack && props.snack.code ? props.snack.code : INITIAL_CODE;
-
     let name = getSnackName();
     let description = DEFAULT_DESCRIPTION;
     // TODO(satya164): is this correct? we don't match for sdkVersion in the router
     let sdkVersion = props.match.params.sdkVersion || DEFAULT_SDK_VERSION;
     let dependencies = usingDefaultCode ? INITIAL_DEPENDENCIES : {};
+
+    let code: ExpoSnackFiles | string =
+      props.snack && props.snack.code ? props.snack.code : INITIAL_CODE(sdkVersion);
 
     if (props.snack && props.snack.dependencies) {
       dependencies = props.snack.dependencies;
@@ -486,7 +487,7 @@ class App extends React.Component<Props, State> {
   componentWillUnmount() {
     this._snackSessionWorker && this._snackSessionWorker.terminate();
     this._snackSessionDependencyErrorListener &&
-      this._snackSessionDependencyErrorListener.dispose();
+    this._snackSessionDependencyErrorListener.dispose();
     this._snackSessionLogListener && this._snackSessionLogListener.dispose();
     this._snackSessionErrorListener && this._snackSessionErrorListener.dispose();
     this._snackSessionPresenceListener && this._snackSessionPresenceListener.dispose();
@@ -740,11 +741,11 @@ class App extends React.Component<Props, State> {
         ) {
           fileEntries = fileEntries.map(entry =>
             isPackageJson(entry.item.path)
-              ? updateEntry(this._getPackageJson(state.snackSessionState), {
-                  // @ts-ignore
-                  state: entry.state,
-                })
-              : entry
+                                             ? updateEntry(this._getPackageJson(state.snackSessionState), {
+                                               // @ts-ignore
+                                               state: entry.state,
+                                             })
+                                             : entry
           );
         }
 
@@ -800,7 +801,7 @@ class App extends React.Component<Props, State> {
       entry => entry.item.type && entry.item.type === 'file' && entry.item.asset
     ).length;
     const cntDirectory = this.state.fileEntries.filter(entry => entry.item.type === 'folder')
-      .length;
+                             .length;
     Segment.getInstance().logEvent(
       'SAVED_SNACK',
       { cntCodeFile, cntAssetFile, cntDirectory },
@@ -928,11 +929,11 @@ class App extends React.Component<Props, State> {
       return (
         <LazyLoad
           load={() => {
-            if (this.props.isEmbedded) {
-              return import('./EmbeddedEditorView');
-            } else {
-              return import('./EditorView');
-            }
+              if (this.props.isEmbedded) {
+                return import('./EmbeddedEditorView');
+              } else {
+                return import('./EditorView');
+              }
           }}>
           {({ loaded, data: Comp }) =>
             loaded && Comp && this.state.snackSessionReady ? (
