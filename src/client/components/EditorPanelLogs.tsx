@@ -31,6 +31,7 @@ export default function EditorPanelLogs({ deviceLogs }: Props) {
     const last = acc[acc.length - 1];
     const items = log.payload.map(text => {
       try {
+        // @ts-ignore text might not be a string
         return JSON.parse(text);
       } catch (e) {
         return text;
@@ -65,20 +66,21 @@ export default function EditorPanelLogs({ deviceLogs }: Props) {
           <div className={css(styles.container)} key={i}>
             <div className={css(styles.device)}>{device}:</div>
             <div className={css(styles.line)} key={i}>
-              {items.map((item, i) =>
-                typeof item === 'object' && item !== null ? (
-                  <CollapsibleObject key={i} object={item} />
-                ) : (
-                  <div
-                    key={i}
-                    className={css(
-                      styles.item,
-                      method === 'error' && styles.error,
-                      method === 'warn' && styles.warning
-                    )}>
-                    {String(item)}
-                  </div>
-                )
+              {items.map(
+                (item, i) =>
+                  typeof item === 'object' && item !== null ? (
+                    <CollapsibleObject key={i} object={item} />
+                  ) : (
+                    <div
+                      key={i}
+                      className={css(
+                        styles.item,
+                        method === 'error' && styles.error,
+                        method === 'warn' && styles.warning
+                      )}>
+                      {String(item)}
+                    </div>
+                  )
               )}
               {times > 1 ? <div className={css(styles.counter)}>{times}</div> : null}
             </div>

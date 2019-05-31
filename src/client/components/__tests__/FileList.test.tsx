@@ -2,6 +2,7 @@ import * as React from 'react';
 import { StyleSheetTestUtils } from 'aphrodite';
 import { shallow } from 'enzyme';
 import toJSON from 'enzyme-to-json';
+import { TEST_SDK_VERSION } from '../../configs/sdk';
 import FileList from '../FileList/FileList';
 
 // @ts-ignore
@@ -25,7 +26,7 @@ it('renders children', () => {
       preventRedirectWarning={jest.fn()}
       hasSnackId={false}
       saveStatus="changed"
-      sdkVersion="28.0.0"
+      sdkVersion={TEST_SDK_VERSION}
       visible
     />
   );
@@ -56,7 +57,7 @@ it('closes entry', () => {
       preventRedirectWarning={jest.fn()}
       hasSnackId={false}
       saveStatus="changed"
-      sdkVersion="28.0.0"
+      sdkVersion={TEST_SDK_VERSION}
       visible
     />
   );
@@ -108,7 +109,7 @@ it('deletes entry', () => {
       preventRedirectWarning={jest.fn()}
       hasSnackId={false}
       saveStatus="changed"
-      sdkVersion="28.0.0"
+      sdkVersion={TEST_SDK_VERSION}
       visible
     />
   );
@@ -136,7 +137,7 @@ it('copies item to clipboard', () => {
       preventRedirectWarning={jest.fn()}
       hasSnackId={false}
       saveStatus="changed"
-      sdkVersion="28.0.0"
+      sdkVersion={TEST_SDK_VERSION}
       visible
     />
   );

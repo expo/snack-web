@@ -39,7 +39,6 @@ export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
             options={[{ label: 'Android', value: 'android' }, { label: 'iOS', value: 'ios' }]}
             value={devicePreviewPlatform}
             onValueChange={onChangeDevicePreviewPlatform}
-            label="Platform"
           />
         </div>
       </EmbeddedFooterShell>

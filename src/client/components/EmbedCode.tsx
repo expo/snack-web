@@ -121,7 +121,6 @@ class EmbedCode extends React.PureComponent<Props, State> {
               options={[{ label: 'iOS', value: 'ios' }, { label: 'Android', value: 'android' }]}
               value={platform}
               onValueChange={this._handleChangePlatform}
-              label="Platform"
               className={css(styles.last)}
             />
             <ToggleSwitch

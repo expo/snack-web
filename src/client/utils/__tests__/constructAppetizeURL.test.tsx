@@ -1,9 +1,10 @@
+import { TEST_SDK_VERSION } from '../../configs/sdk';
 import constructAppetizeURL from '../constructAppetizeURL';
 
 it('constructs appetize URL', () => {
   expect(
     constructAppetizeURL({
-      sdkVersion: '26.0.0',
+      sdkVersion: TEST_SDK_VERSION,
       channel: '456a768',
       platform: 'ios',
       host: 'snack.expo.io',
@@ -12,7 +13,7 @@ it('constructs appetize URL', () => {
   ).toMatchSnapshot();
   expect(
     constructAppetizeURL({
-      sdkVersion: '26.0.0',
+      sdkVersion: TEST_SDK_VERSION,
       channel: '456a768',
       platform: 'android',
       autoplay: true,
