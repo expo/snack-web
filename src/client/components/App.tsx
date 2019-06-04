@@ -41,12 +41,11 @@ const Auth = new AuthManager();
 
 const DEVICE_ID_KEY = '__SNACK_DEVICE_ID';
 
-const INITIAL_CODE: (sdkVersion: string) => ExpoSnackFiles = function(sdkVersion) {
-  return {
+const INITIAL_CODE = {
   'App.js': {
     contents: `import * as React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
-${ SDKVersions.sdkSupportsFeature(sdkVersion, 'UNIMODULE_IMPORTS') ? 'import Constants from \'expo-constants\';' : 'import { Constants } from \'expo\';'  }
+import Constants from 'expo-constants';
 
 // You can import from local files
 import AssetExample from './components/AssetExample';
@@ -147,7 +146,7 @@ Snack is Open Source. You can find the code on the [GitHub repo](https://github.
 `,
     type: 'CODE',
   },
-}};
+};
 
 const INITIAL_DEPENDENCIES = {
   'react-native-paper': { version: '2.15.2', isUserSpecified: true },
@@ -283,7 +282,7 @@ class App extends React.Component<Props, State> {
     let dependencies = usingDefaultCode ? INITIAL_DEPENDENCIES : {};
 
     let code: ExpoSnackFiles | string =
-      props.snack && props.snack.code ? props.snack.code : INITIAL_CODE(sdkVersion);
+      props.snack && props.snack.code ? props.snack.code : INITIAL_CODE;
 
     if (props.snack && props.snack.dependencies) {
       dependencies = props.snack.dependencies;
