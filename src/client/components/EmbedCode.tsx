@@ -7,6 +7,7 @@ import ToggleSwitch from './shared/ToggleSwitch';
 import ToggleButtons from './shared/ToggleButtons';
 import colors from '../configs/colors';
 import withThemeName, { ThemeName } from './Preferences/withThemeName';
+import { Platform } from '../types';
 
 const handleClick = (e: any) => e.target.select();
 
@@ -18,7 +19,7 @@ type Props = {
 };
 
 type State = {
-  platform: 'ios' | 'android';
+  platform: Platform;
   preview: boolean;
   theme: 'light' | 'dark';
   copied: boolean;
@@ -95,7 +96,7 @@ class EmbedCode extends React.PureComponent<Props, State> {
       theme: state.theme === 'light' ? 'dark' : 'light',
     }));
 
-  _handleChangePlatform = (platform: 'ios' | 'android') => this.setState({ platform });
+  _handleChangePlatform = (platform: Platform) => this.setState({ platform });
 
   render() {
     const { platform, preview, theme, copied } = this.state;

@@ -1,85 +1,59 @@
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
-import classnames from 'classnames';
 import isEqual from 'lodash/isEqual';
-import ButtonLink from './shared/ButtonLink';
-import Button from './shared/Button';
-import ModalAuthentication from './Auth/ModalAuthentication';
-import Segment from '../utils/Segment';
-import constructAppetizeURL from '../utils/constructAppetizeURL';
-import { SDKVersion } from '../configs/sdk';
-import colors from '../configs/colors';
-import constants from '../configs/constants';
-import withAuth, { AuthProps } from '../auth/withAuth';
-import withThemeName, { ThemeName } from './Preferences/withThemeName';
-import { Viewer } from '../types';
-import ToggleButtons from './shared/ToggleButtons';
-
-export const VISIBILITY_MEDIA_QUERY = '(min-width: 700px)';
+import ButtonLink from '../shared/ButtonLink';
+import Button from '../shared/Button';
+import ModalAuthentication from '../Auth/ModalAuthentication';
+import Segment from '../../utils/Segment';
+import constructAppetizeURL from '../../utils/constructAppetizeURL';
+import { SDKVersion } from '../../configs/sdk';
+import colors from '../../configs/colors';
+import constants from '../../configs/constants';
+import withAuth, { AuthProps } from '../../auth/withAuth';
+import withThemeName, { ThemeName } from '../Preferences/withThemeName';
+import { Viewer } from '../../types';
 
 type Props = AuthProps & {
   sdkVersion: SDKVersion;
   channel: string;
-  platform: 'ios' | 'android';
-  onChangePlatform: (platform: 'android' | 'ios') => void;
+  platform: 'android' | 'ios';
   canUserAuthenticate: boolean;
   wasUpgraded: boolean;
   previewQueue: 'main' | 'secondary';
   snackId?: string;
-  className?: string;
   screenOnly?: boolean;
   payerCode?: string;
+  isPopupOpen: boolean;
+  onPopupUrl: (url: string) => void;
   onClickRunOnPhone: () => void;
   theme: ThemeName;
 };
 
 type AppetizeStatus =
-  | {
-      type: 'unknown';
-    }
-  | {
-      type: 'requested';
-    }
-  | {
-      type: 'queued';
-      position: number | undefined;
-    }
-  | {
-      type: 'connecting';
-    }
-  | {
-      type: 'launch';
-    }
-  | {
-      type: 'timeout';
-    };
+  | { type: 'unknown' }
+  | { type: 'requested' }
+  | { type: 'queued'; position: number | undefined }
+  | { type: 'connecting' }
+  | { type: 'launch' }
+  | { type: 'timeout' };
 
 type PayerCodeFormStatus =
-  | {
-      type: 'open';
-      value: string;
-    }
-  | {
-      type: 'submitted';
-    }
-  | {
-      type: 'closed';
-    };
+  | { type: 'open'; value: string }
+  | { type: 'submitted' }
+  | { type: 'closed' };
 
 type State = {
   initialId: string | undefined;
-  isRendered: boolean;
   isLoggingIn: boolean;
   payerCodeFormStatus: PayerCodeFormStatus;
   appetizeStatus: AppetizeStatus;
   autoplay: boolean;
-  isPopupOpen: boolean;
   viewer: Viewer | undefined;
   platform: 'ios' | 'android';
   sdkVersion: SDKVersion;
 };
 
-class DevicePreview extends React.PureComponent<Props, State> {
+class AppetizeFrame extends React.PureComponent<Props, State> {
   static getDerivedStateFromProps(props: Props, state: State) {
     // Reset appetize status when we change platform or sdk version or user logs in
     if (
@@ -105,24 +79,20 @@ class DevicePreview extends React.PureComponent<Props, State> {
 
   state: State = {
     initialId: this.props.wasUpgraded ? undefined : this.props.snackId,
-    isRendered: false,
     isLoggingIn: false,
     payerCodeFormStatus: { type: 'closed' },
     appetizeStatus: { type: 'unknown' },
     autoplay: false,
-    isPopupOpen: false,
     viewer: this.props.viewer,
     platform: this.props.platform,
     sdkVersion: this.props.sdkVersion,
   };
 
   componentDidMount() {
-    this._mql = window.matchMedia(VISIBILITY_MEDIA_QUERY);
-    this._mql.addListener(this._handleMediaQuery);
-    this._handleMediaQuery(this._mql);
+    window.addEventListener('message', this.handlePostMessage);
+    window.addEventListener('unload', this.endSession);
 
-    window.addEventListener('message', this._handlePostMessage);
-    window.addEventListener('unload', this._endSession);
+    this.props.onPopupUrl(this.getAppetizeURL());
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -130,56 +100,42 @@ class DevicePreview extends React.PureComponent<Props, State> {
       prevState.appetizeStatus !== this.state.appetizeStatus &&
       this.state.appetizeStatus.type === 'requested'
     ) {
-      this._handleLaunchRequest();
+      this.handleLaunchRequest();
     } else if (
-      this.state.isPopupOpen &&
       !isEqual(
-        this._getAppetizeOptions(prevProps, prevState),
-        this._getAppetizeOptions(this.props, this.state)
+        this.getAppetizeOptions(prevProps, prevState),
+        this.getAppetizeOptions(this.props, this.state)
       )
     ) {
-      this._handlePopup();
+      this.props.onPopupUrl(this.getAppetizeURL());
     }
   }
 
   componentWillUnmount() {
-    this._endSession();
+    this.endSession();
 
-    clearInterval(this._popupInterval);
-
-    window.removeEventListener('message', this._handlePostMessage);
-    window.removeEventListener('unload', this._endSession);
-
-    this._mql && this._mql.removeListener(this._handleMediaQuery);
-
-    if (this._popup) {
-      this._popup.close();
-    }
+    window.removeEventListener('message', this.handlePostMessage);
+    window.removeEventListener('unload', this.endSession);
   }
 
-  _handleLaunchRequest = () => {
+  private handleLaunchRequest = () => {
     Segment.getInstance().logEvent('RAN_EMULATOR');
   };
 
-  _handleMediaQuery = (mql: any) =>
-    this.setState({
-      isRendered: mql.matches,
-    });
-
-  _handlePayerCodeLink = () => {
+  private handlePayerCodeLink = () => {
     this.setState({
       payerCodeFormStatus: { type: 'open', value: '' },
     });
     Segment.getInstance().logEvent('REQUESTED_APPETIZE_CODE', {}, 'previewQueue');
   };
 
-  _handlePostMessage = ({ origin, data }: MessageEvent) => {
+  private handlePostMessage = ({ origin, data }: MessageEvent) => {
     if (origin === constants.appetize.url) {
       let status: AppetizeStatus | undefined;
 
-      if (this._waitingForMessage) {
-        clearInterval(this._waitingForMessage);
-        this._waitingForMessage = null;
+      if (this.waitingForMessage) {
+        clearInterval(this.waitingForMessage);
+        this.waitingForMessage = null;
       }
 
       switch (data) {
@@ -229,16 +185,16 @@ class DevicePreview extends React.PureComponent<Props, State> {
     }
   };
 
-  _handlePayerCodeChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+  private handlePayerCodeChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     this.setState({
       payerCodeFormStatus: { type: 'open', value: e.target.value },
     });
 
-  _handlePayerCodeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  private handlePayerCodeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (this.props.viewer) {
-      this._savePayerCode();
+      this.savePayerCode();
     } else {
       this.setState({
         isLoggingIn: true,
@@ -248,17 +204,17 @@ class DevicePreview extends React.PureComponent<Props, State> {
     Segment.getInstance().logEvent('ENTERED_APPETIZE_CODE', {}, 'previewQueue');
   };
 
-  _handleDismissAuthModal = () => this.setState({ isLoggingIn: false });
+  private handleDismissAuthModal = () => this.setState({ isLoggingIn: false });
 
-  _handleAuthComplete = () => {
+  private handleAuthComplete = () => {
     this.setState({
       isLoggingIn: false,
     });
 
-    this._savePayerCode();
+    this.savePayerCode();
   };
 
-  _savePayerCode = () => {
+  private savePayerCode = () => {
     const { payerCodeFormStatus } = this.state;
 
     if (payerCodeFormStatus.type !== 'open' || !payerCodeFormStatus.value) {
@@ -274,7 +230,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
     });
   };
 
-  _getAppetizeOptions = (props: Props, state: State) => {
+  private getAppetizeOptions = (props: Props, state: State) => {
     const { sdkVersion, channel, platform, screenOnly, previewQueue, payerCode, viewer } = props;
     const { autoplay, initialId } = state;
 
@@ -291,7 +247,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
     };
   };
 
-  _getAppetizeURL = () => {
+  private getAppetizeURL = () => {
     const {
       sdkVersion,
       channel,
@@ -302,7 +258,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
       autoplay,
       initialId,
       previewQueue,
-    } = this._getAppetizeOptions(this.props, this.state);
+    } = this.getAppetizeOptions(this.props, this.state);
 
     return constructAppetizeURL({
       sdkVersion,
@@ -321,159 +277,110 @@ class DevicePreview extends React.PureComponent<Props, State> {
     });
   };
 
-  _handlePopup = () => {
-    const url = this._getAppetizeURL();
+  private iframe = React.createRef<HTMLIFrameElement>();
+  private waitingForMessage: any;
 
-    this._popup = window.open(url, 'appetize', 'width=327,height=668');
-
-    if (this._popup && this._popup.closed) {
-      return;
-    }
-
-    this.setState({
-      isPopupOpen: true,
-    });
-
-    clearInterval(this._popupInterval);
-
-    this._popupInterval = setInterval(() => {
-      if (!this._popup || this._popup.closed) {
-        clearInterval(this._popupInterval);
-        this._popup = null;
-        this.setState({
-          isPopupOpen: false,
-        });
-      }
-    }, 500);
-  };
-
-  _popupInterval: any;
-  _popup: Window | null = null;
-  _mql: MediaQueryList | null = null;
-
-  _iframe = React.createRef<HTMLIFrameElement>();
-  _waitingForMessage: any;
-
-  _onTapToPlay = () => {
-    if (this._waitingForMessage) {
+  private handleTapToPlay = () => {
+    if (this.waitingForMessage) {
       return;
     }
 
     // Attempt to start the session immediately
-    this._requestSession();
+    this.requestSession();
     // Keep asking for a session every second until something is posted from the
     // iframe This handles the edge case where the iframe hasn't loaded and
     // isn't ready to receive events.
-    this._waitingForMessage = setInterval(this._requestSession, 1000);
+    this.waitingForMessage = setInterval(this.requestSession, 1000);
   };
 
-  _requestSession = () => {
-    if (this._iframe.current && this._iframe.current.contentWindow) {
-      this._iframe.current.contentWindow.postMessage('requestSession', '*');
+  private requestSession = () => {
+    if (this.iframe.current && this.iframe.current.contentWindow) {
+      this.iframe.current.contentWindow.postMessage('requestSession', '*');
     }
   };
 
-  _endSession = () => {
-    if (this._iframe.current && this._iframe.current.contentWindow) {
-      this._iframe.current.contentWindow.postMessage('endSession', '*');
+  private endSession = () => {
+    if (this.iframe.current && this.iframe.current.contentWindow) {
+      this.iframe.current.contentWindow.postMessage('endSession', '*');
     }
-  };
-
-  _renderButtons = () => {
-    return (
-      <div
-        className={
-          this.props.screenOnly
-            ? css(styles.buttonContainerEmbedded)
-            : css(
-                styles.buttonContainer,
-                this.props.platform === 'ios'
-                  ? styles.buttonContainerIOS
-                  : styles.buttonContainerAndroid
-              )
-        }>
-        {this.props.wasUpgraded ? (
-          <div style={{ top: 90 }} className={css(styles.warningText)}>
-            This Snack was written in an SDK version that is not longer supported and has been
-            automatically upgraded.
-          </div>
-        ) : null}
-        <a className={css(styles.buttonLink)} style={{ top: 160 }} onClick={this._onTapToPlay}>
-          <div className={css(styles.buttonFrame)}>
-            <span className={css(styles.buttonText)}>Tap to play</span>
-          </div>
-        </a>
-        {this.state.isPopupOpen ? null : (
-          <a
-            className={css(styles.buttonLink)}
-            style={{ top: 250 }}
-            onClick={this.props.onClickRunOnPhone}>
-            <div className={css(styles.buttonFrame)}>
-              <span className={css(styles.buttonText)}>Run on your device</span>
-            </div>
-          </a>
-        )}
-      </div>
-    );
   };
 
   render() {
-    if (!this.state.isRendered || this.state.isPopupOpen) {
-      return null;
-    }
+    const { appetizeStatus, payerCodeFormStatus } = this.state;
+    const {
+      platform,
+      screenOnly,
+      sdkVersion,
+      canUserAuthenticate,
+      onClickRunOnPhone,
+      wasUpgraded,
+      isPopupOpen,
+    } = this.props;
 
-    const { platform, screenOnly, onChangePlatform, theme } = this.props;
-
-    const url = this._getAppetizeURL();
+    const url = this.getAppetizeURL();
 
     return (
-      <div
-        className={classnames(
-          css(screenOnly ? styles.centered : styles.container),
-          this.props.className
-        )}>
-        {screenOnly ? null : (
-          <div className={css(styles.header)}>
-            <ToggleButtons
-              options={[{ label: 'Android', value: 'android' }, { label: 'iOS', value: 'ios' }]}
-              value={platform}
-              onValueChange={onChangePlatform}
-              className={css(styles.toggleButtons)}
-            />
-            <button
-              className={css(
-                styles.popupButton,
-                theme === 'dark' ? styles.popupButtonDark : styles.popupButtonLight
-              )}
-              onClick={this._handlePopup}
-            />
-          </div>
-        )}
+      <React.Fragment>
         <div className={css(screenOnly ? styles.screen : styles.device)}>
           <iframe
-            ref={this._iframe}
-            key={url + this.props.sdkVersion}
+            ref={this.iframe}
+            key={url + sdkVersion}
             src={url}
             className={css(styles.frame)}
           />
-          {this.state.appetizeStatus.type === 'unknown' ? this._renderButtons() : null}
+          {appetizeStatus.type === 'unknown' ? (
+            <div
+              className={
+                screenOnly
+                  ? css(styles.buttonContainerEmbedded)
+                  : css(
+                      styles.buttonContainer,
+                      platform === 'ios' ? styles.buttonContainerIOS : styles.buttonContainerAndroid
+                    )
+              }>
+              {wasUpgraded ? (
+                <div style={{ top: 90 }} className={css(styles.warningText)}>
+                  This Snack was written in an SDK version that is not longer supported and has been
+                  automatically upgraded.
+                </div>
+              ) : null}
+              <a
+                className={css(styles.buttonLink)}
+                style={{ top: 160 }}
+                onClick={this.handleTapToPlay}>
+                <div className={css(styles.buttonFrame)}>
+                  <span className={css(styles.buttonText)}>Tap to play</span>
+                </div>
+              </a>
+              {isPopupOpen ? null : (
+                <a
+                  className={css(styles.buttonLink)}
+                  style={{ top: 250 }}
+                  onClick={onClickRunOnPhone}>
+                  <div className={css(styles.buttonFrame)}>
+                    <span className={css(styles.buttonText)}>Run on your device</span>
+                  </div>
+                </a>
+              )}
+            </div>
+          ) : null}
         </div>
-        {this.state.appetizeStatus.type === 'queued' ? (
+        {appetizeStatus.type === 'queued' ? (
           <div className={css(styles.queueModal, styles.centered)}>
             <div className={css(styles.queueModalContent)}>
               <h4>Device preview is at capacity</h4>
-              <p>Queue position: {this.state.appetizeStatus.position || 1}</p>
+              <p>Queue position: {appetizeStatus.position || 1}</p>
               <h3>Don't want to wait?</h3>
-              {this.props.canUserAuthenticate ? (
+              {canUserAuthenticate ? (
                 <div>
                   <p>Use a free Appetize.io account</p>
                   <div className={css(styles.payerCodeForm)}>
-                    {this.state.payerCodeFormStatus.type === 'open' ? (
-                      <form onSubmit={this._handlePayerCodeSubmit}>
+                    {payerCodeFormStatus.type === 'open' ? (
+                      <form onSubmit={this.handlePayerCodeSubmit}>
                         <input
                           type="text"
-                          value={this.state.payerCodeFormStatus.value}
-                          onChange={this._handlePayerCodeChange}
+                          value={payerCodeFormStatus.value}
+                          onChange={this.handlePayerCodeChange}
                           className={css(styles.payerCodeInput)}
                         />
                         <Button
@@ -483,13 +390,13 @@ class DevicePreview extends React.PureComponent<Props, State> {
                           Activate
                         </Button>
                       </form>
-                    ) : this.state.payerCodeFormStatus.type === 'submitted' ? (
+                    ) : payerCodeFormStatus.type === 'submitted' ? (
                       <p className={css(styles.payerCodeSubmitted)}>Payer code saved to profile!</p>
                     ) : (
                       <ButtonLink
                         variant="primary"
                         href={`${constants.appetize.url}/payer-code`}
-                        onClick={this._handlePayerCodeLink}
+                        onClick={this.handlePayerCodeLink}
                         target="_blank"
                         className={css(styles.button, styles.blockButton)}>
                         Use Appetize.io
@@ -502,7 +409,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
 
               <ButtonLink
                 variant="primary"
-                onClick={this.props.onClickRunOnPhone}
+                onClick={onClickRunOnPhone}
                 className={css(styles.button, styles.blockButton)}>
                 Run it on your phone
               </ButtonLink>
@@ -511,65 +418,17 @@ class DevicePreview extends React.PureComponent<Props, State> {
         ) : null}
         <ModalAuthentication
           visible={this.state.isLoggingIn}
-          onDismiss={this._handleDismissAuthModal}
-          onComplete={this._handleAuthComplete}
+          onDismiss={this.handleDismissAuthModal}
+          onComplete={this.handleAuthComplete}
         />
-      </div>
+      </React.Fragment>
     );
   }
 }
 
-export default withThemeName(withAuth(DevicePreview));
+export default withThemeName(withAuth(AppetizeFrame));
 
 const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-    padding: '0 16px',
-    maxWidth: '50%',
-    overflow: 'auto',
-    display: 'none',
-
-    [`@media ${VISIBILITY_MEDIA_QUERY}`]: {
-      display: 'block',
-    },
-  },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '8px 0',
-  },
-  toggleButtons: {
-    zIndex: 3,
-  },
-  popupButton: {
-    position: 'absolute',
-    right: 0,
-    zIndex: 2,
-    appearance: 'none',
-    height: 48,
-    width: 48,
-    padding: 16,
-    margin: 0,
-    border: 0,
-    outline: 0,
-    opacity: 0.8,
-    backgroundSize: 16,
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundColor: 'transparent',
-    transition: '.2s',
-
-    ':hover': {
-      opacity: 1,
-    },
-  },
-  popupButtonDark: {
-    backgroundImage: `url(${require('../assets/open-link-icon-light.png')})`,
-  },
-  popupButtonLight: {
-    backgroundImage: `url(${require('../assets/open-link-icon.png')})`,
-  },
   loading: {
     position: 'absolute',
     top: 0,
@@ -656,13 +515,13 @@ const styles = StyleSheet.create({
     },
   },
   playstore: {
-    backgroundImage: `url(${require('../assets/play-store-icon.png')})`,
+    backgroundImage: `url(${require('../../assets/play-store-icon.png')})`,
     backgroundSize: '20px 23px',
     paddingLeft: 21,
     paddingRight: 7,
   },
   appstore: {
-    backgroundImage: `url(${require('../assets/app-store-icon.png')})`,
+    backgroundImage: `url(${require('../../assets/app-store-icon.png')})`,
     backgroundSize: '12px 23px',
   },
   payerCodeForm: {

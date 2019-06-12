@@ -2,6 +2,7 @@ import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
 
 type Props = {
+  inverted?: boolean;
   direction: 'horizontal' | 'vertical';
   children?: React.ReactNode;
   className?: string;
@@ -69,7 +70,7 @@ export default class ResizablePane extends React.PureComponent<Props, State> {
   };
 
   _handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { direction } = this.props;
+    const { direction, inverted } = this.props;
     const { resizing, initialPosition, initialWidth, initialHeight } = this.state;
 
     if (resizing && initialPosition) {
@@ -78,9 +79,13 @@ export default class ResizablePane extends React.PureComponent<Props, State> {
       let style;
 
       if (direction === 'horizontal') {
-        style = `width: ${initialWidth + e.pageX - initialPosition.pageX}px !important;`;
+        const delta = e.pageX - initialPosition.pageX;
+
+        style = `width: ${initialWidth + (inverted ? -delta : delta)}px !important;`;
       } else {
-        style = `height: ${initialHeight - e.pageY + initialPosition.pageY}px !important`;
+        const delta = initialPosition.pageY - e.pageY;
+
+        style = `height: ${initialHeight + (inverted ? -delta : delta)}px !important`;
       }
 
       this._pane.current && this._pane.current.setAttribute('style', style);
@@ -90,13 +95,22 @@ export default class ResizablePane extends React.PureComponent<Props, State> {
   _pane = React.createRef<HTMLDivElement>();
 
   render() {
+    const { direction, inverted, className, children } = this.props;
+
     return (
-      <div ref={this._pane} className={`${css(styles.container)} ${this.props.className || ''}`}>
-        {this.props.children}
+      <div ref={this._pane} className={`${css(styles.container)} ${className || ''}`}>
+        {children}
         <div
           className={css(
             styles.handle,
-            this.props.direction === 'horizontal' ? styles.horizontal : styles.vertical
+            direction === 'horizontal' ? styles.horizontal : styles.vertical,
+            direction === 'horizontal'
+              ? inverted
+                ? styles.horizontalInverted
+                : styles.horizontalNormal
+              : inverted
+              ? styles.verticalInverted
+              : styles.verticalNormal
           )}
           onMouseDown={this._handleMouseDown}
           onMouseUp={this._handleMouseUp}
@@ -115,17 +129,27 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   horizontal: {
-    right: -12,
     top: 0,
     bottom: 0,
     width: 12,
     cursor: 'col-resize',
   },
   vertical: {
-    top: -12,
     left: 0,
     right: 0,
     height: 12,
     cursor: 'row-resize',
+  },
+  horizontalNormal: {
+    right: -12,
+  },
+  horizontalInverted: {
+    left: -12,
+  },
+  verticalNormal: {
+    top: -12,
+  },
+  verticalInverted: {
+    bottom: -12,
   },
 });

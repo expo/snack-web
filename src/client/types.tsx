@@ -87,17 +87,19 @@ export type Viewer = {
   };
 };
 
+export type Platform = 'android' | 'ios' | 'web';
+
 export type Device = {
   name: string;
   id: string;
-  platform: string;
+  platform: Platform;
 };
 
 export type QueryParams = {
   session_id?: string;
   local_snackager?: 'true' | 'false';
   preview?: 'true' | 'false';
-  platform?: 'android' | 'ios';
+  platform?: Platform;
   code?: string;
   name?: string;
   description?: string;

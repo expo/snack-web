@@ -18,15 +18,7 @@ class ModalPublishing extends React.Component<Props> {
         onDismiss={this.props.onDismiss}
         title="Saving Snack…">
         <div className={css(styles.content)}>
-          <Spinner
-            segmentLength={6}
-            spacing={4}
-            color={
-              this.props.theme === 'dark'
-                ? { red: 255, green: 255, blue: 255, alpha: 0.5 }
-                : { red: 70, green: 48, blue: 235, alpha: 1 }
-            }
-          />
+          <Spinner />
         </div>
       </ModalDialog>
     );

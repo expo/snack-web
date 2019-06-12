@@ -20,6 +20,11 @@ const FLAGS = {
     sdk: '32.0.0',
     enabled: true,
   },
+  // Whether snacks can run on web
+  PLATFORM_WEB: {
+    sdk: '33.0.0',
+    enabled: true,
+  },
 };
 
 const isRequested = (name: Flag) => {

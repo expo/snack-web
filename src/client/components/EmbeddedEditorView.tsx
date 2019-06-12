@@ -19,6 +19,7 @@ import { isMobile } from '../utils/detectPlatform';
 import withThemeName, { ThemeName } from './Preferences/withThemeName';
 import withPreferences from './Preferences/withPreferences';
 import { Props as EditorViewProps } from './EditorView';
+import { Platform } from '../types';
 
 const SESSION_ID = `snack-session-${shortid()}`;
 
@@ -29,7 +30,7 @@ type Props = EditorViewProps & {
 
 type State = {
   devicePreviewShown: boolean;
-  devicePreviewPlatform: 'android' | 'ios';
+  devicePreviewPlatform: Platform;
   deviceConnectionMethod: EmbeddedConnectionMethod;
   currentModal: 'device-instructions' | null;
 };
@@ -81,7 +82,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
       devicePreviewShown: !state.devicePreviewShown,
     }));
 
-  _changeDevicePreviewPlatform = (platform: 'ios' | 'android') =>
+  _changeDevicePreviewPlatform = (platform: Platform) =>
     this.setState({
       devicePreviewPlatform: platform,
     });
@@ -144,7 +145,8 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
             lineNumbers="off"
           />
           {devicePreviewShown ? (
-            <LazyLoad load={() => import(/* webpackPreload: true */ './DevicePreview')}>
+            <LazyLoad
+              load={() => import(/* webpackPreload: true */ './DevicePreview/DevicePreview')}>
               {({ loaded, data: Comp }) => {
                 if (!(loaded && Comp)) {
                   return null;

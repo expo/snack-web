@@ -6,7 +6,7 @@ import { SDKVersion } from '../configs/sdk';
 type Props = {
   sdkVersion: SDKVersion;
   channel: string;
-  platform: 'ios' | 'android';
+  platform: 'android' | 'ios';
   previewQueue: 'main' | 'secondary';
   snackId?: string | undefined;
   autoplay?: boolean;

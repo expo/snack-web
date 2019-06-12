@@ -4,14 +4,15 @@ import ToggleSwitch from './shared/ToggleSwitch';
 import ToggleButtons from './shared/ToggleButtons';
 import LoadingText from './shared/LoadingText';
 import EmbeddedFooterShell from './Shell/EmbeddedFooterShell';
+import { Platform } from '../types';
 
 type Props = {
   isResolving: boolean;
   loadingMessage: string | undefined;
   devicePreviewShown: boolean;
-  devicePreviewPlatform: 'android' | 'ios';
+  devicePreviewPlatform: Platform;
   onToggleDevicePreview: () => void;
-  onChangeDevicePreviewPlatform: (platform: 'android' | 'ios') => void;
+  onChangeDevicePreviewPlatform: (platform: Platform) => void;
 };
 
 export default class EmbeddedEditorFooter extends React.PureComponent<Props> {

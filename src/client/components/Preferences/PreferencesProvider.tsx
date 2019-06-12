@@ -6,10 +6,11 @@ import { isMobile } from '../../utils/detectPlatform';
 import { ConnectionMethod } from '../DeviceInstructions/DeviceInstructionsModal';
 import { PreferencesContextType } from './withPreferences';
 import { ThemeName } from './withThemeName';
+import { Platform } from '../../types';
 
 export type PreferencesType = {
   deviceConnectionMethod: ConnectionMethod;
-  devicePreviewPlatform: 'android' | 'ios';
+  devicePreviewPlatform: Platform;
   devicePreviewShown: boolean;
   editorMode: 'normal' | 'vim';
   fileTreeShown: boolean;
@@ -27,7 +28,7 @@ type Props = {
     set?: (key: string, value: string) => void;
   };
   testConnectionMethod?: ConnectionMethod;
-  testPreviewPlatform?: 'android' | 'ios';
+  testPreviewPlatform?: Platform;
   children: React.ReactNode;
 };
 

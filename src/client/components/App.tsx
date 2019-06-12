@@ -7,7 +7,7 @@ import mapValues from 'lodash/mapValues';
 import Raven from 'raven-js';
 import debounce from 'lodash/debounce';
 import BroadcastChannel from 'broadcast-channel';
-import { SnackSessionOptions, SDKVersions } from 'snack-sdk';
+import { SnackSessionOptions } from 'snack-sdk';
 import Segment from '../utils/Segment';
 import withAuth, { AuthProps } from '../auth/withAuth';
 import AuthManager from '../auth/authManager';
@@ -34,6 +34,7 @@ import {
   SaveStatus,
   SaveHistory,
   Device,
+  Platform,
 } from '../types';
 import { DEFAULT_DESCRIPTION } from '../configs/defaults';
 
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
 `,
     type: 'CODE',
   },
-    'assets/snack-icon.png': {
+  'assets/snack-icon.png': {
     contents:
       'https://snack-code-uploads.s3.us-west-1.amazonaws.com/~asset/2f7d32b1787708aba49b3586082d327b',
     type: 'ASSET',
@@ -149,7 +150,7 @@ Snack is Open Source. You can find the code on the [GitHub repo](https://github.
 };
 
 const INITIAL_DEPENDENCIES = {
-  'react-native-paper': { version: '2.15.2', isUserSpecified: true },
+  'react-native-paper': { version: '2.16.0', isUserSpecified: true },
 };
 
 const BROADCAST_CHANNEL_NAME = 'SNACK_BROADCAST_CHANNEL';
@@ -169,7 +170,7 @@ type DeviceLog = {
 
 type Params = {
   id?: string;
-  platform?: 'android' | 'ios';
+  platform?: Platform;
   sdkVersion?: SDKVersion;
   username?: string;
   projectName?: string;
@@ -486,7 +487,7 @@ class App extends React.Component<Props, State> {
   componentWillUnmount() {
     this._snackSessionWorker && this._snackSessionWorker.terminate();
     this._snackSessionDependencyErrorListener &&
-    this._snackSessionDependencyErrorListener.dispose();
+      this._snackSessionDependencyErrorListener.dispose();
     this._snackSessionLogListener && this._snackSessionLogListener.dispose();
     this._snackSessionErrorListener && this._snackSessionErrorListener.dispose();
     this._snackSessionPresenceListener && this._snackSessionPresenceListener.dispose();
@@ -740,11 +741,11 @@ class App extends React.Component<Props, State> {
         ) {
           fileEntries = fileEntries.map(entry =>
             isPackageJson(entry.item.path)
-                                             ? updateEntry(this._getPackageJson(state.snackSessionState), {
-                                               // @ts-ignore
-                                               state: entry.state,
-                                             })
-                                             : entry
+              ? updateEntry(this._getPackageJson(state.snackSessionState), {
+                  // @ts-ignore
+                  state: entry.state,
+                })
+              : entry
           );
         }
 
@@ -800,7 +801,7 @@ class App extends React.Component<Props, State> {
       entry => entry.item.type && entry.item.type === 'file' && entry.item.asset
     ).length;
     const cntDirectory = this.state.fileEntries.filter(entry => entry.item.type === 'folder')
-                             .length;
+      .length;
     Segment.getInstance().logEvent(
       'SAVED_SNACK',
       { cntCodeFile, cntAssetFile, cntDirectory },
@@ -928,11 +929,11 @@ class App extends React.Component<Props, State> {
       return (
         <LazyLoad
           load={() => {
-              if (this.props.isEmbedded) {
-                return import('./EmbeddedEditorView');
-              } else {
-                return import('./EditorView');
-              }
+            if (this.props.isEmbedded) {
+              return import('./EmbeddedEditorView');
+            } else {
+              return import('./EditorView');
+            }
           }}>
           {({ loaded, data: Comp }) =>
             loaded && Comp && this.state.snackSessionReady ? (

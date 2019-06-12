@@ -68,17 +68,18 @@ const styles = StyleSheet.create({
     backgroundColor: c('content'),
     color: c('text'),
     lineHeight: 1,
+    padding: 6,
 
     ':first-of-type': {
       borderRightWidth: 0,
       borderRadius: '3px 0 0 3px',
-      padding: '6px 12px 6px 12px',
+      padding: '6px 12px',
     },
 
     ':last-of-type': {
       borderLeftWidth: 0,
       borderRadius: '0 3px 3px 0',
-      padding: '6px 12px 6px 12px',
+      padding: '6px 12px',
     },
   },
 
