@@ -11,8 +11,11 @@ type Props = {
   onPopupUrl: (url: string) => void;
 };
 
-const S3_REGION = 'us-west-2';
-const S3_BUCKET = 'testbox164';
+const S3_REGION = 'us-west-1';
+const S3_BUCKET =
+  process.env.NODE_ENV === 'production' && process.env.CONFIGURATOR_ENV === 'production'
+    ? 'snack-web-player'
+    : 'snack-web-player-staging';
 
 export default function WebFrame({ sdkVersion, channel, snackId, onPopupUrl }: Props) {
   const experienceUrl = constructExperienceURL({
