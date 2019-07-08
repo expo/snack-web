@@ -37,7 +37,11 @@ export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
           />
           <ToggleButtons
             disabled={!devicePreviewShown}
-            options={[{ label: 'Android', value: 'android' }, { label: 'iOS', value: 'ios' }]}
+            options={[
+              { label: 'iOS', value: 'ios' },
+              { label: 'Android', value: 'android' },
+              { label: 'Web', value: 'web' },
+            ]}
             value={devicePreviewPlatform}
             onValueChange={onChangeDevicePreviewPlatform}
           />

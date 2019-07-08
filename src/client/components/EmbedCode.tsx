@@ -30,7 +30,7 @@ class EmbedCode extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      platform: 'ios',
+      platform: 'web',
       preview: true,
       theme: this.props.theme || 'light',
       copied: false,
@@ -119,7 +119,11 @@ class EmbedCode extends React.PureComponent<Props, State> {
           <h3 className={css(styles.header)}>Embed Preview</h3>
           <div className={css(styles.row, styles.options)}>
             <ToggleButtons
-              options={[{ label: 'iOS', value: 'ios' }, { label: 'Android', value: 'android' }]}
+              options={[
+                { label: 'iOS', value: 'ios' },
+                { label: 'Android', value: 'android' },
+                { label: 'Web', value: 'web' },
+              ]}
               value={platform}
               onValueChange={this._handleChangePlatform}
               className={css(styles.last)}
@@ -171,7 +175,7 @@ const styles = StyleSheet.create({
   },
   options: {
     color: '#999',
-    margin: '0 0 .5em -1em',
+    marginBottom: '.5em',
   },
   last: {
     marginRight: 0,

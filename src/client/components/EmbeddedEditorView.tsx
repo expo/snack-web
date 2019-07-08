@@ -46,7 +46,9 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
 
     this.state = {
       devicePreviewShown: props.query.preview !== 'false',
-      devicePreviewPlatform: props.query.platform === 'ios' ? 'ios' : 'android',
+      devicePreviewPlatform: ['web', 'ios', 'android'].includes(props.query.platform as any)
+        ? (props.query.platform as Platform)
+        : 'web',
       deviceConnectionMethod,
       currentModal: null,
     };

@@ -42,9 +42,11 @@ export default function WebFrame({ sdkVersion, channel, snackId, onPopupUrl }: P
 
 const styles = StyleSheet.create({
   pane: {
+    position: 'relative',
     display: 'flex',
     flex: 1,
     width: 324,
+    height: '100%',
   },
   frame: {
     position: 'relative',
