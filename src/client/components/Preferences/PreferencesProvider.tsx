@@ -40,7 +40,7 @@ const EDITOR_CONFIG_KEY = 'snack-editor-config';
 
 const defaults: PreferencesType = {
   deviceConnectionMethod: 'device-id',
-  devicePreviewPlatform: 'android',
+  devicePreviewPlatform: 'web',
   devicePreviewShown: true,
   editorMode: 'normal',
   fileTreeShown: !isMobile(),
@@ -62,6 +62,7 @@ class PreferencesProvider extends React.Component<Props, State> {
     try {
       // Restore editor preferences from saved data
       overrides = JSON.parse(cookies.get(EDITOR_CONFIG_KEY) || '') || {};
+      overrides.devicePreviewPlatform = undefined;
     } catch (e) {
       // Ignore error
     }
@@ -135,6 +136,5 @@ class PreferencesProvider extends React.Component<Props, State> {
 }
 
 export default connect((state: any) => ({
-  testPreviewPlatform: state.splitTestSettings.defaultPreviewPlatform,
   testConnectionMethod: state.splitTestSettings.defaultConnectionMethod,
 }))(PreferencesProvider);
