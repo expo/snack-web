@@ -6,8 +6,10 @@ import Button from './shared/Button';
 import ToggleSwitch from './shared/ToggleSwitch';
 import ToggleButtons from './shared/ToggleButtons';
 import colors from '../configs/colors';
+import { SDKVersion } from '../configs/sdk';
 import withThemeName, { ThemeName } from './Preferences/withThemeName';
 import { Platform } from '../types';
+import FeatureFlags from '../utils/FeatureFlags';
 
 const handleClick = (e: any) => e.target.select();
 
@@ -15,6 +17,7 @@ type Props = {
   params?: {
     id?: string;
   };
+  sdkVersion: SDKVersion;
   theme: ThemeName;
 };
 
@@ -30,7 +33,7 @@ class EmbedCode extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      platform: 'web',
+      platform: FeatureFlags.isAvailable('PLATFORM_WEB', this.props.sdkVersion) ? 'web' : 'android',
       preview: true,
       theme: this.props.theme || 'light',
       copied: false,
@@ -119,11 +122,15 @@ class EmbedCode extends React.PureComponent<Props, State> {
           <h3 className={css(styles.header)}>Embed Preview</h3>
           <div className={css(styles.row, styles.options)}>
             <ToggleButtons
-              options={[
-                { label: 'iOS', value: 'ios' },
-                { label: 'Android', value: 'android' },
-                { label: 'Web', value: 'web' },
-              ]}
+              options={
+                FeatureFlags.isAvailable('PLATFORM_WEB', this.props.sdkVersion)
+                  ? [{ label: 'iOS', value: 'ios' }, { label: 'Android', value: 'android' }]
+                  : [
+                      { label: 'iOS', value: 'ios' },
+                      { label: 'Android', value: 'android' },
+                      { label: 'Web', value: 'web' },
+                    ]
+              }
               value={platform}
               onValueChange={this._handleChangePlatform}
               className={css(styles.last)}

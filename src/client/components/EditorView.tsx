@@ -825,7 +825,7 @@ class EditorView extends React.Component<Props, State> {
                   autoSize={false}
                   visible={currentModal === 'embed'}
                   onDismiss={this._handleHideModal}>
-                  <EmbedCode params={params} />
+                  <EmbedCode params={params} sdkVersion={this.props.sdkVersion} />
                 </ModalDialog>
                 <ModalDialog
                   visible={currentModal === 'previous-saves'}
