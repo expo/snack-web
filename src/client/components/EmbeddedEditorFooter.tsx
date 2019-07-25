@@ -47,12 +47,13 @@ export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
             disabled={!devicePreviewShown}
             options={
               FeatureFlags.isAvailable('PLATFORM_WEB', this.props.sdkVersion)
-                ? [{ label: 'iOS', value: 'ios' }, { label: 'Android', value: 'android' }]
-                : [
+                ? [
                     { label: 'iOS', value: 'ios' },
                     { label: 'Android', value: 'android' },
                     { label: 'Web', value: 'web' },
                   ]
+               :
+                 [{ label: 'iOS', value: 'ios' }, { label: 'Android', value: 'android' }]
             }
             value={platform}
             onValueChange={onChangeDevicePreviewPlatform}

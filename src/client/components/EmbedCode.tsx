@@ -124,12 +124,12 @@ class EmbedCode extends React.PureComponent<Props, State> {
             <ToggleButtons
               options={
                 FeatureFlags.isAvailable('PLATFORM_WEB', this.props.sdkVersion)
-                  ? [{ label: 'iOS', value: 'ios' }, { label: 'Android', value: 'android' }]
-                  : [
+                  ? [
                       { label: 'iOS', value: 'ios' },
                       { label: 'Android', value: 'android' },
                       { label: 'Web', value: 'web' },
                     ]
+                  : [{ label: 'iOS', value: 'ios' }, { label: 'Android', value: 'android' }]
               }
               value={platform}
               onValueChange={this._handleChangePlatform}
