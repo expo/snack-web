@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
-import Spinner from '../shared/Spinner';
 import constructExperienceURL from '../../utils/constructExperienceURL';
 import { SDKVersion } from '../../configs/sdk';
+import withThemeName, { ThemeName } from '../Preferences/withThemeName';
 
 type Props = {
   sdkVersion: SDKVersion;
@@ -17,7 +17,7 @@ const S3_BUCKET =
     ? 'snack-web-player'
     : 'snack-web-player-staging';
 
-export default function WebFrame({ sdkVersion, channel, snackId, onPopupUrl }: Props) {
+function WebFrame({ sdkVersion, channel, snackId, onPopupUrl, theme }: Props) {
   const experienceUrl = constructExperienceURL({
     sdkVersion,
     channel,
@@ -32,13 +32,15 @@ export default function WebFrame({ sdkVersion, channel, snackId, onPopupUrl }: P
 
   return (
     <div className={css(styles.pane)}>
-      <iframe src={url} className={css(styles.frame)} />
-      <div className={css(styles.spinnerContainer)}>
-        <Spinner />
-      </div>
+      <iframe
+        src={url}
+        className={css(styles.frame, theme === 'dark' ? styles.frameDark : styles.frameLight)}
+      />
     </div>
   );
 }
+
+export default withThemeName(WebFrame);
 
 const styles = StyleSheet.create({
   pane: {
@@ -54,6 +56,12 @@ const styles = StyleSheet.create({
     height: '100%',
     border: 0,
     zIndex: 1,
+  },
+  frameLight: {
+    backgroundColor: '#fafafa',
+  },
+  frameDark: {
+    backgroundColor: '#ffffff',
   },
   spinnerContainer: {
     position: 'absolute',
