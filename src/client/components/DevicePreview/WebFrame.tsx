@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   frameLight: {
-    backgroundColor: '#fafafa',
+    backgroundColor: '#fefefe',
   },
   frameDark: {
     backgroundColor: '#ffffff',
