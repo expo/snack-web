@@ -226,6 +226,10 @@ class EditorView extends React.Component<Props, State> {
       // eslint-disable-next-line react/no-did-mount-set-state
       this._showBanner('sdk-upgraded', BANNER_TIMEOUT_LONG);
     }
+
+    if (this.props.sessionID) {
+      this._restoreEmbedSession()
+    }
   }
 
   componentDidUpdate(prevProps: Props) {
