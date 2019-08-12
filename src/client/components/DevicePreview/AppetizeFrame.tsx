@@ -368,12 +368,13 @@ class AppetizeFrame extends React.PureComponent<Props, State> {
         {appetizeStatus.type === 'queued' ? (
           <div className={css(styles.queueModal, styles.centered)}>
             <div className={css(styles.queueModalContent)}>
+          {!canUserAuthenticate ? (<button className={css(styles.dismissButton)} onClick={()=>{this.setState({appetizeStatus: {type: 'unknown'}})}}>X</button>): null}
               <h4>Device preview is at capacity</h4>
               <p>Queue position: {appetizeStatus.position || 1}</p>
               <h3>Don't want to wait?</h3>
               {canUserAuthenticate ? (
                 <div>
-                  <p>Use a free Appetize.io account</p>
+                  <p>Use your own Appetize.io account</p>
                   <div className={css(styles.payerCodeForm)}>
                     {payerCodeFormStatus.type === 'open' ? (
                       <form onSubmit={this.handlePayerCodeSubmit}>
@@ -598,5 +599,21 @@ const styles = StyleSheet.create({
     color: colors.content.dark,
     fontSize: 20,
     fontWeight: 400,
+  },
+  dismissButton: {
+    position: 'absolute',
+    fontSize: 20,
+    fontWeight: 400,
+    right: 0,
+    top: 0,
+    zIndex: 2,
+    height: 48,
+    width: 48,
+    padding: 16,
+    border: 0,
+    backgroundSize: 16,
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundColor: 'transparent',
   },
 });
