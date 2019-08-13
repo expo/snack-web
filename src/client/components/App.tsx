@@ -42,7 +42,7 @@ const Auth = new AuthManager();
 
 const DEVICE_ID_KEY = '__SNACK_DEVICE_ID';
 
-const INITIAL_CODE = {
+const INITIAL_CODE: ExpoSnackFiles = {
   'App.js': {
     contents: `import * as React from 'react';
 import { Text, View, StyleSheet } from 'react-native';

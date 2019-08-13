@@ -7,6 +7,7 @@ import withThemeName, { ThemeName } from '../Preferences/withThemeName';
 type Props = {
   sdkVersion: SDKVersion;
   channel: string;
+  theme: ThemeName;
   snackId?: string;
   onPopupUrl: (url: string) => void;
 };
