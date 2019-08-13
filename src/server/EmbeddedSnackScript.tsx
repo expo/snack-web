@@ -30,6 +30,10 @@ export const script = `
         options.code = decodeURIComponent(container.dataset.snackCode);
       }
 
+      if (!options.dependencies && container.dataset.snackDependencies){
+        options.dependencies = container.dataset.snackDependencies;
+      }
+
       if (container.querySelector('iframe[data-snack-iframe]')) {
         return;
       }
@@ -75,13 +79,14 @@ export const script = `
 
       container.appendChild(iframe);
 
-      if (options.code) {
+      if (options.code || options.dependencies) {
         window.addEventListener('message', function(event) {
           var eventName = event.data[0];
           var data = event.data[1];
           if (eventName === 'expoFrameLoaded' && data.iframeId === iframeId) {
             iframe.contentWindow.postMessage(['expoDataEvent', {
               iframeId: iframeId,
+              dependencies: options.dependencies,
               code: options.code,
             }], '*')
           }
