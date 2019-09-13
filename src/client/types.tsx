@@ -114,7 +114,7 @@ export type QueryParams = {
 export type SaveStatus = 'changed' | 'saving-draft' | 'saved-draft' | 'publishing' | 'published';
 
 export type SaveHistory = Array<{
-  id: string;
+  hashId: string;
   savedAt: string;
   isDraft?: boolean;
 }>;

@@ -26,7 +26,7 @@ class PreviousSaves extends React.Component<Props> {
               <a
                 key={data.id}
                 target="_blank"
-                href={`/${data.id}`}
+                href={`/${data.hashId}`}
                 className={css(styles.item, theme === 'dark' ? styles.dark : styles.light)}>
                 <div>
                   <h4 className={css(styles.title)}>{format(data.savedAt, 'hh:mm a, dddd')}</h4>
@@ -45,8 +45,8 @@ class PreviousSaves extends React.Component<Props> {
             ))}
           </React.Fragment>
         ) : (
-          <p className={css(styles.placeholder)}>There are no previous saves for this Snack.</p>
-        )}
+            <p className={css(styles.placeholder)}>There are no previous saves for this Snack.</p>
+          )}
       </div>
     );
   }
