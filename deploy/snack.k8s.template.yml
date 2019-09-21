@@ -59,9 +59,12 @@ spec:
             initialDelaySeconds: 10
             timeoutSeconds: 2
           resources:
+            limits:
+              cpu: 800m
+              memory: 512Mi
             requests:
               cpu: 200m
-              memory: 256Mi
+              memory: 128Mi
 
 ---
 apiVersion: v1
