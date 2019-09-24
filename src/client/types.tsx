@@ -101,6 +101,7 @@ export type QueryParams = {
   preview?: 'true' | 'false';
   platform?: Platform;
   code?: string;
+  sourceUrl?: string;
   name?: string;
   description?: string;
   dependencies?: string;

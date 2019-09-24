@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { StyleSheet, css } from 'aphrodite';
 import { connect } from 'react-redux';
 import { create, persist } from 'web-worker-proxy';
 import nullthrows from 'nullthrows';
@@ -23,6 +24,7 @@ import { getSnackName } from '../utils/projectNames';
 import { isMobile } from '../utils/detectPlatform';
 import updateEntry from '../actions/updateEntry';
 import { SDKVersion } from '../configs/sdk';
+import AnimatedLogo from './shared/AnimatedLogo';
 
 import {
   FileSystemEntry,
@@ -42,7 +44,7 @@ const Auth = new AuthManager();
 
 const DEVICE_ID_KEY = '__SNACK_DEVICE_ID';
 
-const INITIAL_CODE: ExpoSnackFiles = {
+const DEFAULT_CODE: ExpoSnackFiles = {
   'App.js': {
     contents: `import * as React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
@@ -133,8 +135,6 @@ const styles = StyleSheet.create({
   'README.md': {
     contents: `# Sample Snack app
 
-Welcome to Expo!
-
 Open the \`App.js\` file to start writing some code. You can preview the changes directly on your phone or tablet by clicking the **Run** button or use the simulator by clicking **Tap to Play**. When you're done, click **Save** and share the link!
 
 When you're ready to see everything that Expo provides (or if you want to use your own editor) you can **Export** your project and use it with [expo-cli](https://docs.expo.io/versions/latest/introduction/installation.html).
@@ -149,7 +149,7 @@ Snack is Open Source. You can find the code on the [GitHub repo](https://github.
   },
 };
 
-const INITIAL_DEPENDENCIES = {
+const DEFAULT_DEPENDENCIES = {
   'react-native-paper': { version: '2.16.0', isUserSpecified: true },
 };
 
@@ -190,6 +190,7 @@ type Props = AuthProps & {
   query: QueryParams;
   userAgent: string;
   isEmbedded?: boolean;
+  initialCode: ExpoSnackFiles | string;
 };
 
 type SnackSessionState = {
@@ -267,23 +268,22 @@ type SaveOptions = {
   allowedOnProfile?: boolean;
 };
 
-class App extends React.Component<Props, State> {
+class Main extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const usingDefaultCode = !(
-      (props.snack && props.snack.code) ||
-      (props.query && props.query.code)
-    );
+    const usingDefaultCode =
+      props.initialCode === DEFAULT_CODE &&
+      !((props.snack && props.snack.code) || (props.query && props.query.code));
 
     let name = getSnackName();
     let description = DEFAULT_DESCRIPTION;
     // TODO(satya164): is this correct? we don't match for sdkVersion in the router
     let sdkVersion = props.match.params.sdkVersion || DEFAULT_SDK_VERSION;
-    let dependencies = usingDefaultCode ? INITIAL_DEPENDENCIES : {};
+    let dependencies = usingDefaultCode ? DEFAULT_DEPENDENCIES : {};
 
     let code: ExpoSnackFiles | string =
-      props.snack && props.snack.code ? props.snack.code : INITIAL_CODE;
+      props.snack && props.snack.code ? props.snack.code : props.initialCode;
 
     if (props.snack && props.snack.dependencies) {
       dependencies = props.snack.dependencies;
@@ -300,7 +300,6 @@ class App extends React.Component<Props, State> {
       name = props.query.name || name;
       description = props.query.description || description;
       sdkVersion = props.query.sdkVersion || sdkVersion;
-      code = props.query.code || code;
     }
 
     const initialSdkVersion = sdkVersion;
@@ -992,6 +991,89 @@ class App extends React.Component<Props, State> {
   }
 }
 
-export default connect((state: any) => ({
+const MainContainer = connect((state: any) => ({
   viewer: state.viewer,
-}))(withAuth(App));
+}))(withAuth(Main));
+
+/**
+ * Fetch code from a remote source (if provided) before rendering the main app
+ */
+export default class App extends React.Component<Props, any> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      isReady: !(props.query && props.query.sourceUrl),
+      initialCode: DEFAULT_CODE,
+    };
+  }
+
+  componentDidMount() {
+    if (this.props.query.sourceUrl) {
+      this._loadSourceAsync(this.props.query.sourceUrl);
+    }
+  }
+
+  _loadSourceAsync = async (url: string) => {
+    // Minimum amount of time to show the loading indicator for, so it doesn't
+    // just flicker in and out
+    const MIN_LOADING_MS = 1500;
+
+    try {
+      let fetchStartTimeMs = Date.now();
+      let response = await fetch(url);
+      let code = await response.text();
+
+      let fetchDurationMs = Date.now() - fetchStartTimeMs;
+      let delayBeforeHidingMs =
+        fetchDurationMs < MIN_LOADING_MS ? MIN_LOADING_MS - fetchDurationMs : 0;
+
+      setTimeout(() => {
+        this.setState({
+          isReady: true,
+          initialCode: code,
+        });
+      }, delayBeforeHidingMs);
+    } catch (e) {
+      alert(`We were unable to load source from ${url}.`);
+      this.setState({
+        isReady: true,
+      });
+    }
+  };
+
+  render() {
+    if (this.state.isReady) {
+      return <MainContainer {...this.props} initialCode={this.state.initialCode} />;
+    } else {
+      return (
+        <div className={css(styles.container)}>
+          <div className={css(styles.logo)}>
+            <AnimatedLogo />
+          </div>
+          <p className={css(styles.loadingText)}>Loading code from external source...</p>
+        </div>
+      );
+    }
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'column',
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logo: {
+    transform: 'scale(0.5)',
+    opacity: 0.9,
+  },
+  loadingText: {
+    marginTop: 0,
+    opacity: 0.7,
+    fontSize: 18,
+  },
+});
