@@ -300,6 +300,7 @@ class Main extends React.Component<Props, State> {
       name = props.query.name || name;
       description = props.query.description || description;
       sdkVersion = props.query.sdkVersion || sdkVersion;
+      code = props.query.code || code;
     }
 
     const initialSdkVersion = sdkVersion;
