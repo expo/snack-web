@@ -1,8 +1,19 @@
-#!/usr/bin/env bash
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -p google-cloud-sdk kustomize kubectl
+#! nix-shell -I nixpkgs=../../
 
 set -xeuo pipefail
 
 ENVIRONMENT=$1
-export TAG=$2
+TAG=$2
+IMAGE="gcr.io/exponentjs/snack:$TAG"
 
-nix run expo.k8s-services.snack.${ENVIRONMENT}.deploy --command deploy
+gcloud container images describe "$IMAGE"
+
+cd "deploy/${ENVIRONMENT}"
+
+kustomize edit set image "$IMAGE"
+
+kubectl apply --kustomize . --validate
+
+kubectl --namespace "$ENVIRONMENT" rollout status deploy snack
