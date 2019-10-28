@@ -34,28 +34,24 @@ tar -czhf ../web-snack-libraries.tar.gz .
 popd
 rm -rf ./tmp
 
-if [[ "$environment" == "staging" ]]
-then
-  export API_SERVER_URL="https://staging.expo.io"
-  export IMPORT_SERVER_URL="https://staging.snackager.expo.io"
-  export CDN_URL="https://d30hq726efxt5o.cloudfront.net"
-  export SNACK_SEGMENT_KEY="dxul6twMnfpyguF8w4W2qUpFnhxEUSV6"
-elif [[ "$environment" == "production" ]]
-then
-  export API_SERVER_URL="https://expo.io"
-  export IMPORT_SERVER_URL="https://snackager.expo.io"
-  export CDN_URL="https://dejalo84wis46.cloudfront.net"
-  export SNACK_SEGMENT_KEY="Ha0swpI6s2CVEMxK84cEmKmUVmBa1USu"
-else
-  echo "unknown environment specified"
-  exit 1
-fi
+ifprod() {
+  if [[ "$environment" == "production" ]]
+  then
+    echo "$1"
+  elif [[ "$environment" == "staging" ]]
+  then
+    echo "$2"
+  else
+    echo "unknown environment specified"
+    exit 1
+  fi
+}
 
 envtag="$environment-$tag"
-buildargs="--build-arg API_SERVER_URL=$API_SERVER_URL $buildargs"
-buildargs="--build-arg IMPORT_SERVER_URL=$IMPORT_SERVER_URL $buildargs"
-buildargs="--build-arg CDN_URL=$CDN_URL $buildargs"
-buildargs="--build-arg SNACK_SEGMENT_KEY=$SNACK_SEGMENT_KEY $buildargs"
+buildargs="--build-arg API_SERVER_URL=$(ifprod https://expo.io https://staging.expo.io) $buildargs"
+buildargs="--build-arg IMPORT_SERVER_URL=$(ifprod https://snackager.expo.io https://staging.snackager.expo.io) $buildargs"
+buildargs="--build-arg CDN_URL=$(ifprod https://dejalo84wis46.cloudfront.net https://d30hq726efxt5o.cloudfront.net) $buildargs"
+buildargs="--build-arg SNACK_SEGMENT_KEY=$(ifprod Ha0swpI6s2CVEMxK84cEmKmUVmBa1USu dxul6twMnfpyguF8w4W2qUpFnhxEUSV6) $buildargs"
 
 if [ ! -z "$tag" ]; then
   buildargs="$buildargs --build-arg APP_VERSION=$envtag"
