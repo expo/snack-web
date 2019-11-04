@@ -60,7 +60,6 @@ const styles = StyleSheet.create({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    margin: '8px 0',
   },
   header: {
     display: 'flex',

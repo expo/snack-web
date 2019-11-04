@@ -332,6 +332,7 @@ class FileList extends React.PureComponent<Props, State> {
                   preventRedirectWarning={this.props.preventRedirectWarning}
                 />
                 <FileListPane
+                  className={css(this.state.projectPane ? styles.openFilesSmall : styles.openFilesLarge)}
                   title="Open files"
                   expanded={this.state.openFilesPane}
                   onClick={this._toggleOpenFilesPane}>
@@ -459,9 +460,16 @@ const styles = StyleSheet.create({
   project: {
     flex: 1,
   },
+  openFilesSmall: {
+    maxHeight: '50%',
+  },
+  openFilesLarge: {
+    maxHeight: 'calc(100% - 30px)',
+  },
   files: {
-    flex: 1,
+    flex: '1 0 0',
     overflow: 'auto',
+    paddingBottom: 16,
   },
   children: {
     position: 'relative',
