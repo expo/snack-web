@@ -8,6 +8,7 @@ import Toast from './shared/Toast';
 import KeybindingsManager, { KeyMap } from './shared/KeybindingsManager';
 import ShortcutLabel from './shared/ShortcutLabel';
 import updateEntry from '../actions/updateEntry';
+import constants from '../configs/constants';
 import getSnackURLFromEmbed from '../utils/getSnackURLFromEmbed';
 import { isPackageJson, isScriptFile } from '../utils/fileUtilities';
 import FeatureFlags from '../utils/FeatureFlags';
@@ -381,6 +382,15 @@ export default class DependencyManager extends React.Component<Props, State> {
     link.click();
   };
 
+  _handleMoreDependencyInfo() {
+    const link = document.createElement('a');
+
+    link.target = '_blank';
+    link.href = constants.links.authorDocs;
+
+    link.click();
+  }
+
   render() {
     const { dependencies } = this.state;
     const names = Object.keys(dependencies).filter(name => {
@@ -403,49 +413,54 @@ export default class DependencyManager extends React.Component<Props, State> {
             ]}
           />
         ) : (
-          names.map(name =>
-            dependencies[name].status === 'error' ? (
-              <Toast
-                key={name}
-                persistent
-                type="error"
-                label={
-                  <span>
-                    An error occured when resolving{' '}
-                    <code>
-                      {name}
-                      {dependencies[name].version ? `@${dependencies[name].version}` : ''}
-                    </code>
-                  </span>
-                }
-                actions={[
-                  {
-                    label: `Retry ${cmdEnter}`,
-                    action: () => this._handleRetryDependency(name),
-                  },
-                  { label: 'Dismiss' },
-                ]}
-                onDismiss={() => this._handleDismissDependencyError(name)}
-              />
-            ) : (
-              <Toast
-                key={name}
-                persistent
-                label={
-                  <span>
-                    Add <code>{name}</code> to package.json?
-                  </span>
-                }
-                actions={[
-                  {
-                    label: `Add ${cmdEnter}`,
-                    action: () => this._handleAddDependency(name),
-                  },
-                  { label: 'Cancel' },
-                ]}
-                onDismiss={() => this._handleDenyAdding(name)}
-              />
-            )
+          names.map(
+            name =>
+              dependencies[name].status === 'error' ? (
+                <Toast
+                  key={name}
+                  persistent
+                  type="error"
+                  label={
+                    <span>
+                      An error occured when resolving{' '}
+                      <code>
+                        {name}
+                        {dependencies[name].version ? `@${dependencies[name].version}` : ''}
+                      </code>
+                    </span>
+                  }
+                  actions={[
+                    {
+                      label: `Retry ${cmdEnter}`,
+                      action: () => this._handleRetryDependency(name),
+                    },
+                    {
+                      label: 'New Version?',
+                      action: () => this._handleMoreDependencyInfo(),
+                    },
+                    { label: 'Dismiss' },
+                  ]}
+                  onDismiss={() => this._handleDismissDependencyError(name)}
+                />
+              ) : (
+                <Toast
+                  key={name}
+                  persistent
+                  label={
+                    <span>
+                      Add <code>{name}</code> to package.json?
+                    </span>
+                  }
+                  actions={[
+                    {
+                      label: `Add ${cmdEnter}`,
+                      action: () => this._handleAddDependency(name),
+                    },
+                    { label: 'Cancel' },
+                  ]}
+                  onDismiss={() => this._handleDenyAdding(name)}
+                />
+              )
           )
         )}
       </div>

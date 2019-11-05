@@ -2,6 +2,7 @@ export default {
   links: {
     itunes: 'https://itunes.apple.com/app/apple-store/id982107779?pt=17102800&amp;ct=www&amp;mt=8',
     playstore: 'https://play.google.com/store/apps/details?id=host.exp.exponent',
+    authorDocs: 'https://github.com/expo/snack-sdk/blob/master/Snack_for_module_authors.md',
   },
   ngrok: 'snack.ngrok.io',
   appetize: {

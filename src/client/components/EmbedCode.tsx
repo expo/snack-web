@@ -5,6 +5,7 @@ import Banner from './shared/Banner';
 import Button from './shared/Button';
 import ToggleSwitch from './shared/ToggleSwitch';
 import ToggleButtons from './shared/ToggleButtons';
+import constants from '../configs/constants';
 import colors from '../configs/colors';
 import { SDKVersion } from '../configs/sdk';
 import withThemeName, { ThemeName } from './Preferences/withThemeName';
@@ -101,6 +102,15 @@ class EmbedCode extends React.PureComponent<Props, State> {
 
   _handleChangePlatform = (platform: Platform) => this.setState({ platform });
 
+  _openSnackEmbedDocs = () => {
+    const link = document.createElement('a');
+
+    link.target = '_blank';
+    link.href = constants.links.authorDocs;
+
+    link.click();
+  };
+
   render() {
     const { platform, preview, theme, copied } = this.state;
 
@@ -120,6 +130,9 @@ class EmbedCode extends React.PureComponent<Props, State> {
         <Banner visible={copied}>Copied to clipboard!</Banner>
         <div className={css(styles.section)}>
           <h3 className={css(styles.header)}>Embed Preview</h3>
+          <button onClick={this._openSnackEmbedDocs} className={css(styles.textButton)}>
+            Learn more about what's possible
+          </button>
           <div className={css(styles.row, styles.options)}>
             <ToggleButtons
               options={
@@ -178,6 +191,7 @@ const styles = StyleSheet.create({
   },
   header: {
     margin: '.5em 0',
+    display: 'inline',
     fontWeight: 500,
   },
   options: {
@@ -219,5 +233,13 @@ const styles = StyleSheet.create({
   copyButton: {
     position: 'absolute',
     right: 0,
+  },
+  textButton: {
+    appearance: 'none',
+    background: 'none',
+    border: 0,
+    margin: 0,
+    padding: '0px 4px',
+    textDecoration: 'underline',
   },
 });
