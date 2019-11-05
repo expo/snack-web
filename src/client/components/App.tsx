@@ -809,7 +809,8 @@ class Main extends React.Component<Props, State> {
     );
     Segment.getInstance().startTimer('lastSave');
 
-    this._saveSnack(options);
+    await this._saveSnack(options);
+
   };
 
   _handleSaveDraftNotDebounced = () => {
