@@ -35,6 +35,7 @@ function WebFrame({ sdkVersion, channel, snackId, onPopupUrl, theme }: Props) {
     <div className={css(styles.pane)}>
       <iframe
         src={url}
+        allow="geolocation; camera; microphone"
         className={css(styles.frame, theme === 'dark' ? styles.frameDark : styles.frameLight)}
       />
     </div>
