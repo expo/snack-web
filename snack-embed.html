@@ -3,6 +3,19 @@
   <head>
   </head>
   <body>
+    <form action="https://staging.snack.expo.io" method="POST" target="_blank">
+      <input type="hidden" name="platform" value="ios"/>
+      <input type="hidden" name="name" value={'Example'} />
+      <input type="hidden" name="dependencies" value="lodash@*" />
+      <input type="hidden" name="code" value="this is my code"/>
+
+      <button className="snack-inline-example-button">
+        Try this example on Snack
+      </button>
+    </form>
+
+
+
     embedded named snack
    <iframe src='http://staging.snack.expo.io/embedded/@react-navigation/hello-react-navigation' frameborder='0' style='display: block;border:1px solid rgba(0,0,0,.16);border-radius:4px;height:500px; width:700px'></iframe>
 
