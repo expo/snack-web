@@ -6,6 +6,7 @@ import Raven from 'raven';
 import serve from 'koa-static';
 import mount from 'koa-mount';
 import compress from 'koa-compress';
+import bodyParser from 'koa-bodyparser';
 import stoppable from 'stoppable';
 import nullthrows from 'nullthrows';
 import sw from './sw';
@@ -74,6 +75,7 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
   });
 }
 
+app.use(bodyParser());
 app.use(routes());
 
 const httpServer = app.listen(port, host, backlog, () => {
