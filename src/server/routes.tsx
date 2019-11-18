@@ -23,8 +23,8 @@ const render = async (ctx: Context) => {
     ? ctx.params.id
       ? ctx.params.id
       : ctx.params.username && ctx.params.projectName
-      ? `@${ctx.params.username}/${ctx.params.projectName}`
-      : null
+        ? `@${ctx.params.username}/${ctx.params.projectName}`
+        : null
     : null;
   const splitTestSettings = await getSplitTests(ctx);
 
@@ -39,6 +39,8 @@ const render = async (ctx: Context) => {
           };
         } | null;
       };
+  let postData: object | null;
+  postData = null;
 
   if (id) {
     try {
@@ -75,6 +77,9 @@ const render = async (ctx: Context) => {
       };
     }
   } else {
+    if (ctx.request.body) {
+      postData = ctx.request.body;
+    }
     data = {
       type: 'success',
       snack: null,
@@ -102,6 +107,7 @@ const render = async (ctx: Context) => {
         id={id}
         splitTestSettings={splitTestSettings}
         data={data}
+        postData={postData}
         content={StyleSheetServer.renderStatic(() => {
           return ReactDOMServer.renderToString(
             <React.Fragment>
@@ -110,7 +116,7 @@ const render = async (ctx: Context) => {
                 <PreferencesProvider cookies={cookies} search={ctx.request.search}>
                   <ColorsProvider>
                     <StaticRouter location={ctx.request.url} context={context}>
-                      <ClientRouter data={data} userAgent={ctx.userAgent} />
+                      <ClientRouter data={data} postData={postData} userAgent={ctx.userAgent} />
                     </StaticRouter>
                   </ColorsProvider>
                 </PreferencesProvider>
@@ -149,6 +155,7 @@ export default function routes() {
   router.get('/@:username/:projectName+', render);
   router.get('/:id', render);
   router.get('*', render);
+  router.post('*', render);
 
   return compose([router.routes(), router.allowedMethods()]);
 }

@@ -23,6 +23,7 @@ type Props = {
           message: string;
         };
       };
+  postData: object | null;
   content: {
     html: string;
     css: {
@@ -41,7 +42,7 @@ const DEFAULT_METADATA_DESCRIPTION_SAVED = `Try this project on your phone! Use 
 
 export default class Document extends React.Component<Props> {
   render() {
-    const { id, data, content, splitTestSettings } = this.props;
+    const { id, data, content, splitTestSettings, postData } = this.props;
     const title =
       data.type === 'success' && data.snack && data.snack.manifest.name
         ? data.snack.manifest.name
@@ -177,6 +178,7 @@ export default class Document extends React.Component<Props> {
                  {
                    data,
                    splitTestSettings,
+                   postData,
                  },
                  {
                    quotes: 'double',

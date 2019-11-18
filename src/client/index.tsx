@@ -12,6 +12,7 @@ import { HelmetProvider } from 'react-helmet-async';
 
 declare const __INITIAL_DATA__: {
   data: any;
+  postData: any;
   splitTestSettings: any;
 };
 
@@ -27,7 +28,7 @@ class SnackEntry extends React.Component {
             <PreferencesProvider cookies={cookies} search={window.location.search}>
               <ColorsProvider>
                 <BrowserRouter>
-                  <Router data={__INITIAL_DATA__.data} userAgent={navigator.userAgent} />
+                  <Router data={__INITIAL_DATA__.data} postData={__INITIAL_DATA__.postData} userAgent={navigator.userAgent} />
                 </BrowserRouter>
               </ColorsProvider>
             </PreferencesProvider>

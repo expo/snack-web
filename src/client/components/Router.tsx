@@ -18,6 +18,7 @@ type Props = {
         };
       }
     | null;
+  postData: object | null;
   userAgent: string;
 };
 
@@ -32,13 +33,20 @@ export default class Router extends React.Component<Props> {
           <EmbeddedApp
             {...props}
             {...rest}
-            query={parse(props.location.search)}
+            query={this.props.postData || parse(props.location.search)}
             snack={data.snack}
           />
         );
       }
 
-      return <App {...props} {...rest} query={parse(props.location.search)} snack={data.snack} />;
+      return (
+        <App
+          {...props}
+          {...rest}
+          query={this.props.postData || parse(props.location.search)}
+          snack={data.snack}
+        />
+      );
     } else {
       return <NonExistent />;
     }
