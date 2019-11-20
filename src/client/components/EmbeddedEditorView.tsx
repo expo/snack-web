@@ -105,6 +105,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
       params,
       isResolving,
       loadingMessage,
+      previewRef,
       theme,
     } = this.props;
 
@@ -157,6 +158,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
                 return (
                   <Comp
                     screenOnly
+                    previewRef={previewRef}
                     channel={channel}
                     snackId={params.id}
                     sdkVersion={this.props.sdkVersion}

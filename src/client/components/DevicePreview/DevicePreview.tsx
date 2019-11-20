@@ -24,6 +24,7 @@ type Props = {
   screenOnly?: boolean;
   payerCode?: string;
   onClickRunOnPhone: () => void;
+  previewRef: React.MutableRefObject<Window | null>;
   theme: ThemeName;
 };
 
@@ -75,6 +76,8 @@ class DevicePreview extends React.PureComponent<Props, State> {
 
     this.setState({
       isPopupOpen: true,
+    }, () => {
+      this.props.previewRef.current = this.popup;
     });
 
     clearInterval(this.popupInterval);
@@ -115,6 +118,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
       channel,
       payerCode,
       onClickRunOnPhone,
+      previewRef,
       theme,
     } = this.props;
 
@@ -162,6 +166,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
         )}
         {platform === 'web' ? (
           <WebFrame
+            previewRef={previewRef}
             sdkVersion={sdkVersion}
             channel={channel}
             snackId={snackId}
