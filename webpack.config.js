@@ -87,7 +87,7 @@ module.exports = {
       },
       {
         test: /\.(js|tsx?)$/,
-        exclude: /(node_modules|snack-sdk|(vendor\/.+.bundle\.js))/,
+        exclude: /(node_modules|(vendor\/.+.bundle\.js))/,
         use: {
           loader: 'babel-loader',
         },
@@ -111,6 +111,7 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
       aphrodite: 'aphrodite/no-important',
+      'snack-sdk': 'snack-sdk/src/snack'
     },
   },
 };

@@ -29,6 +29,7 @@ module.exports = api => {
       ],
       '@babel/preset-react',
       '@babel/preset-typescript',
+      '@babel/preset-flow',
     ],
     plugins: [
       '@babel/plugin-syntax-dynamic-import',

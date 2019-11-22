@@ -15,11 +15,13 @@ type Props = {
   canUserAuthenticate: boolean;
   channel: string;
   className?: string;
+  onAppLaunch?: () => void;
   onChangePlatform: (platform: Platform) => void;
   onClickRunOnPhone: () => void;
   payerCode?: string;
   platform: Platform;
   previewQueue: 'main' | 'secondary';
+  onAppLaunch?: () => void;
   previewRef: React.MutableRefObject<Window | null>;
   screenOnly?: boolean;
   sdkVersion: SDKVersion;
@@ -113,11 +115,13 @@ class DevicePreview extends React.PureComponent<Props, State> {
     const {
       canUserAuthenticate,
       channel,
+      onAppLaunch,
       onChangePlatform,
       onClickRunOnPhone,
       payerCode,
       platform: requestedPlatform,
       previewQueue,
+      onAppLaunch,
       previewRef,
       screenOnly,
       sdkVersion,
@@ -179,6 +183,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
             isPopupOpen={isPopupOpen}
             onPopupUrl={this.handlePopupUrl}
             onClickRunOnPhone={onClickRunOnPhone}
+            onAppLaunch={onAppLaunch}
           />
         )}
       </div>

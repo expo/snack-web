@@ -57,6 +57,7 @@ export type EditorViewProps = {
   onSendCode: () => void;
   onReloadSnack: () => void;
   onToggleSendCode: () => void;
+  onDeviceConnectionAttempt: () => void;
   onClearDeviceLogs: () => void;
   onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<void>;
   onChangeCode: (code: string) => void;

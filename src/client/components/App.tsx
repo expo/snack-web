@@ -255,6 +255,7 @@ type SnackSessionProxy = {
     setDeviceId: (id: string) => Promise<void>;
     getState: () => Promise<SnackSessionState>;
     getChannel: () => Promise<string>;
+    setPubNubEnabled: () => Promise<void>;
   };
   addStateListener: (listener: Listener) => Promise<void>;
   addPresenceListener: (listener: Listener) => Promise<void>;
@@ -455,6 +456,11 @@ class Main extends React.Component<Props, State> {
       }
     });
 
+    if (!this.props.isEmbedded) {
+      // If we're not in embed, we enable pubnub only when the user starts the player
+      this._snack.session.setPubNubEnabled();
+    }
+
     window.addEventListener('message', this._handleSnackPostMessage);
   }
 
@@ -637,6 +643,10 @@ class Main extends React.Component<Props, State> {
     }
 
     this._snack.sendMessage(event.data);
+  };
+
+  _handleDeviceConnectionAttempt = () => {
+    this._snack.session.setPubNubEnabled();
   };
 
   _handleSnackDependencyError = (error: string) => Raven.captureMessage(error);
@@ -1005,6 +1015,7 @@ class Main extends React.Component<Props, State> {
                 onChangeCode={this._handleChangeCode}
                 onChangeSDKVersion={this._handleChangeSDKVersion}
                 onClearDeviceLogs={this._handleClearDeviceLogs}
+                onDeviceConnectionAttempt={this._handleDeviceConnectionAttempt}
                 onDownloadAsync={this._handleDownloadAsync}
                 onFileEntriesChange={this._handleFileEntriesChange}
                 onPublishAsync={this._handlePublishAsync}
@@ -1013,8 +1024,17 @@ class Main extends React.Component<Props, State> {
                 onSignIn={this._updateUser}
                 onSubmitMetadata={this._handleSubmitMetadata}
                 onToggleSendCode={this._handleToggleSendCode}
+                onDeviceConnectionAttempt={this._handleDeviceConnectionAttempt}
                 params={this.state.params}
                 previewRef={this._previewRef}
+                uploadFileAsync={this._uploadAssetAsync}
+                syncDependenciesAsync={this._syncDependenciesAsync}
+                setDeviceId={this._setDeviceId}
+                deviceId={this.state.deviceId}
+                connectedDevices={this.state.connectedDevices}
+                deviceError={this.state.deviceError}
+                deviceLogs={this.state.deviceLogs}
+                sessionID={this.props.query.session_id}
                 query={this.props.query}
                 saveHistory={this.state.saveHistory}
                 saveStatus={this.state.saveStatus}

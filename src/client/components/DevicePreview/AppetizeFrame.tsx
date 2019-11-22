@@ -26,6 +26,7 @@ type Props = AuthProps & {
   isPopupOpen: boolean;
   onPopupUrl: (url: string) => void;
   onClickRunOnPhone: () => void;
+  onAppLaunch?: () => void;
   theme: ThemeName;
 };
 
@@ -147,6 +148,9 @@ class AppetizeFrame extends React.PureComponent<Props, State> {
           break;
         case 'appLaunch':
           status = { type: 'launch' };
+
+          this.props.onAppLaunch && this.props.onAppLaunch()
+
           if (this.state.appetizeStatus.type === 'queued') {
             Segment.getInstance().logEvent('APP_LAUNCHED', {}, 'previewQueue');
           }

@@ -26,6 +26,7 @@ import { PlatformOption } from '../utils/PlatformOptions';
 const SESSION_ID = `snack-session-${shortid()}`;
 
 type Props = EditorViewProps & {
+  onDeviceConnectionAttempt: () => void;
   testConnectionMethod?: ConnectionMethod;
   theme: ThemeName;
 };
@@ -47,7 +48,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
       deviceConnectionMethod = 'qr-code';
     }
 
-    let platformOptions = PlatformOptions.filter({
+    const platformOptions = PlatformOptions.filter({
       sdkVersion: props.sdkVersion,
       supportedPlatformsQueryParam: props.supportedPlatformsQueryParam,
     });
@@ -65,7 +66,8 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
     };
   }
 
-  _handleShowDeviceInstructions = () => {
+  _handleClickRunOnPhone = () => {
+    this.props.onDeviceConnectionAttempt();
     this.setState({ currentModal: 'device-instructions' });
   };
 
@@ -117,6 +119,8 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
       isResolving,
       loadingMessage,
       previewRef,
+      onDeviceConnectionAttempt,
+      wasUpgraded,
       theme,
     } = this.props;
 
@@ -178,9 +182,10 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
                     onChangePlatform={this._changeDevicePreviewPlatform}
                     className={css(styles.preview)}
                     payerCode={this.props.query.appetizePayerCode}
-                    onClickRunOnPhone={this._handleShowDeviceInstructions}
+                    onClickRunOnPhone={this._handleClickRunOnPhone}
+                    onAppLaunch={onDeviceConnectionAttempt}
                     canUserAuthenticate={false}
-                    wasUpgraded={this.props.wasUpgraded}
+                    wasUpgraded={wasUpgraded}
                     previewQueue="secondary"
                   />
                 );
