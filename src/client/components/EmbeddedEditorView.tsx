@@ -197,6 +197,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
             devicePreviewShown={devicePreviewShown}
             devicePreviewPlatform={devicePreviewPlatform}
             sdkVersion={this.props.sdkVersion}
+            supportedPlatformsQueryParam={this.props.supportedPlatformsQueryParam}
             onToggleDevicePreview={this._toggleDevicePreview}
             onChangeDevicePreviewPlatform={this._changeDevicePreviewPlatform}
           />

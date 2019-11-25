@@ -50,6 +50,7 @@ export type EditorViewProps = {
   deviceError: DeviceError | undefined;
   deviceLogs: DeviceLog[];
   dependencyQueryParam: string | undefined;
+  supportedPlatformsQueryParam: string | undefined;
   initialSdkVersion: SDKVersion;
   sdkVersion: SDKVersion;
   sendCodeOnChangeEnabled: boolean;

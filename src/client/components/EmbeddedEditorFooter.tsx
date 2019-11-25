@@ -13,9 +13,15 @@ type Props = {
   loadingMessage: string | undefined;
   devicePreviewShown: boolean;
   devicePreviewPlatform: Platform;
-  sdkVersion: SDKVersion
+  sdkVersion: SDKVersion;
+  supportedPlatformsQueryParam: string | undefined;
   onToggleDevicePreview: () => void;
   onChangeDevicePreviewPlatform: (platform: Platform) => void;
+};
+
+type PlatformOption = {
+  label: string;
+  value: Platform;
 };
 
 export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
@@ -24,16 +30,13 @@ export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
       isResolving,
       loadingMessage,
       devicePreviewShown,
-      devicePreviewPlatform,
-      sdkVersion,
       onToggleDevicePreview,
       onChangeDevicePreviewPlatform,
     } = this.props;
 
-    const platform =
-      devicePreviewPlatform === 'web' && !FeatureFlags.isAvailable('PLATFORM_WEB', sdkVersion)
-        ? 'android'
-        : devicePreviewPlatform;
+    let options = this._getPlatformOptions();
+    let platform = this._getSelectedPlatform(options);
+
     return (
       <EmbeddedFooterShell type={isResolving ? 'loading' : undefined}>
         <div>{isResolving ? <LoadingText>{loadingMessage}</LoadingText> : null}</div>
@@ -45,16 +48,7 @@ export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
           />
           <ToggleButtons
             disabled={!devicePreviewShown}
-            options={
-              FeatureFlags.isAvailable('PLATFORM_WEB', this.props.sdkVersion)
-                ? [
-                    { label: 'iOS', value: 'ios' },
-                    { label: 'Android', value: 'android' },
-                    { label: 'Web', value: 'web' },
-                  ]
-               :
-                 [{ label: 'iOS', value: 'ios' }, { label: 'Android', value: 'android' }]
-            }
+            options={this._getPlatformOptions()}
             value={platform}
             onValueChange={onChangeDevicePreviewPlatform}
           />
@@ -62,6 +56,55 @@ export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
       </EmbeddedFooterShell>
     );
   }
+
+  _getSelectedPlatform = (options: PlatformOption[]) => {
+    const { devicePreviewPlatform, sdkVersion } = this.props;
+
+    let selectedPlatform: Platform = devicePreviewPlatform;
+
+    // If we don't support web yet, default to Android
+    if (selectedPlatform === 'web' && !FeatureFlags.isAvailable('PLATFORM_WEB', sdkVersion)) {
+      selectedPlatform = 'android';
+    }
+
+    // If the selected platform is not enabled for this Snack then fallback to
+    // the first available platform
+    if (!options.find(platformOption => platformOption.value === selectedPlatform)) {
+      selectedPlatform = options[0].value;
+    }
+
+    return selectedPlatform;
+  };
+
+  _getPlatformOptions = () => {
+    let defaultPlatformOptions: PlatformOption[] = [];
+    if (FeatureFlags.isAvailable('PLATFORM_WEB', this.props.sdkVersion)) {
+      defaultPlatformOptions = [
+        { label: 'iOS', value: 'ios' },
+        { label: 'Android', value: 'android' },
+        { label: 'Web', value: 'web' },
+      ];
+    } else {
+      defaultPlatformOptions = [
+        { label: 'iOS', value: 'ios' },
+        { label: 'Android', value: 'android' },
+      ];
+    }
+
+    if (this.props.supportedPlatformsQueryParam) {
+      let parsedSupportedPlatformsQueryParam = this.props.supportedPlatformsQueryParam.split(',');
+      let supportedPlatforms = defaultPlatformOptions.filter(platform =>
+        parsedSupportedPlatformsQueryParam.includes(platform.value)
+      );
+
+      // If none of the provided platforms are valid, fallback to supporting all platforms.
+      if (supportedPlatforms.length) {
+        return supportedPlatforms;
+      }
+    }
+
+    return defaultPlatformOptions;
+  };
 }
 
 const styles = StyleSheet.create({
