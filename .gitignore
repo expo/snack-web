@@ -1,3 +1,4 @@
 /dist/
 /build/
 /web-snack-libraries.tar.gz
+node_modules/
