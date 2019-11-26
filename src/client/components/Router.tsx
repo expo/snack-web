@@ -27,26 +27,15 @@ export default class Router extends React.Component<Props> {
     const { data, ...rest } = this.props;
     const isEmbedded = props.location.pathname.split('/')[1] === 'embedded';
 
+    let hasPostData = this.props.postData && Object.keys(this.props.postData).length;
+    let query = hasPostData ? this.props.postData : parse(props.location.search);
+
     if (data && data.type === 'success') {
       if (isEmbedded) {
-        return (
-          <EmbeddedApp
-            {...props}
-            {...rest}
-            query={this.props.postData || parse(props.location.search)}
-            snack={data.snack}
-          />
-        );
+        return <EmbeddedApp {...props} {...rest} query={query} snack={data.snack} />;
       }
 
-      return (
-        <App
-          {...props}
-          {...rest}
-          query={this.props.postData || parse(props.location.search)}
-          snack={data.snack}
-        />
-      );
+      return <App {...props} {...rest} query={query} snack={data.snack} />;
     } else {
       return <NonExistent />;
     }
