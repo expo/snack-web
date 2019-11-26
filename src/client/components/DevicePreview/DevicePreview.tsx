@@ -8,6 +8,7 @@ import AppetizeFrame from './AppetizeFrame';
 import WebFrame from './WebFrame';
 import { Platform } from '../../types';
 import FeatureFlags from '../../utils/FeatureFlags';
+import * as PlatformOptions from '../../utils/PlatformOptions';
 
 export const VISIBILITY_MEDIA_QUERY = '(min-width: 700px)';
 
@@ -75,11 +76,14 @@ class DevicePreview extends React.PureComponent<Props, State> {
       return;
     }
 
-    this.setState({
-      isPopupOpen: true,
-    }, () => {
-      this.props.previewRef.current = this.popup;
-    });
+    this.setState(
+      {
+        isPopupOpen: true,
+      },
+      () => {
+        this.props.previewRef.current = this.popup;
+      }
+    );
 
     clearInterval(this.popupInterval);
 
@@ -108,26 +112,28 @@ class DevicePreview extends React.PureComponent<Props, State> {
     }
 
     const {
-      snackId,
-      platform: currentPlatform,
-      screenOnly,
-      onChangePlatform,
       canUserAuthenticate,
-      wasUpgraded,
-      previewQueue,
-      sdkVersion,
       channel,
-      payerCode,
+      onChangePlatform,
       onClickRunOnPhone,
+      payerCode,
+      platform: devicePreviewPlatform,
+      previewQueue,
       previewRef,
+      screenOnly,
+      sdkVersion,
+      snackId,
+      supportedPlatformsQueryParam,
       theme,
+      wasUpgraded,
     } = this.props;
 
-    const platform = FeatureFlags.isAvailable('PLATFORM_WEB', sdkVersion)
-      ? currentPlatform
-      : currentPlatform !== 'web'
-      ? currentPlatform
-      : 'android';
+    let options = PlatformOptions.filter({ sdkVersion, supportedPlatformsQueryParam });
+    let platform = PlatformOptions.getSelectedPlatform({
+      sdkVersion,
+      devicePreviewPlatform,
+      options,
+    });
 
     return (
       <div
@@ -137,25 +143,12 @@ class DevicePreview extends React.PureComponent<Props, State> {
         )}>
         {screenOnly ? null : (
           <div className={css(styles.header)}>
-            {FeatureFlags.isAvailable('PLATFORM_WEB', sdkVersion) ? (
-              <ToggleButtons
-                options={[
-                  { label: 'Android', value: 'android' },
-                  { label: 'iOS', value: 'ios' },
-                  { label: 'Web', value: 'web' },
-                ]}
-                value={platform}
-                onValueChange={onChangePlatform}
-                className={css(styles.toggleButtons)}
-              />
-            ) : (
-              <ToggleButtons
-                options={[{ label: 'Android', value: 'android' }, { label: 'iOS', value: 'ios' }]}
-                value={platform}
-                onValueChange={onChangePlatform}
-                className={css(styles.toggleButtons)}
-              />
-            )}
+            <ToggleButtons
+              options={options}
+              value={platform}
+              onValueChange={onChangePlatform}
+              className={css(styles.toggleButtons)}
+            />
             <button
               className={css(
                 styles.popupButton,
