@@ -6,7 +6,7 @@ import LoadingText from './shared/LoadingText';
 import EmbeddedFooterShell from './Shell/EmbeddedFooterShell';
 import { Platform } from '../types';
 import { SDKVersion } from '../configs/sdk';
-import * as PlatformOptions from '../utils/PlatformOptions';
+import { PlatformOption } from '../utils/PlatformOptions';
 
 type Props = {
   isResolving: boolean;
@@ -14,9 +14,9 @@ type Props = {
   devicePreviewShown: boolean;
   devicePreviewPlatform: Platform;
   sdkVersion: SDKVersion;
-  supportedPlatformsQueryParam: string | undefined;
   onToggleDevicePreview: () => void;
   onChangeDevicePreviewPlatform: (platform: Platform) => void;
+  platformOptions: PlatformOption[];
 };
 
 export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
@@ -28,16 +28,8 @@ export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
       loadingMessage,
       onChangeDevicePreviewPlatform,
       onToggleDevicePreview,
-      sdkVersion,
-      supportedPlatformsQueryParam,
+      platformOptions,
     } = this.props;
-
-    let options = PlatformOptions.filter({ sdkVersion, supportedPlatformsQueryParam });
-    let platform = PlatformOptions.getSelectedPlatform({
-      sdkVersion,
-      devicePreviewPlatform,
-      options,
-    });
 
     return (
       <EmbeddedFooterShell type={isResolving ? 'loading' : undefined}>
@@ -50,8 +42,8 @@ export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
           />
           <ToggleButtons
             disabled={!devicePreviewShown}
-            options={options}
-            value={platform}
+            options={platformOptions}
+            value={devicePreviewPlatform}
             onValueChange={onChangeDevicePreviewPlatform}
           />
         </div>

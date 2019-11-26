@@ -40,13 +40,13 @@ export function filter(params: {
 }
 
 export function getSelectedPlatform(params: {
-  devicePreviewPlatform: Platform;
+  requestedPlatform?: Platform;
   sdkVersion: SDKVersion;
   options: PlatformOption[];
 }): Platform {
-  const { devicePreviewPlatform, sdkVersion, options } = params;
+  const { requestedPlatform, sdkVersion, options } = params;
 
-  let selectedPlatform: Platform = devicePreviewPlatform;
+  let selectedPlatform: Platform = requestedPlatform || 'web';
 
   // If we don't support web yet, default to Android
   if (selectedPlatform === 'web' && !FeatureFlags.isAvailable('PLATFORM_WEB', sdkVersion)) {

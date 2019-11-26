@@ -20,6 +20,8 @@ import withThemeName, { ThemeName } from './Preferences/withThemeName';
 import withPreferences from './Preferences/withPreferences';
 import { Props as EditorViewProps } from './EditorView';
 import { Platform } from '../types';
+import * as PlatformOptions from '../utils/PlatformOptions';
+import { PlatformOption } from '../utils/PlatformOptions';
 
 const SESSION_ID = `snack-session-${shortid()}`;
 
@@ -32,6 +34,7 @@ type State = {
   devicePreviewShown: boolean;
   devicePreviewPlatform: Platform;
   deviceConnectionMethod: EmbeddedConnectionMethod;
+  platformOptions: PlatformOption[];
   currentModal: 'device-instructions' | null;
 };
 
@@ -44,11 +47,19 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
       deviceConnectionMethod = 'qr-code';
     }
 
+    let platformOptions = PlatformOptions.filter({
+      sdkVersion: props.sdkVersion,
+      supportedPlatformsQueryParam: props.supportedPlatformsQueryParam,
+    });
+
     this.state = {
       devicePreviewShown: props.query.preview !== 'false',
-      devicePreviewPlatform: ['web', 'ios', 'android'].includes(props.query.platform as any)
-        ? (props.query.platform as Platform)
-        : 'web',
+      platformOptions,
+      devicePreviewPlatform: PlatformOptions.getSelectedPlatform({
+        options: platformOptions,
+        sdkVersion: props.sdkVersion,
+        requestedPlatform: props.query.platform,
+      }),
       deviceConnectionMethod,
       currentModal: null,
     };
@@ -158,6 +169,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
                 return (
                   <Comp
                     screenOnly
+                    supportedPlatformsQueryParam={this.props.supportedPlatformsQueryParam}
                     previewRef={previewRef}
                     channel={channel}
                     snackId={params.id}
@@ -197,7 +209,7 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
             devicePreviewShown={devicePreviewShown}
             devicePreviewPlatform={devicePreviewPlatform}
             sdkVersion={this.props.sdkVersion}
-            supportedPlatformsQueryParam={this.props.supportedPlatformsQueryParam}
+            platformOptions={this.state.platformOptions}
             onToggleDevicePreview={this._toggleDevicePreview}
             onChangeDevicePreviewPlatform={this._changeDevicePreviewPlatform}
           />

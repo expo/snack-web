@@ -7,7 +7,6 @@ import ToggleButtons from '../shared/ToggleButtons';
 import AppetizeFrame from './AppetizeFrame';
 import WebFrame from './WebFrame';
 import { Platform } from '../../types';
-import FeatureFlags from '../../utils/FeatureFlags';
 import * as PlatformOptions from '../../utils/PlatformOptions';
 
 export const VISIBILITY_MEDIA_QUERY = '(min-width: 700px)';
@@ -117,7 +116,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
       onChangePlatform,
       onClickRunOnPhone,
       payerCode,
-      platform: devicePreviewPlatform,
+      platform: requestedPlatform,
       previewQueue,
       previewRef,
       screenOnly,
@@ -131,7 +130,7 @@ class DevicePreview extends React.PureComponent<Props, State> {
     let options = PlatformOptions.filter({ sdkVersion, supportedPlatformsQueryParam });
     let platform = PlatformOptions.getSelectedPlatform({
       sdkVersion,
-      devicePreviewPlatform,
+      requestedPlatform,
       options,
     });
 
