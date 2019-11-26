@@ -6,7 +6,7 @@ import LoadingText from './shared/LoadingText';
 import EmbeddedFooterShell from './Shell/EmbeddedFooterShell';
 import { Platform } from '../types';
 import { SDKVersion } from '../configs/sdk';
-import FeatureFlags from '../utils/FeatureFlags';
+import * as PlatformOptions from '../utils/PlatformOptions';
 
 type Props = {
   isResolving: boolean;
@@ -19,23 +19,25 @@ type Props = {
   onChangeDevicePreviewPlatform: (platform: Platform) => void;
 };
 
-type PlatformOption = {
-  label: string;
-  value: Platform;
-};
-
 export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
   render() {
     const {
+      devicePreviewPlatform,
+      devicePreviewShown,
       isResolving,
       loadingMessage,
-      devicePreviewShown,
-      onToggleDevicePreview,
       onChangeDevicePreviewPlatform,
+      onToggleDevicePreview,
+      sdkVersion,
+      supportedPlatformsQueryParam,
     } = this.props;
 
-    let options = this._getPlatformOptions();
-    let platform = this._getSelectedPlatform(options);
+    let options = PlatformOptions.filter({ sdkVersion, supportedPlatformsQueryParam });
+    let platform = PlatformOptions.getSelectedPlatform({
+      sdkVersion,
+      devicePreviewPlatform,
+      options,
+    });
 
     return (
       <EmbeddedFooterShell type={isResolving ? 'loading' : undefined}>
@@ -48,7 +50,7 @@ export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
           />
           <ToggleButtons
             disabled={!devicePreviewShown}
-            options={this._getPlatformOptions()}
+            options={options}
             value={platform}
             onValueChange={onChangeDevicePreviewPlatform}
           />
@@ -56,55 +58,6 @@ export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
       </EmbeddedFooterShell>
     );
   }
-
-  _getSelectedPlatform = (options: PlatformOption[]) => {
-    const { devicePreviewPlatform, sdkVersion } = this.props;
-
-    let selectedPlatform: Platform = devicePreviewPlatform;
-
-    // If we don't support web yet, default to Android
-    if (selectedPlatform === 'web' && !FeatureFlags.isAvailable('PLATFORM_WEB', sdkVersion)) {
-      selectedPlatform = 'android';
-    }
-
-    // If the selected platform is not enabled for this Snack then fallback to
-    // the first available platform
-    if (!options.find(platformOption => platformOption.value === selectedPlatform)) {
-      selectedPlatform = options[0].value;
-    }
-
-    return selectedPlatform;
-  };
-
-  _getPlatformOptions = () => {
-    let defaultPlatformOptions: PlatformOption[] = [];
-    if (FeatureFlags.isAvailable('PLATFORM_WEB', this.props.sdkVersion)) {
-      defaultPlatformOptions = [
-        { label: 'iOS', value: 'ios' },
-        { label: 'Android', value: 'android' },
-        { label: 'Web', value: 'web' },
-      ];
-    } else {
-      defaultPlatformOptions = [
-        { label: 'iOS', value: 'ios' },
-        { label: 'Android', value: 'android' },
-      ];
-    }
-
-    if (this.props.supportedPlatformsQueryParam) {
-      let parsedSupportedPlatformsQueryParam = this.props.supportedPlatformsQueryParam.split(',');
-      let supportedPlatforms = defaultPlatformOptions.filter(platform =>
-        parsedSupportedPlatformsQueryParam.includes(platform.value)
-      );
-
-      // If none of the provided platforms are valid, fallback to supporting all platforms.
-      if (supportedPlatforms.length) {
-        return supportedPlatforms;
-      }
-    }
-
-    return defaultPlatformOptions;
-  };
 }
 
 const styles = StyleSheet.create({

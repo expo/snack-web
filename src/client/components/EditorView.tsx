@@ -690,16 +690,17 @@ class EditorView extends React.Component<Props, State> {
                   </div>
                   {preferences.devicePreviewShown ? (
                     <DevicePreview
-                      previewRef={previewRef}
+                      canUserAuthenticate
                       channel={channel}
-                      snackId={params.id}
-                      sdkVersion={sdkVersion}
-                      platform={preferences.devicePreviewPlatform}
                       onChangePlatform={this._changeDevicePreviewPlatform}
                       onClickRunOnPhone={this._handleShowDeviceInstructions}
-                      wasUpgraded={this.props.wasUpgraded}
+                      platform={preferences.devicePreviewPlatform}
                       previewQueue="main"
-                      canUserAuthenticate
+                      previewRef={previewRef}
+                      sdkVersion={sdkVersion}
+                      snackId={params.id}
+                      supportedPlatformsQueryParam={this.props.supportedPlatformsQueryParam}
+                      wasUpgraded={this.props.wasUpgraded}
                     />
                   ) : null}
                 </div>

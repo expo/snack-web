@@ -12,20 +12,21 @@ import FeatureFlags from '../../utils/FeatureFlags';
 export const VISIBILITY_MEDIA_QUERY = '(min-width: 700px)';
 
 type Props = {
-  sdkVersion: SDKVersion;
-  channel: string;
-  platform: Platform;
-  onChangePlatform: (platform: Platform) => void;
   canUserAuthenticate: boolean;
-  wasUpgraded: boolean;
-  previewQueue: 'main' | 'secondary';
-  snackId?: string;
+  channel: string;
   className?: string;
-  screenOnly?: boolean;
-  payerCode?: string;
+  onChangePlatform: (platform: Platform) => void;
   onClickRunOnPhone: () => void;
+  payerCode?: string;
+  platform: Platform;
+  previewQueue: 'main' | 'secondary';
   previewRef: React.MutableRefObject<Window | null>;
+  screenOnly?: boolean;
+  sdkVersion: SDKVersion;
+  snackId?: string;
+  supportedPlatformsQueryParam: string | undefined;
   theme: ThemeName;
+  wasUpgraded: boolean;
 };
 
 type State = {
