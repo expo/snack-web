@@ -15,7 +15,7 @@ type Props = {
 
 const S3_REGION = 'us-west-1';
 const S3_BUCKET =
-  process.env.NODE_ENV === 'production' && process.env.CONFIGURATOR_ENV === 'production'
+  process.env.NODE_ENV === 'production' && process.env.DEPLOY_ENVIRONMENT === 'production'
     ? 'snack-web-player'
     : 'snack-web-player-staging';
 
