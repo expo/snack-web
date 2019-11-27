@@ -19,6 +19,7 @@ export const script = `
       options = options || {};
       options.id = options.id || container.dataset.snackId || container.dataset.sketchId;
       options.platform = options.platform || container.dataset.snackPlatform || container.dataset.sketchPlatform;
+      options.supportedPlatforms = options.supportedPlatforms || container.dataset.snackSupportedPlatforms
       options.preview = options.preview || container.dataset.snackPreview || container.dataset.sketchPreview;
       options.sdkVersion = options.sdkVersion || container.dataset.snackSdkVersion;
       options.name = options.name || container.dataset.snackName;
@@ -49,6 +50,9 @@ export const script = `
         + '&platform=' + options.platform
         + '&iframeId=' + iframeId;
 
+      if (options.supportedPlatforms) {
+        iframeQueryParams += '&supportedPlatforms=' + options.supportedPlatforms;
+      }
       if (options.sdkVersion) {
         iframeQueryParams += '&sdkVersion=' + options.sdkVersion;
       }
