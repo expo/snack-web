@@ -50,7 +50,7 @@ ifprod() {
 envtag="$environment-$tag"
 buildargs="--build-arg API_SERVER_URL=$(ifprod https://expo.io https://staging.expo.io) $buildargs"
 buildargs="--build-arg IMPORT_SERVER_URL=$(ifprod https://snackager.expo.io https://staging.snackager.expo.io) $buildargs"
-buildargs="--build-arg DEPLOY_ENVIRONMENT=$(ifprod production staging $buildargs"
+buildargs="--build-arg DEPLOY_ENVIRONMENT=$(ifprod production staging) $buildargs"
 buildargs="--build-arg CDN_URL=$(ifprod https://dejalo84wis46.cloudfront.net https://d30hq726efxt5o.cloudfront.net) $buildargs"
 buildargs="--build-arg SNACK_SEGMENT_KEY=$(ifprod Ha0swpI6s2CVEMxK84cEmKmUVmBa1USu dxul6twMnfpyguF8w4W2qUpFnhxEUSV6) $buildargs"
 
