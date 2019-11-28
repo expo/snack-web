@@ -52,6 +52,7 @@ module.exports = {
         API_SERVER_URL: JSON.stringify(env('API_SERVER_URL')),
         SNACK_SEGMENT_KEY: JSON.stringify(env('SNACK_SEGMENT_KEY')),
         IMPORT_SERVER_URL: JSON.stringify(env('IMPORT_SERVER_URL')),
+        DEPLOY_ENVRONMENT: JSON.stringify(env('DEPLOY_ENVIRONMENT')),
         BUILD_TIMESTAMP: JSON.stringify(Date.now()),
       },
     }),
