@@ -15,7 +15,7 @@ type Props = {
 
 const S3_REGION = 'us-west-1';
 const S3_BUCKET =
-  process.env.NODE_ENV === 'production' && process.env.DEPLOY_ENVIRONMENT === 'production'
+  process.env.NODE_ENV === 'production' && process.env.IMPORT_SERVER_URL === 'https://snackager.expo.io'
     ? 'snack-web-player'
     : 'snack-web-player-staging';
 
