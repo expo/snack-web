@@ -16,24 +16,6 @@ fi
 owner="gcr.io/exponentjs"
 image="snack"
 
-# build snack intra-universe deps
-pushd ../../libraries/snack-sdk
-# the "prepare" script builds the project
-yarn
-popd
-
-# package www intra-universe deps
-rm -rf ./tmp
-mkdir -p ./tmp/libraries
-ln -s "${EXPO_UNIVERSE_DIR}/libraries/snack-sdk" ./tmp/libraries/snack-sdk
-# TODO figure out how to use gnu-tar on a mac for this
-pushd ./tmp
-# NOTE(anp): if native modules end up in these deps, need to exclude node_modules and
-# run yarn in the container
-tar -czhf ../web-snack-libraries.tar.gz .
-popd
-rm -rf ./tmp
-
 ifprod() {
   if [[ "$environment" == "production" ]]
   then

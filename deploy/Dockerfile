@@ -12,9 +12,6 @@ RUN apk add --virtual build-deps --no-cache \
 ADD . /snack/app/
 ENV APP_PATH "/snack/app"
 
-WORKDIR /
-RUN tar xzf /snack/app/web-snack-libraries.tar.gz && rm /snack/app/web-snack-libraries.tar.gz
-
 # set up the webpack/next.js build variables
 ENV NODE_ENV "production"
 

@@ -1,4 +1,5 @@
 /dist/
 /build/
+# No longer generated
 /web-snack-libraries.tar.gz
 node_modules/
