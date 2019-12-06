@@ -10,7 +10,6 @@ import send from 'koa-send';
 import fetch from 'node-fetch';
 import nullthrows from 'nullthrows';
 import Document from './pages/Document';
-import { URL } from 'url';
 import * as EmbeddedSnackScript from './EmbeddedSnackScript';
 import getSplitTests from './utils/getSplitTests';
 import createStore from '../client/redux/createStore';
@@ -24,8 +23,8 @@ const render = async (ctx: Context) => {
     ? ctx.params.id
       ? ctx.params.id
       : ctx.params.username && ctx.params.projectName
-      ? `@${ctx.params.username}/${ctx.params.projectName}`
-      : null
+        ? `@${ctx.params.username}/${ctx.params.projectName}`
+        : null
     : null;
   const splitTestSettings = await getSplitTests(ctx);
 
@@ -138,36 +137,6 @@ const render = async (ctx: Context) => {
 
 export default function routes() {
   const router = new Router();
-  const player = new Router();
-
-  player.get('*', async (ctx: Context) => {
-    if (!process.env.SNACK_APP_URL) {
-      throw new Error(
-        'The "SNACK_APP_URL" environment variable must be defined to proxy the Web player.'
-      );
-    }
-
-    const url = new URL(process.env.SNACK_APP_URL);
-
-    url.pathname = ctx.request.path.replace(/^\/web-player/, '');
-    url.search = ctx.request.search;
-
-    try {
-      const response = await fetch(url.toString(), {
-        headers: ctx.request.headers,
-        method: ctx.request.method,
-      });
-
-      ctx.type = response.type;
-      ctx.status = response.status;
-      ctx.body = await response.text();
-    } catch (e) {
-      console.log(e);
-      ctx.throw(e);
-    }
-  });
-
-  router.use('/web-player', player.routes());
 
   router.get('/favicon.ico', async (ctx: Context) => {
     await send(ctx, 'favicon.ico');

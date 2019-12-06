@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { StyleSheet, css } from 'aphrodite';
-import withThemeName, { ThemeName } from '../Preferences/withThemeName';
 import constructExperienceURL from '../../utils/constructExperienceURL';
 import { SDKVersion } from '../../configs/sdk';
+import withThemeName, { ThemeName } from '../Preferences/withThemeName';
 
 type Props = {
-  previewRef: React.MutableRefObject<Window | null>;
   sdkVersion: SDKVersion;
   channel: string;
   theme: ThemeName;
@@ -19,19 +18,15 @@ const S3_BUCKET =
     ? 'snack-web-player'
     : 'snack-web-player-staging';
 
-function WebFrame({ previewRef, sdkVersion, channel, snackId, onPopupUrl, theme }: Props) {
+function WebFrame({ sdkVersion, channel, snackId, onPopupUrl, theme }: Props) {
   const experienceUrl = constructExperienceURL({
     sdkVersion,
     channel,
     snackId,
   });
 
-  const url = `${
-    process.env.SNACK_APP_URL
-      ? // Use proxied snack app when the URL is specified
-        // Useful for testing the snack web player locally
-        `/web-player`
-      : `https://s3.${S3_REGION}.amazonaws.com/${S3_BUCKET}/${sdkVersion.split('.')[0]}`
+  const url = `https://s3.${S3_REGION}.amazonaws.com/${S3_BUCKET}/${
+    sdkVersion.split('.')[0]
   }/index.html?initialUrl=${encodeURIComponent(experienceUrl)}`;
 
   React.useEffect(() => onPopupUrl(url), [url]);
@@ -39,7 +34,6 @@ function WebFrame({ previewRef, sdkVersion, channel, snackId, onPopupUrl, theme 
   return (
     <div className={css(styles.pane)}>
       <iframe
-        ref={c => (previewRef.current = c ? c.contentWindow : null)}
         src={url}
         allow="geolocation; camera; microphone"
         className={css(styles.frame, theme === 'dark' ? styles.frameDark : styles.frameLight)}

@@ -75,14 +75,9 @@ class DevicePreview extends React.PureComponent<Props, State> {
       return;
     }
 
-    this.setState(
-      {
-        isPopupOpen: true,
-      },
-      () => {
-        this.props.previewRef.current = this.popup;
-      }
-    );
+    this.setState({
+      isPopupOpen: true,
+    });
 
     clearInterval(this.popupInterval);
 
@@ -159,7 +154,6 @@ class DevicePreview extends React.PureComponent<Props, State> {
         )}
         {platform === 'web' ? (
           <WebFrame
-            previewRef={previewRef}
             sdkVersion={sdkVersion}
             channel={channel}
             snackId={snackId}

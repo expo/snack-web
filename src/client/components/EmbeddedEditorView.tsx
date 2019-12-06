@@ -116,7 +116,6 @@ class EmbeddedEditorView extends React.PureComponent<Props, State> {
       params,
       isResolving,
       loadingMessage,
-      previewRef,
       theme,
     } = this.props;
 

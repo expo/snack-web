@@ -124,17 +124,7 @@ The client uses a service worker, which means you need some extra steps to get i
 
 ### Disabling cache with Service Worker
 
-In chrome devtools, check "Bypass for network" under `Application` > `Service workers` to skip the service worker cache when working on the page. Remember to keep the devtools open so this takes effect.
-
-### Testing the web player locally
-
-By default, the web player is loaded from s3. When developing locally, we can specify the `SNACK_APP_URL` environment variable to use our local instance of the web player instead.
-
-Example:
-
-```sh
-SNACK_APP_URL=http://192.168.1.3:19006 API_SERVER_URL=https://staging.snack.expo.io IMPORT_SERVER_URL=https://staging.snackager.expo.io yarn start
-```
+In chrome devtools, check "Bypass for network" under `Application` > `Service workers` to skip the service worker cache when working on the page.
 
 ### Running the tests
 
