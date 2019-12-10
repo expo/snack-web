@@ -5,7 +5,7 @@ export const versions = {
   '36.0.0': true,
 };
 
-export const DEFAULT_SDK_VERSION = '35.0.0';
+export const DEFAULT_SDK_VERSION = '36.0.0';
 export const FALLBACK_SDK_VERSION = '34.0.0';
 export const TEST_SDK_VERSION = '34.0.0';
 
