@@ -940,7 +940,6 @@ class Main extends React.Component<Props, State> {
           {({ loaded, data: Comp }) =>
             loaded && Comp && this.state.snackSessionReady ? (
               <Comp
-                previewRef={this._previewRef}
                 snack={this.props.snack}
                 createdAt={this.props.snack ? this.props.snack.created : undefined}
                 autosaveEnabled={this.state.autosaveEnabled}
