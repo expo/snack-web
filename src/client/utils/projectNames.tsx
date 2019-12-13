@@ -150,6 +150,7 @@ const snacks = [
   'tortillas',
   'nachos',
   'bacon',
+  'soylent',
 ];
 
 export const getSnackName = () => `${sample(emotions)} ${sample(snacks)}`;
