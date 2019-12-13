@@ -48,6 +48,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+        SNACK_APP_URL: JSON.stringify(process.env.SNACK_APP_URL),
         API_SERVER_URL: JSON.stringify(env('API_SERVER_URL')),
         SNACK_SEGMENT_KEY: JSON.stringify(env('SNACK_SEGMENT_KEY')),
         IMPORT_SERVER_URL: JSON.stringify(env('IMPORT_SERVER_URL')),

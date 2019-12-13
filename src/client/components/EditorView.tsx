@@ -36,101 +36,17 @@ import prettierCode from '../utils/prettierCode';
 import { isIntentionallyNamed } from '../utils/projectNames';
 import withPreferences, { PreferencesContextType } from './Preferences/withPreferences';
 import { c } from './ColorsProvider';
-import { Error as DeviceError, Annotation } from '../utils/convertErrorToAnnotation';
-import { SDKVersion } from '../configs/sdk';
+import { Annotation } from '../utils/convertErrorToAnnotation';
 
-import {
-  FileSystemEntry,
-  TextFileEntry,
-  AssetFileEntry,
-  Viewer,
-  SaveStatus,
-  SaveHistory,
-  Snack,
-  QueryParams,
-  Platform,
-} from '../types';
+import { FileSystemEntry, TextFileEntry, AssetFileEntry, Viewer, Platform } from '../types';
 import { isMobile } from '../utils/detectPlatform';
 import { EditorProps } from './Editor/EditorProps';
+import { EditorViewProps } from './EditorViewProps';
 
 const EDITOR_LOAD_FALLBACK_TIMEOUT = 3000;
 const DEFAULT_METADATA_NAME = 'Snack';
 const DEFAULT_METADATA_DESCRIPTION_EMPTY = `Write code in Expo's online editor and instantly use it on your phone.`;
 const DEFAULT_METADATA_DESCRIPTION_SAVED = `Try this project on your phone! Use Expo's online editor to make changes and save your own copy.`;
-
-type Device = {
-  name: string;
-  id: string;
-  platform: Platform;
-};
-
-type DeviceLog = {
-  device: Device;
-  method: 'log' | 'error' | 'warn';
-  payload: Array<unknown>;
-};
-
-export type EditorViewProps = {
-  snack?: Snack;
-  createdAt: string | undefined;
-  saveHistory: SaveHistory;
-  saveStatus: SaveStatus;
-  creatorUsername?: string;
-  fileEntries: FileSystemEntry[];
-  entry: TextFileEntry | AssetFileEntry | undefined;
-  name: string;
-  description: string;
-  dependencies: {
-    [name: string]: {
-      version: string;
-    };
-  };
-  params: {
-    id?: string;
-    platform?: Platform;
-  };
-  channel: string;
-  isResolving: boolean;
-  loadingMessage: string | undefined;
-  sessionID: string | undefined;
-  connectedDevices: Device[];
-  deviceError: DeviceError | undefined;
-  deviceLogs: DeviceLog[];
-  dependencyQueryParam: string | undefined;
-  initialSdkVersion: SDKVersion;
-  sdkVersion: SDKVersion;
-  sendCodeOnChangeEnabled: boolean;
-  onSendCode: () => void;
-  onReloadSnack: () => void;
-  onToggleSendCode: () => void;
-  onClearDeviceLogs: () => void;
-  onFileEntriesChange: (entries: FileSystemEntry[]) => Promise<void>;
-  onChangeCode: (code: string) => void;
-  onSubmitMetadata: (
-    details: {
-      name: string;
-      description: string;
-    },
-    draft?: boolean
-  ) => Promise<void>;
-  onChangeSDKVersion: (sdkVersion: SDKVersion) => void;
-  onPublishAsync: (options: { allowedOnProfile?: boolean }) => Promise<void>;
-  onDownloadAsync: () => Promise<void>;
-  onSignIn: () => Promise<void>;
-  uploadFileAsync: (file: File) => Promise<string>;
-  syncDependenciesAsync: (
-    modules: {
-      [name: string]: string | undefined;
-    },
-    onError: (name: string, e: Error) => void
-  ) => Promise<void>;
-  setDeviceId: (deviceId: string) => void;
-  deviceId: string | undefined;
-  wasUpgraded: boolean;
-  autosaveEnabled: boolean;
-  query: QueryParams;
-  userAgent: string;
-};
 
 export type Props = PreferencesContextType &
   EditorViewProps & {
@@ -228,7 +144,7 @@ class EditorView extends React.Component<Props, State> {
     }
 
     if (this.props.sessionID) {
-      this._restoreEmbedSession()
+      this._restoreEmbedSession();
     }
   }
 

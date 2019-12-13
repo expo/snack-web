@@ -261,6 +261,10 @@ type SnackSessionProxy = {
   addErrorListener: (listener: Listener) => Promise<void>;
   addLogListener: (listener: Listener) => Promise<void>;
   setDependencyErrorListener: (listener: Listener) => Promise<void>;
+  setPlayerSubscribe: (listener: Listener) => Promise<void>;
+  setPlayerUnsubscribe: (listener: Listener) => Promise<void>;
+  setPlayerPublish: (listener: Listener) => Promise<void>;
+  sendMessage: (message: string) => Promise<void>;
 };
 
 type SaveOptions = {
@@ -450,6 +454,8 @@ class Main extends React.Component<Props, State> {
           break;
       }
     });
+
+    window.addEventListener('message', this._handleSnackPostMessage);
   }
 
   componentDidUpdate(_: Props, prevState: State) {
@@ -493,7 +499,13 @@ class Main extends React.Component<Props, State> {
     this._snackSessionPresenceListener && this._snackSessionPresenceListener.dispose();
     this._snackSessionStateListener && this._snackSessionStateListener.dispose();
 
+    this._snackPlayerSubscribe && this._snackPlayerSubscribe.dispose();
+    this._snackPlayerUnsubscribe && this._snackPlayerUnsubscribe.dispose();
+    this._snackPlayerPublish && this._snackPlayerPublish.dispose();
+
     this._broadcastChannel.close();
+
+    window.removeEventListener('message', this._handleSnackPostMessage);
   }
 
   _initializeSnackSession = async () => {
@@ -563,6 +575,24 @@ class Main extends React.Component<Props, State> {
     this._snack.addPresenceListener(this._snackSessionPresenceListener);
     this._snack.addStateListener(this._snackSessionStateListener);
 
+    this._snackPlayerSubscribe = persist(() => {
+      this._snackPlayerIsSubscribed = true;
+    });
+
+    this._snackPlayerUnsubscribe = persist(() => {
+      this._snackPlayerIsSubscribed = true;
+    });
+
+    this._snackPlayerPublish = persist((message: string) => {
+      const preview = this._previewRef.current;
+
+      preview && preview.postMessage(message, '*');
+    });
+
+    this._snack.setPlayerSubscribe(this._snackPlayerSubscribe);
+    this._snack.setPlayerUnsubscribe(this._snackPlayerUnsubscribe);
+    this._snack.setPlayerPublish(this._snackPlayerPublish);
+
     await this._snack.session.startAsync();
 
     const channel = await this._snack.session.getChannel();
@@ -584,6 +614,7 @@ class Main extends React.Component<Props, State> {
   };
 
   _previewRef = React.createRef<Window>();
+
   _snack: SnackSessionProxy = undefined as any;
   _snackSessionWorker: Worker = undefined as any;
   _snackSessionDependencyErrorListener: Listener | undefined;
@@ -592,7 +623,21 @@ class Main extends React.Component<Props, State> {
   _snackSessionPresenceListener: Listener | undefined;
   _snackSessionStateListener: Listener | undefined;
 
+  _snackPlayerSubscribe: Listener | undefined;
+  _snackPlayerUnsubscribe: Listener | undefined;
+  _snackPlayerPublish: Listener | undefined;
+
+  _snackPlayerIsSubscribed = false;
+
   _broadcastChannel: BroadcastChannel = undefined as any;
+
+  _handleSnackPostMessage = (event: MessageEvent) => {
+    if (event.origin !== window.location.origin || !this._snackPlayerIsSubscribed) {
+      return;
+    }
+
+    this._snack.sendMessage(event.data);
+  };
 
   _handleSnackDependencyError = (error: string) => Raven.captureMessage(error);
 
@@ -811,7 +856,6 @@ class Main extends React.Component<Props, State> {
     Segment.getInstance().startTimer('lastSave');
 
     await this._saveSnack(options);
-
   };
 
   _handleSaveDraftNotDebounced = () => {
@@ -940,8 +984,6 @@ class Main extends React.Component<Props, State> {
           {({ loaded, data: Comp }) =>
             loaded && Comp && this.state.snackSessionReady ? (
               <Comp
-                snack={this.props.snack}
-                createdAt={this.props.snack ? this.props.snack.created : undefined}
                 autosaveEnabled={this.state.autosaveEnabled}
                 channel={this.state.channel}
                 connectedDevices={this.state.connectedDevices}
