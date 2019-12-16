@@ -902,6 +902,7 @@ class Main extends React.Component<Props, State> {
       }));
     } catch (e) {
       this.setState({ saveStatus: 'changed' });
+      throw e;
     }
   };
 
