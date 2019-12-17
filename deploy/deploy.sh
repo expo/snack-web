@@ -6,6 +6,7 @@ set -xeuo pipefail
 
 ENVIRONMENT=$1
 TAG=$2
+MESSAGE=${3:-"Deployed by $(whoami)"}
 IMAGE="gcr.io/exponentjs/snack:$TAG"
 
 gcloud container images describe "$IMAGE"
@@ -13,6 +14,7 @@ gcloud container images describe "$IMAGE"
 cd "deploy/${ENVIRONMENT}"
 
 kustomize edit set image "$IMAGE"
+kustomize edit add annotation kubernetes.io/change-cause:"$(date): $MESSAGE"
 
 kubectl apply --kustomize . --validate
 
