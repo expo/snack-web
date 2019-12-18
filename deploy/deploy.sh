@@ -1,6 +1,4 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i bash -p kustomize
-#! nix-shell -I nixpkgs=../../
+#! /usr/bin/env bash
 
 set -xeuo pipefail
 
