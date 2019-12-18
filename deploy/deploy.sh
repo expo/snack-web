@@ -16,6 +16,6 @@ cd "deploy/${ENVIRONMENT}"
 kustomize edit set image "$IMAGE"
 kustomize edit add annotation kubernetes.io/change-cause:"$(date): $MESSAGE"
 
-kubectl apply --kustomize . --validate
+kustomize build | kubectl apply --filename - --validate
 
 kubectl --namespace "$ENVIRONMENT" rollout status deploy snack
