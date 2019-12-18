@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i bash -p kustomize kubectl
+#! nix-shell -i bash -p kustomize
 #! nix-shell -I nixpkgs=../../
 
 set -xeuo pipefail
