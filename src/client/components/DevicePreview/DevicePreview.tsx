@@ -21,7 +21,6 @@ type Props = {
   payerCode?: string;
   platform: Platform;
   previewQueue: 'main' | 'secondary';
-  onAppLaunch?: () => void;
   previewRef: React.MutableRefObject<Window | null>;
   screenOnly?: boolean;
   sdkVersion: SDKVersion;
@@ -121,7 +120,6 @@ class DevicePreview extends React.PureComponent<Props, State> {
       payerCode,
       platform: requestedPlatform,
       previewQueue,
-      onAppLaunch,
       previewRef,
       screenOnly,
       sdkVersion,
