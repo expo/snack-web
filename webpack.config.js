@@ -111,7 +111,6 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
       aphrodite: 'aphrodite/no-important',
-      'snack-sdk': 'snack-sdk/src/snack'
     },
   },
 };
