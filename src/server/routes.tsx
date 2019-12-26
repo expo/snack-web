@@ -149,8 +149,11 @@ export default function routes() {
 
     const url = new URL(process.env.SNACK_APP_URL);
 
-    url.pathname = ctx.request.path.replace(/^\/web-player/, '');
+    url.pathname = url.pathname + ctx.request.path.replace(/^\/web-player/, '');
     url.search = ctx.request.search;
+
+    delete ctx.request.headers.cookie
+    delete ctx.request.headers.host
 
     try {
       const response = await fetch(url.toString(), {
