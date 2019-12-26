@@ -35,6 +35,10 @@ buildargs="--build-arg IMPORT_SERVER_URL=$(ifprod https://snackager.expo.io http
 buildargs="--build-arg DEPLOY_ENVIRONMENT=$(ifprod production staging) $buildargs"
 buildargs="--build-arg CDN_URL=$(ifprod https://dejalo84wis46.cloudfront.net https://d30hq726efxt5o.cloudfront.net) $buildargs"
 buildargs="--build-arg SNACK_SEGMENT_KEY=$(ifprod Ha0swpI6s2CVEMxK84cEmKmUVmBa1USu dxul6twMnfpyguF8w4W2qUpFnhxEUSV6) $buildargs"
+if [[ "$environment" == "staging" ]]
+then
+    buildargs="--build-arg SNACK_APP_URL=https://s3.us-west-1.amazonaws.com/snack-web-player-staging/36 $buildargs"
+fi
 
 if [ ! -z "$tag" ]; then
   buildargs="$buildargs --build-arg APP_VERSION=$envtag"

@@ -33,6 +33,9 @@ ENV CDN_URL ${CDN_URL}
 ARG SNACK_SEGMENT_KEY
 ENV SNACK_SEGMENT_KEY ${SNACK_SEGMENT_KEY}
 
+ARG SNACK_APP_URL
+ENV SNACK_APP_URL ${SNACK_APP_URL}
+
 WORKDIR /snack/app
 # build the js
 RUN yarn --frozen-lockfile --production=false && \
