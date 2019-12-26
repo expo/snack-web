@@ -37,7 +37,7 @@ buildargs="--build-arg CDN_URL=$(ifprod https://dejalo84wis46.cloudfront.net htt
 buildargs="--build-arg SNACK_SEGMENT_KEY=$(ifprod Ha0swpI6s2CVEMxK84cEmKmUVmBa1USu dxul6twMnfpyguF8w4W2qUpFnhxEUSV6) $buildargs"
 if [[ "$environment" == "staging" ]]
 then
-    buildargs="--build-arg SNACK_APP_URL=https://s3.us-west-1.amazonaws.com/snack-web-player-staging/36 $buildargs"
+    buildargs="--build-arg SNACK_APP_URL=http://s3.us-west-1.amazonaws.com/snack-web-player-staging/36 $buildargs"
 fi
 
 if [ ! -z "$tag" ]; then
