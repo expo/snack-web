@@ -124,17 +124,16 @@ export default function EditorToolbar(props: Props) {
         </Button>
       </ToolbarTitleShell>
       <div className={css(styles.buttons)}>
-        <SearchButton responsive />
         <IconButton responsive title="Run on device" onClick={onShowQRCode}>
-          <svg width="22" height="22" viewBox="0 0 20 20">
-            <path d="M8.333 7.083v5.667l4.534-2.833-4.534-2.834z" />
+          <svg width="20" height="20" viewBox="0 0 20 20">
+            <path d="M8.333 7.083v5.667l4.534-2.833-4.534-2.834z" stroke="none" />
             <path d="M8.333 10H2.5" stroke-width="1.25" stroke-linecap="round" />
             <path
               d="M5.444 11.889v3.778c0 1.043.846 1.889 1.89 1.889h6.61a1.889 1.889 0 001.89-1.89V4.334a1.889 1.889 0 00-1.89-1.889h-6.61a1.889 1.889 0 00-1.89 1.89V8.11"
-              stroke-width="1.667"
               fill="none"
+              stroke-width="1.667"
             />
-            <rect x="8.333" y="2" width="5" height="2.5" rx=".833" />
+            <rect x="8.333" y="1.667" width="5" height="2.5" rx=".833" stroke="none" />
           </svg>
         </IconButton>
         <IconButton
@@ -157,6 +156,7 @@ export default function EditorToolbar(props: Props) {
             />
           </svg>
         </IconButton>
+        <SearchButton responsive />
         <UserMenu onLogInClick={handleShowAuthModal} />
         <ModalAuthentication
           visible={isLoggingIn && isAuthModalVisible}

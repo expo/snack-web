@@ -48,9 +48,9 @@ export default class SearchButton extends React.Component<Props, State> {
           title="Search for Snacks"
           onClick={this._handleClick}
           data-test-id="search-button">
-          <svg width="18" height="19">
-            <circle cx="7.5" cy="7.5" r="6.5" stroke-width="2" fill="none" />
-            <path d="M12 13l5 5" stroke="#000020" stroke-width="2" stroke-linecap="round" />
+          <svg width="20" height="20" fill="none">
+            <circle cx="8.75" cy="8.333" r="5.417" stroke-width="1.667" />
+            <path d="M12.5 12.917l4.167 4.166" stroke-width="1.667" stroke-linecap="round" />
           </svg>
         </IconButton>
         <ModalSheet

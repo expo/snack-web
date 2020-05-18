@@ -12,7 +12,7 @@ function Avatar(props: Props) {
   const { source, theme, size } = props;
   return (
     <div className={css(styles.container, theme === 'dark' && styles.dark)}>
-      {props.source ? (
+      {source ? (
         <img
           className={css(styles.avatar)}
           src={source}
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 2,
-    stroke: 'black',
+    stroke: colors.accent.light,
     ':hover': {
       backgroundColor: colors.gray[200],
     },
@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
     display: 'block',
   },
   dark: {
+    stroke: colors.accent.dark,
     ':hover': {
       backgroundColor: colors.gray[600],
     },
