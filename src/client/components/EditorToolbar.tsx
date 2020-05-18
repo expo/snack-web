@@ -138,7 +138,7 @@ export default function EditorToolbar(props: Props) {
         </IconButton>
         <IconButton
           responsive
-          title="Export to expo-cli"
+          title="Download to expo-cli"
           onClick={onDownloadCode}
           disabled={isDownloading || isPublishing}>
           <svg width="20" height="20">
