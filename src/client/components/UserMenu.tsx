@@ -62,10 +62,7 @@ class UserMenu extends React.Component<Props, State> {
     return (
       <div className={css(styles.container)}>
         <button ref={this._avatar} className={css(styles.button)}>
-          <Avatar
-            source={viewer && viewer.picture ? viewer.picture : require('../assets/avatar.svg')}
-            size={40}
-          />
+          <Avatar source={viewer && viewer.picture ? viewer.picture : null} size={26} />
         </button>
         <ContextMenu
           ref={this._menu}
@@ -106,16 +103,12 @@ export default withAuth(UserMenu);
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    margin: '0 16px 0 12px',
+    marginRight: 16,
   },
   menu: {
     position: 'absolute',
-    margin: '10px 0',
-    right: 0,
+    margin: '4px 0',
+    right: 16,
     top: '100%',
   },
   button: {
