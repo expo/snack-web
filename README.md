@@ -19,6 +19,8 @@ export SNACK_SERVER_HOST=snack.expo.test
 export SNACK_SERVER_PROTOCOL=https
 export API_SERVER_URL=https://staging.expo.io
 export IMPORT_SERVER_URL=https://staging.snackager.expo.io
+export DEPLOY_ENVIRONMENT=staging
+export SNACK_APP_URL=http://s3.us-west-1.amazonaws.com/snack-web-player-staging/36
 ```
 
 You can copy the above code to your `.bashrc` or `.zshrc`.
@@ -86,7 +88,7 @@ DNS.1 = expo.test
 DNS.2 = snack.expo.test
 ```
 
-Then run the following command  in the same directory where you created the file to generate the certificate:
+Then run the following command in the same directory where you created the file to generate the certificate:
 
 ```sh
 openssl req -x509 -newkey rsa:4096 -sha256 -keyout key.pem -out cert.pem -days 365 -nodes -config req.conf
