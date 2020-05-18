@@ -47,9 +47,9 @@ export default withThemeName(IconButton);
 const styles = StyleSheet.create({
   button: {
     position: 'relative',
-    height: 48,
-    minWidth: 48,
-    margin: '0 4px',
+    height: 40,
+    minWidth: 40,
+    margin: '0 8px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -59,21 +59,35 @@ const styles = StyleSheet.create({
     padding: 0,
     outline: 0,
     border: 0,
-    borderRadius: 3,
+    borderRadius: 2,
     whiteSpace: 'nowrap',
     textDecoration: 'none',
 
     ':active': {
       opacity: 0.8,
     },
+
+    ':hover': {
+      cursor: 'pointer',
+    },
   },
 
   dark: {
     fill: colors.accent.dark,
+    stroke: colors.accent.dark,
+
+    ':hover': {
+      backgroundColor: colors.gray[600],
+    },
   },
 
   light: {
     fill: colors.accent.light,
+    stroke: colors.accent.light,
+
+    ':hover': {
+      backgroundColor: colors.gray[200],
+    },
   },
 
   disabled: {
@@ -99,7 +113,7 @@ const styles = StyleSheet.create({
 
   tooltip: {
     position: 'absolute',
-    top: '100%',
+    top: 'calc(100% + 4px)',
     left: '50%',
     transform: 'translateX(-50%)',
     marginLeft: -2.5,
@@ -108,18 +122,7 @@ const styles = StyleSheet.create({
     padding: '4px 8px',
     whiteSpace: 'nowrap',
     pointerEvents: 'none',
-
-    ':before': {
-      content: '""',
-      width: 0,
-      height: 0,
-      borderLeft: '5px solid transparent',
-      borderRight: '5px solid transparent',
-      position: 'absolute',
-      top: -5,
-      left: -2.5,
-      marginLeft: '50%',
-    },
+    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
   },
 
   tooltipLight: {

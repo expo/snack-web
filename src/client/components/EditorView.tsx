@@ -97,10 +97,10 @@ class EditorView extends React.Component<Props, State> {
         entry &&
         (!previousEntry || entry.item.path !== previousEntry.item.path) &&
         // When an empty markdown file is opened, switch to edit mode
-        (entry.item.type === 'file' &&
-          entry.item.path.endsWith('.md') &&
-          !entry.item.asset &&
-          !entry.item.content)
+        entry.item.type === 'file' &&
+        entry.item.path.endsWith('.md') &&
+        !entry.item.asset &&
+        !entry.item.content
       ) {
         isMarkdownPreview = false;
       }
@@ -459,6 +459,34 @@ class EditorView extends React.Component<Props, State> {
         : description;
 
     return (
+      <EditorToolbar
+        name={name}
+        description={description}
+        createdAt={createdAt}
+        saveHistory={saveHistory}
+        saveStatus={saveStatus}
+        viewer={viewer}
+        isDownloading={isDownloading}
+        isResolving={this.props.isResolving}
+        isEditModalVisible={currentModal === 'edit-info'}
+        isAuthModalVisible={currentModal === 'auth'}
+        onShowPreviousSaves={this._handleShowPreviousSaves}
+        onShowEditModal={this._handleShowTitleDescriptionModal}
+        onDismissEditModal={this._handleDismissEditModal}
+        onSubmitMetadata={this.props.onSubmitMetadata}
+        onShowAuthModal={this._handleShowAuthModal}
+        onDismissAuthModal={this._handleHideModal}
+        onShowQRCode={this._handleShowDeviceInstructions}
+        onShowEmbedCode={this._handleShowEmbedCode}
+        // onDownloadCode={handleDownloadCode}
+        // onPublishAsync={onPublishAsync}
+        onDownloadCode={() => {}}
+        onPublishAsync={() => {}}
+        creatorUsername={this.props.creatorUsername}
+      />
+    );
+
+    return (
       <ContentShell>
         {this.state.loadedEditor ? null : <ProgressIndicator />}
         <PageMetadata name={metadataName} description={metadataDescription} params={params} />
@@ -566,9 +594,9 @@ class EditorView extends React.Component<Props, State> {
 
                           let timeout: any;
 
-                          const MonacoEditorPromise = import(/* webpackPreload: true */ './Editor/MonacoEditor').then(
-                            editor => ({ editor, type: 'monaco' })
-                          );
+                          const MonacoEditorPromise = import(
+                            /* webpackPreload: true */ './Editor/MonacoEditor'
+                          ).then(editor => ({ editor, type: 'monaco' }));
 
                           // Fallback to simple editor if monaco editor takes too long to load
                           const SimpleEditorPromise = new Promise((resolve, reject) => {

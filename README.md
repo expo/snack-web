@@ -36,10 +36,10 @@ After cloning the repo, open a terminal in the directory and run following to in
 yarn
 
 # Start the server
-yarn start
+yarn start:dev
 ```
 
-Now you can access the web app at [localhost:3011](http://localhost:3011).
+Now you can access the web app at [localhost:3011](http://localhost:3011), or at [http://snack.expo.test/] if you have hotel proxy set up.
 
 ### Using the `snack.expo.test` domain
 

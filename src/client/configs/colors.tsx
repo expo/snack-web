@@ -28,4 +28,8 @@ export default {
     },
   },
   border: 'rgba(0, 0, 0, .08)',
+  gray: {
+    200: '#EBEBED',
+    600: '#5C5C71',
+  },
 };

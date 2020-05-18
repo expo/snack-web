@@ -114,37 +114,6 @@ export default function EditorToolbar(props: Props) {
         ) : (
           <EditorImportTitle name={name} description={description} />
         )}
-      </ToolbarTitleShell>
-      <div className={css(styles.buttons)}>
-        <SearchButton responsive />
-        <IconButton responsive title="Run on device" label="Run" onClick={onShowQRCode}>
-          <svg width="16px" height="20px" viewBox="0 0 16 20">
-            <polygon points="0 0 0 20 16 10" />
-          </svg>
-        </IconButton>
-        <IconButton
-          responsive
-          title="Export to expo-cli"
-          label="Export"
-          onClick={onDownloadCode}
-          disabled={isDownloading || isPublishing}>
-          <svg width="24px" height="16px" viewBox="0 0 24 16">
-            <g transform="translate(-5976.000000, -4236.000000)">
-              <path
-                transform="translate(5976.000000, 4236.000000)"
-                d="M19.3501,6.05005 C18.6499,2.6001 15.6499,0 12,0 C9.1001,0 6.6001,1.6499 5.3501,4.05005 C2.3501,4.3501 0,6.8999 0,10 C0,13.2998 2.69995,16 6,16 L19,16 C21.75,16 24,13.75 24,11 C24,8.3501 21.9502,6.19995 19.3501,6.05005 L19.3501,6.05005 Z M10.4,8.6 L10.4,4.8 L13.6,4.8 L13.6,8.6 L17,8.6 L12,13.6 L7,8.6 L10.4,8.6 L10.4,8.6 Z"
-              />
-            </g>
-          </svg>
-        </IconButton>
-        <IconButton responsive title="Show embed code" label="Embed" onClick={onShowEmbedCode}>
-          <svg width="20px" height="18px" viewBox="0 0 20 18">
-            <path
-              fillRule="evenodd"
-              d="M0,6.76551724 L6.02049911,1.59310345 L6.02049911,4.34482759 L1.8872549,7.77931034 L1.8872549,7.86206897 L6.02049911,11.2965517 L6.02049911,14.0482759 L0,8.87586207 L0,6.76551724 Z M8.39349376,18 L6.47504456,18 L11.6065062,0 L13.5249554,0 L8.39349376,18 Z M20,8.87586207 L13.9795009,14.0482759 L13.9795009,11.2965517 L18.1127451,7.86206897 L18.1127451,7.77931034 L13.9795009,4.34482759 L13.9795009,1.59310345 L20,6.76551724 L20,8.87586207 Z"
-            />
-          </svg>
-        </IconButton>
         <Button
           variant="accent"
           onClick={onPublishAsync}
@@ -153,6 +122,41 @@ export default function EditorToolbar(props: Props) {
           className={css(styles.saveButton)}>
           {isPublishing ? 'Saving…' : isPublished ? 'Saved' : 'Save'}
         </Button>
+      </ToolbarTitleShell>
+      <div className={css(styles.buttons)}>
+        <SearchButton responsive />
+        <IconButton responsive title="Run on device" onClick={onShowQRCode}>
+          <svg width="21" height="21" viewBox="0 0 20 20">
+            <path d="M8.333 7.083v5.667l4.534-2.833-4.534-2.834z" />
+            <path d="M8.333 10H2.5" stroke-width="1.5" stroke-linecap="round" />
+            <path
+              d="M5.444 11.889v3.778c0 1.043.846 1.889 1.89 1.889h6.61a1.889 1.889 0 001.89-1.89V4.334a1.889 1.889 0 00-1.89-1.889h-6.61a1.889 1.889 0 00-1.89 1.89V8.11"
+              stroke-width="2"
+              fill="none"
+            />
+            <rect x="8.333" y="2" width="5" height="2.5" rx=".833" />
+          </svg>
+        </IconButton>
+        <IconButton
+          responsive
+          title="Export to expo-cli"
+          onClick={onDownloadCode}
+          disabled={isDownloading || isPublishing}>
+          <svg width="20" height="20">
+            <path d="M14.167 10H5.833L10 16.667 14.167 10z" />
+            <path d="M2.5 18.333h15M10 10V1.667" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </IconButton>
+        <IconButton responsive title="Show embed code" onClick={onShowEmbedCode}>
+          <svg width="20" height="20" fill="none">
+            <path
+              d="M13.333 15l5-5-5-5M6.667 5l-5 5 5 5"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </IconButton>
         <UserMenu onLogInClick={handleShowAuthModal} />
         <ModalAuthentication
           visible={isLoggingIn && isAuthModalVisible}
