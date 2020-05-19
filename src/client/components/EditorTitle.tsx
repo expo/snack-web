@@ -194,8 +194,8 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    padding: 2,
     minWidth: 0,
+    marginRight: 16,
   },
 
   title: {
@@ -220,8 +220,8 @@ const styles = StyleSheet.create({
   },
 
   status: {
-    fontSize: 12,
-    margin: '0 6px',
+    fontSize: 14,
+    margin: '-2px 4px 0',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
   },

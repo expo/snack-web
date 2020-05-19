@@ -4,6 +4,7 @@ import { StyleSheet, css } from 'aphrodite';
 import ShortcutLabel from './ShortcutLabel';
 import withThemeName, { ThemeName } from '../Preferences/withThemeName';
 import { c } from '../ColorsProvider';
+import colors from '../../configs/colors';
 
 export type Action = {
   label: string;
@@ -71,7 +72,11 @@ class ContextMenu extends React.PureComponent<Props> {
           <li key={label}>
             <button
               disabled={disabled}
-              className={css(styles.item, disabled && styles.disabled)}
+              className={css(
+                styles.item,
+                disabled && styles.disabled,
+                theme === 'dark' && styles.itemDark
+              )}
               onClick={() => {
                 handler();
                 onHide();
@@ -109,7 +114,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     borderStyle: 'solid',
     boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.16)',
-    minWidth: 160,
+    minWidth: 240,
     animationName: fadeIn,
     animationDuration: '0.083s',
     animationTimingfunction: 'linear',
@@ -140,10 +145,19 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     userSelect: 'none',
     borderRadius: 2,
+    minHeight: 56,
+    fontSize: 16,
 
     ':hover': {
-      background: c('primary'),
-      color: 'white',
+      background: colors.gray[200],
+    },
+  },
+
+  itemDark: {
+    color: 'white',
+
+    ':hover': {
+      background: colors.gray[600],
     },
   },
 

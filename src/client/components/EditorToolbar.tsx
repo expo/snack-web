@@ -170,9 +170,10 @@ export default function EditorToolbar(props: Props) {
 
 const styles = StyleSheet.create({
   logo: {
-    width: 36,
-    height: 'auto',
-    margin: '0 .5em 0 .75em',
+    width: 24,
+    height: 24,
+    marginLeft: 16,
+    marginRight: 16,
   },
 
   buttons: {
@@ -184,6 +185,9 @@ const styles = StyleSheet.create({
   },
 
   saveButton: {
-    minWidth: 100,
+    height: '40px',
+    fontWeight: 600,
+    minWidth: 80,
+    fontSize: '16px',
   },
 });

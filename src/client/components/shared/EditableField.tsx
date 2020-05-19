@@ -94,7 +94,10 @@ const styles = StyleSheet.create({
   field: {
     display: 'inline-block',
     margin: 0,
-    padding: '1px 6px',
+    padding: '1px 4px',
+    fontSize: '17px',
+    lineHeight: '24px',
+    fontWeight: 600,
   },
 
   editable: {
@@ -105,7 +108,7 @@ const styles = StyleSheet.create({
     border: 0,
     left: 0,
     width: '100%',
-    borderRadius: 0,
+    borderRadius: 2,
 
     ':focus': {
       boxShadow: `inset 0 0 0 1px ${colors.primary}`,

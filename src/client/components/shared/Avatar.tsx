@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 2,
-    stroke: colors.accent.light,
+    stroke: colors.text.light,
     ':hover': {
       backgroundColor: colors.gray[200],
     },
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     display: 'block',
   },
   dark: {
-    stroke: colors.accent.dark,
+    stroke: colors.text.dark,
     ':hover': {
       backgroundColor: colors.gray[600],
     },

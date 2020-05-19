@@ -73,8 +73,8 @@ const styles = StyleSheet.create({
   },
 
   dark: {
-    fill: colors.accent.dark,
-    stroke: colors.accent.dark,
+    fill: colors.text.dark,
+    stroke: colors.text.dark,
 
     ':hover': {
       backgroundColor: colors.gray[600],
@@ -82,8 +82,8 @@ const styles = StyleSheet.create({
   },
 
   light: {
-    fill: colors.accent.light,
-    stroke: colors.accent.light,
+    fill: colors.text.light,
+    stroke: colors.text.light,
 
     ':hover': {
       backgroundColor: colors.gray[200],
