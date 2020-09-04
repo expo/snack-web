@@ -60,7 +60,7 @@
     "koa-router": "^7.4.0",
     "koa-send": "^5.0.0",
     "koa-static": "^5.0.0",
-    "marked": "^0.6.0",
+    "marked": "^1.1.1",
     "monaco-editor": "^0.15.6",
     "monaco-vim": "^0.0.10",
     "node-fetch": "^2.3.0",
